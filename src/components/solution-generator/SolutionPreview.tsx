@@ -1,5 +1,9 @@
 
-import { ExpertInsights } from "./ExpertInsights";
+import { useState } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import ExpertInsights from './ExpertInsights';
 
 interface SolutionPreviewProps {
   solution: {
@@ -7,29 +11,78 @@ interface SolutionPreviewProps {
     database: string;
     automation: string;
     expertInsights?: Record<string, string>;
-  } | null;
+  };
+  selectedRoles?: string[];
+  roleNames?: Record<string, string>;
 }
 
-const SolutionPreview = ({ solution }: SolutionPreviewProps) => {
-  if (!solution) return null;
+const SolutionPreview = ({ solution, selectedRoles = [], roleNames = {} }: SolutionPreviewProps) => {
+  const [expanded, setExpanded] = useState(false);
+  
+  // Simple HTML sanitization for safety
+  const sanitizeHtml = (html: string) => {
+    // This is a very basic sanitization
+    return html
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/on\w+="[^"]*"/g, '');
+  };
 
   return (
-    <div className="flex flex-col md:flex-row gap-6">
-      <div className="md:w-2/3 bg-white border rounded-lg overflow-hidden shadow-sm">
-        <div className="bg-gray-100 border-b p-3 flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <div className="h-3 w-3 rounded-full bg-red-500"></div>
-            <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
-            <div className="h-3 w-3 rounded-full bg-green-500"></div>
+    <div className="space-y-4">
+      {solution.expertInsights && (
+        <ExpertInsights 
+          insights={solution.expertInsights} 
+          selectedRoles={selectedRoles}
+          roleNames={roleNames}
+        />
+      )}
+      
+      <div>
+        <div className="relative overflow-hidden rounded-lg border border-gray-200 bg-white">
+          <div 
+            className={`transition-all duration-500 ease-in-out ${
+              expanded ? 'max-h-[2000px]' : 'max-h-[500px]'
+            } overflow-hidden`}
+          >
+            <iframe
+              title="Solution Preview"
+              srcDoc={sanitizeHtml(solution.ui)}
+              className="w-full h-[500px] border-0"
+              sandbox="allow-scripts"
+            />
           </div>
-          <div className="text-xs text-gray-500">Preview</div>
+          
+          {!expanded && (
+            <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white to-transparent"></div>
+          )}
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setExpanded(!expanded)}
+            className="absolute bottom-4 left-1/2 transform -translate-x-1/2 shadow-md"
+          >
+            {expanded ? (
+              <>
+                <ChevronUp className="mr-1 h-4 w-4" />
+                Show Less
+              </>
+            ) : (
+              <>
+                <ChevronDown className="mr-1 h-4 w-4" />
+                Show More
+              </>
+            )}
+          </Button>
         </div>
-        <div className="p-4">
-          <div dangerouslySetInnerHTML={{ __html: solution.ui }} />
-        </div>
-      </div>
-      <div className="md:w-1/3">
-        <ExpertInsights insights={solution.expertInsights} />
+        
+        <Card className="mt-4 p-4 bg-gray-50">
+          <h3 className="text-sm font-medium mb-2">Implementation Notes</h3>
+          <p className="text-sm text-gray-600">
+            This preview shows a prototype of your solution's user interface. The actual implementation 
+            may require additional development to fully connect to your database and backend services.
+          </p>
+        </Card>
       </div>
     </div>
   );

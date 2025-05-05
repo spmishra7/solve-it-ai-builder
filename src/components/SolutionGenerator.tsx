@@ -18,18 +18,25 @@ import SolutionPreview from "./solution-generator/SolutionPreview";
 import DatabaseSchema from "./solution-generator/DatabaseSchema";
 import AutomationCode from "./solution-generator/AutomationCode";
 import ExportOptions from "./solution-generator/ExportOptions";
-import { downloadAsFile, improvePrompt, mockSolutionGeneration } from "@/lib/fileUtils";
+import { downloadAsFile, improvePrompt } from "@/lib/fileUtils";
+import { generateSolution } from "@/lib/api";
 
 const SolutionGenerator = () => {
   const [businessDescription, setBusinessDescription] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isImprovingPrompt, setIsImprovingPrompt] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [solution, setSolution] = useState<null | {ui: string, database: string, automation: string, expertInsights?: Record<string, string>}>(null);
+  const [solution, setSolution] = useState<null | {
+    ui: string, 
+    database: string, 
+    automation: string, 
+    expertInsights?: Record<string, string>
+  }>(null);
   const [activeTab, setActiveTab] = useState("preview");
   const [progress, setProgress] = useState(0);
   const [solutionTitle, setSolutionTitle] = useState("");
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [roleNames, setRoleNames] = useState<Record<string, string>>({});
 
   const { toast } = useToast();
   const { session } = useAuth();
@@ -49,6 +56,20 @@ const SolutionGenerator = () => {
       return () => clearTimeout(timer);
     }
   }, [isGenerating, progress]);
+  
+  // Get role display names when roles are selected
+  useEffect(() => {
+    if (selectedRoles.length > 0) {
+      // This would normally come from your roles data
+      // For now we'll set some example names
+      const tempRoleNames: Record<string, string> = {};
+      selectedRoles.forEach(roleId => {
+        // This is a placeholder - in a real app, you'd get this from your roleData
+        tempRoleNames[roleId] = roleId.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+      });
+      setRoleNames(tempRoleNames);
+    }
+  }, [selectedRoles]);
 
   const handleRoleToggle = (roleId: string) => {
     if (selectedRoles.includes(roleId)) {
@@ -72,24 +93,36 @@ const SolutionGenerator = () => {
     setProgress(10);
 
     try {
-      const result = await mockSolutionGeneration(businessDescription, selectedRoles);
+      // Here we're using the actual API function instead of the mock
+      const result = await generateSolution(
+        businessDescription,
+        "business owner",  // default user type
+        "standard",        // default template
+        undefined,         // use default model config
+        selectedRoles      // pass selected roles
+      );
+      
       setProgress(100);
-      setSolution(result);
+      
+      // Transform the result to match our component's expected format
+      const transformedResult = {
+        ui: result.ui_solution,
+        database: result.database_solution,
+        automation: result.automation_solution,
+        // Note: expertInsights would come from the API response in a real implementation
+      };
+      
+      setSolution(transformedResult);
       
       // Generate a title based on the business description
-      setSolutionTitle(
-        businessDescription
-          .split(' ')
-          .slice(0, 5)
-          .join(' ')
-          .replace(/[^\w\s]/gi, '') + '...'
-      );
+      setSolutionTitle(result.title || businessDescription.substring(0, 50) + '...');
       
       toast({
         title: "Solution Generated",
         description: "Your SaaS solution is ready."
       });
     } catch (error) {
+      console.error("Error generating solution:", error);
       toast({
         title: "Generation Failed",
         description: "There was an error generating your solution.",
@@ -296,7 +329,11 @@ ${solution.automation}
               </div>
 
               <TabsContent value="preview" className="p-6">
-                <SolutionPreview solution={solution} />
+                <SolutionPreview 
+                  solution={solution} 
+                  selectedRoles={selectedRoles}
+                  roleNames={roleNames}
+                />
               </TabsContent>
 
               <TabsContent value="database" className="p-6">

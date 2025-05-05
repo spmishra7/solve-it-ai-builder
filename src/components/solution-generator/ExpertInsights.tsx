@@ -1,105 +1,102 @@
 
-import { Info } from "lucide-react";
+import { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Lightbulb, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface ExpertInsightsProps {
-  insights: Record<string, string> | undefined;
+  insights: Record<string, string>;
+  selectedRoles: string[];
+  roleNames?: Record<string, string>;
 }
 
-export const ExpertInsights = ({ insights }: ExpertInsightsProps) => {
-  if (!insights || Object.keys(insights).length === 0) return null;
+const ExpertInsights = ({ 
+  insights, 
+  selectedRoles,
+  roleNames = {}
+}: ExpertInsightsProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   
-  // Role icons and names mapping
-  const roleIcons: Record<string, string> = {
-    // Executive Team
-    ceo: "👑",
-    coo: "⚙️",
-    cfo: "💰",
-    cto: "💻",
-    
-    // Management
-    product: "📊",
-    marketing: "📣",
-    sales: "🤝",
-    
-    // Data Team
-    dataAnalyst: "📈",
-    dataScientist: "🧪",
-    dataEngineer: "🔌",
-    
-    // Specialists
-    designer: "🎨",
-    engineer: "🧰",
-    security: "🔒",
-    analyst: "📊",
-    
-    // Industry Experts
-    healthcare: "🏥",
-    finance: "💹",
-    retail: "🛒",
-    education: "🎓",
-    
-    // Operations
-    projectManager: "📋",
-    qualityAssurance: "✅",
-    devops: "⚡",
-    support: "🙋"
-  };
+  // No insights to show
+  if (!insights || Object.keys(insights).length === 0 || selectedRoles.length === 0) {
+    return null;
+  }
   
-  const roleNames: Record<string, string> = {
-    // Executive Team
-    ceo: "CEO",
-    coo: "COO",
-    cfo: "CFO",
-    cto: "CTO",
+  // Filter insights to only show those for selected roles
+  const relevantInsights = Object.entries(insights)
+    .filter(([role]) => selectedRoles.includes(role))
+    .map(([role, insight]) => ({
+      role,
+      displayName: roleNames[role] || role,
+      insight
+    }));
+  
+  if (relevantInsights.length === 0) {
+    return null;
+  }
+  
+  if (relevantInsights.length === 1) {
+    // If only one role is selected, show a simple card
+    const { displayName, insight } = relevantInsights[0];
     
-    // Management
-    product: "Product Manager",
-    marketing: "Marketing Director",
-    sales: "Sales Director",
-    
-    // Data Team
-    dataAnalyst: "Data Analyst",
-    dataScientist: "Data Scientist",
-    dataEngineer: "Data Engineer",
-    
-    // Specialists
-    designer: "UX Designer",
-    engineer: "Software Engineer",
-    security: "Security Specialist",
-    analyst: "Business Analyst",
-    
-    // Industry Experts
-    healthcare: "Healthcare Expert",
-    finance: "Finance Expert",
-    retail: "Retail Expert",
-    education: "Education Expert",
-    
-    // Operations
-    projectManager: "Project Manager",
-    qualityAssurance: "QA Specialist",
-    devops: "DevOps Engineer",
-    support: "Customer Support"
-  };
-
+    return (
+      <Alert className="bg-amber-50 border-amber-200 mb-4">
+        <div className="flex items-start">
+          <Lightbulb className="h-5 w-5 text-amber-600 mt-0.5 mr-2 flex-shrink-0" />
+          <AlertDescription className="text-amber-800">
+            <span className="font-medium block mb-1">{displayName} Insight:</span>
+            <span className="text-sm">{insight}</span>
+          </AlertDescription>
+        </div>
+      </Alert>
+    );
+  }
+  
+  // For multiple insights, use tabs
   return (
-    <div className="my-8 border rounded-lg overflow-hidden">
-      <div className="bg-card/50 backdrop-blur-sm p-4 border-b flex items-center">
-        <Info className="h-5 w-5 mr-2 text-brand-600" />
-        <h3 className="font-semibold">Expert Insights</h3>
-      </div>
-      <div className="space-y-4 p-4">
-        {Object.entries(insights).map(([role, insight]) => (
-          <div key={role} className="flex gap-3 p-3 bg-card/30 rounded-lg">
-            <div className="h-8 w-8 text-xl flex items-center justify-center">
-              {roleIcons[role] || "👤"}
-            </div>
-            <div>
-              <h4 className="text-sm font-medium mb-1">{roleNames[role] || role}</h4>
-              <p className="text-sm text-muted-foreground">{insight}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+    <Card className="mb-4 bg-amber-50 border-amber-200">
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-medium text-amber-800 flex items-center">
+            <Lightbulb className="h-4 w-4 mr-1.5" /> Professional Insights
+          </h3>
+          <button 
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="text-amber-700 hover:text-amber-900"
+          >
+            {isExpanded ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </button>
+        </div>
+        
+        {isExpanded && (
+          <Tabs defaultValue={relevantInsights[0].role}>
+            <TabsList className="mb-2 bg-amber-100/50">
+              {relevantInsights.map(({ role, displayName }) => (
+                <TabsTrigger 
+                  key={role} 
+                  value={role}
+                  className="data-[state=active]:bg-amber-200 data-[state=active]:text-amber-900"
+                >
+                  {displayName}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            
+            {relevantInsights.map(({ role, insight }) => (
+              <TabsContent key={role} value={role} className="text-sm text-amber-800">
+                {insight}
+              </TabsContent>
+            ))}
+          </Tabs>
+        )}
+      </CardContent>
+    </Card>
   );
 };
+
+export default ExpertInsights;
