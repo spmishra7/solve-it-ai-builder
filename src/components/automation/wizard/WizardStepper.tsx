@@ -9,9 +9,15 @@ interface WizardStepperProps {
   }>;
   activeStep: number;
   setActiveStep: (step: number) => void;
+  completedSteps?: number[];
 }
 
-const WizardStepper = ({ steps, activeStep, setActiveStep }: WizardStepperProps) => {
+const WizardStepper = ({ 
+  steps, 
+  activeStep, 
+  setActiveStep,
+  completedSteps = []
+}: WizardStepperProps) => {
   return (
     <div className="px-2">
       <Stepper activeStep={activeStep} orientation="horizontal">
@@ -22,6 +28,7 @@ const WizardStepper = ({ steps, activeStep, setActiveStep }: WizardStepperProps)
             description={step.description}
             onClick={() => index < activeStep && setActiveStep(index)}
             className={index < activeStep ? "cursor-pointer hover:opacity-80 transition-opacity" : ""}
+            completed={completedSteps.includes(index)}
           />
         ))}
       </Stepper>
