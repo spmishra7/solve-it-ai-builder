@@ -39,7 +39,7 @@ export default function ProtectedRoute({
 
       // Role-based access implementation
       if (allowedRoles.length > 0 && user) {
-        // Get user roles from custom claims or user metadata
+        // Get user roles from app_metadata
         const userRoles = user.app_metadata?.roles || [];
         const hasRole = allowedRoles.some(role => userRoles.includes(role));
         
