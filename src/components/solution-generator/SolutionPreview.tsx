@@ -11,7 +11,7 @@ interface SolutionPreviewProps {
   roleNames?: Record<string, string>;
 }
 
-const UICode = ({ content, selectedRoles = [], roleNames = {} }: SolutionPreviewProps) => {
+const SolutionPreview = ({ content, selectedRoles = [], roleNames = {} }: SolutionPreviewProps) => {
   const [expanded, setExpanded] = useState(false);
   
   // Simple HTML sanitization for safety
@@ -86,4 +86,4 @@ const UICode = ({ content, selectedRoles = [], roleNames = {} }: SolutionPreview
   );
 };
 
-export default UICode;
+export default SolutionPreview;
