@@ -110,117 +110,32 @@ export const roleCategories = [
     ]
   },
   {
-    id: "industry",
-    name: "Industry Experts",
+    id: "healthcare",
+    name: "Healthcare",
     roles: [
       {
-        id: "healthcare",
-        name: "Healthcare Expert",
+        id: "physician",
+        name: "Physician",
+        icon: "👨‍⚕️",
+        description: "Medical workflows, patient care protocols, and clinical decision support."
+      },
+      {
+        id: "nurse",
+        name: "Nurse",
         icon: "🏥",
-        description: "Medical workflows, patient management, and healthcare compliance."
+        description: "Patient care tracking, shift management, and medical documentation tools."
       },
       {
-        id: "finance",
-        name: "Finance Expert",
-        icon: "💹",
-        description: "Financial regulations, payment processing, and accounting practices."
-      },
-      {
-        id: "retail",
-        name: "Retail Expert",
-        icon: "🛒",
-        description: "Inventory management, point of sale systems, and customer loyalty."
-      },
-      {
-        id: "education",
-        name: "Education Expert",
-        icon: "🎓",
-        description: "Learning management, student assessment, and educational workflows."
-      }
-    ]
-  },
-  {
-    id: "operations",
-    name: "Operations",
-    roles: [
-      {
-        id: "projectManager",
-        name: "Project Manager",
+        id: "medicalAdmin",
+        name: "Medical Administrator",
         icon: "📋",
-        description: "Project planning, resource allocation, and delivery management."
+        description: "Healthcare facility management, staff coordination, and regulatory compliance."
       },
       {
-        id: "qualityAssurance",
-        name: "QA Specialist",
-        icon: "✅",
-        description: "Testing methodologies, quality standards, and defect management."
-      },
-      {
-        id: "devops",
-        name: "DevOps Engineer",
-        icon: "⚡",
-        description: "Deployment automation, CI/CD pipelines, and infrastructure as code."
-      },
-      {
-        id: "support",
-        name: "Customer Support",
-        icon: "🙋",
-        description: "User onboarding, troubleshooting, and support workflows."
-      }
-    ]
-  },
-  // New Categories Below
-  {
-    id: "serviceProviders",
-    name: "Service Providers",
-    roles: [
-      {
-        id: "barber",
-        name: "Barber",
-        icon: "✂️",
-        description: "Appointment scheduling, client management, and inventory tracking for salon businesses."
-      },
-      {
-        id: "beautician",
-        name: "Beautician",
-        icon: "💅",
-        description: "Service catalog management, client tracking, and beauty product inventory solutions."
-      },
-      {
-        id: "tutor",
-        name: "Tutor",
-        icon: "📚",
-        description: "Student progress tracking, lesson planning, and educational resource management."
-      },
-      {
-        id: "personalTrainer",
-        name: "Personal Trainer",
-        icon: "🏋️",
-        description: "Client fitness tracking, workout planning, and nutrition advisory tools."
-      }
-    ]
-  },
-  {
-    id: "rentalEcosystem",
-    name: "Rental Ecosystem",
-    roles: [
-      {
-        id: "landlord",
-        name: "Landlord",
-        icon: "🏢",
-        description: "Tenant management, rent collection, and property maintenance coordination."
-      },
-      {
-        id: "tenant",
-        name: "Tenant",
-        icon: "🔑",
-        description: "Rent payment tracking, maintenance requests, and accommodation search tools."
-      },
-      {
-        id: "propertyManager",
-        name: "Property Manager",
-        icon: "📋",
-        description: "Multi-property oversight, tenant coordination, and maintenance scheduling."
+        id: "therapist",
+        name: "Therapist",
+        icon: "🧠",
+        description: "Patient session notes, treatment planning, and appointment scheduling systems."
       }
     ]
   },
@@ -245,18 +160,90 @@ export const roleCategories = [
         name: "School Administrator",
         icon: "🏫",
         description: "Staff management, curriculum planning, and educational facility administration."
+      },
+      {
+        id: "tutor",
+        name: "Tutor",
+        icon: "📚",
+        description: "Student progress tracking, lesson planning, and educational resource management."
       }
     ]
   },
   {
-    id: "mobility",
-    name: "Mobility & Transportation",
+    id: "retail",
+    name: "Retail & Commerce",
     roles: [
       {
-        id: "traveler",
-        name: "Traveler",
-        icon: "✈️",
-        description: "Travel itinerary planning, expense tracking, and destination information tools."
+        id: "storeManager",
+        name: "Store Manager",
+        icon: "🏪",
+        description: "Inventory management, staff scheduling, and sales performance tracking."
+      },
+      {
+        id: "ecommerceManager",
+        name: "E-commerce Manager",
+        icon: "🛒",
+        description: "Online store management, product listings, and digital marketing coordination."
+      },
+      {
+        id: "inventorySpecialist",
+        name: "Inventory Specialist",
+        icon: "📦",
+        description: "Stock management, supply chain optimization, and inventory forecasting."
+      },
+      {
+        id: "customerService",
+        name: "Customer Service",
+        icon: "🙋",
+        description: "Customer inquiry handling, return processing, and satisfaction monitoring."
+      }
+    ]
+  },
+  {
+    id: "finance",
+    name: "Finance & Banking",
+    roles: [
+      {
+        id: "accountant",
+        name: "Accountant",
+        icon: "💹",
+        description: "Financial reporting, tax preparation, and expense tracking systems."
+      },
+      {
+        id: "financialAdvisor",
+        name: "Financial Advisor",
+        icon: "💼",
+        description: "Investment planning, portfolio management, and client financial guidance."
+      },
+      {
+        id: "bankManager",
+        name: "Bank Manager",
+        icon: "🏦",
+        description: "Banking operations, loan processing, and financial service delivery."
+      },
+      {
+        id: "insuranceAgent",
+        name: "Insurance Agent",
+        icon: "📊",
+        description: "Policy management, risk assessment, and claims processing workflows."
+      }
+    ]
+  },
+  {
+    id: "hospitality",
+    name: "Hospitality & Tourism",
+    roles: [
+      {
+        id: "hotelManager",
+        name: "Hotel Manager",
+        icon: "🏨",
+        description: "Accommodation management, staff coordination, and guest service optimization."
+      },
+      {
+        id: "restaurantOwner",
+        name: "Restaurant Owner",
+        icon: "🍽️",
+        description: "Menu planning, inventory control, and dining service management."
       },
       {
         id: "tourGuide",
@@ -265,103 +252,89 @@ export const roleCategories = [
         description: "Tour group management, itinerary planning, and local attraction information systems."
       },
       {
+        id: "eventPlanner",
+        name: "Event Planner",
+        icon: "📅",
+        description: "Event coordination, venue management, and attendee experience design."
+      }
+    ]
+  },
+  {
+    id: "transportation",
+    name: "Transportation & Logistics",
+    roles: [
+      {
+        id: "fleetManager",
+        name: "Fleet Manager",
+        icon: "🚚",
+        description: "Vehicle maintenance scheduling, driver coordination, and route optimization."
+      },
+      {
+        id: "logisticsCoordinator",
+        name: "Logistics Coordinator",
+        icon: "📦",
+        description: "Supply chain management, shipping coordination, and delivery tracking."
+      },
+      {
         id: "driver",
         name: "Driver",
         icon: "🚗",
         description: "Route optimization, fare management, and vehicle maintenance tracking."
+      },
+      {
+        id: "warehouseManager",
+        name: "Warehouse Manager",
+        icon: "🏭",
+        description: "Inventory storage, order fulfillment, and warehouse operations management."
       }
     ]
   },
   {
-    id: "healthcare",
-    name: "Healthcare Practitioners",
+    id: "technology",
+    name: "Technology & IT",
     roles: [
       {
-        id: "nurse",
-        name: "Nurse",
-        icon: "👨‍⚕️",
-        description: "Patient care tracking, shift management, and medical documentation tools."
+        id: "softwareDeveloper",
+        name: "Software Developer",
+        icon: "👨‍💻",
+        description: "Application development, code management, and technical implementation."
       },
       {
-        id: "therapist",
-        name: "Therapist",
-        icon: "🧠",
-        description: "Patient session notes, treatment planning, and appointment scheduling systems."
+        id: "networkAdmin",
+        name: "Network Administrator",
+        icon: "🌐",
+        description: "Network infrastructure management, security implementation, and system monitoring."
       },
       {
-        id: "homeCareProvider",
-        name: "Home Care Provider",
-        icon: "🏡",
-        description: "Patient care scheduling, medication management, and care plan tracking."
-      }
-    ]
-  },
-  // Indian Society Professions
-  {
-    id: "indianProfessions",
-    name: "Indian Professions",
-    roles: [
-      {
-        id: "streetVendor",
-        name: "Street Vendor",
-        icon: "🛒",
-        description: "Digital inventory tracking, mobile payment processing, and daily sales analytics."
+        id: "productOwner",
+        name: "Product Owner",
+        icon: "📱",
+        description: "Product vision, backlog management, and feature prioritization."
       },
       {
-        id: "autorickshawDriver",
-        name: "Auto-rickshaw Driver",
-        icon: "🛺",
-        description: "Ride booking management, fare calculation, and route optimization tools."
-      },
-      {
-        id: "tailor",
-        name: "Tailor",
-        icon: "🧵",
-        description: "Customer measurement tracking, order management, and design catalog tools."
-      },
-      {
-        id: "agriculturalFarmer",
-        name: "Agricultural Farmer",
-        icon: "🌾",
-        description: "Crop planning, weather tracking, and agricultural market price monitoring."
+        id: "qaEngineer",
+        name: "QA Engineer",
+        icon: "🧪",
+        description: "Testing methodology, quality assurance, and bug tracking procedures."
       }
     ]
   },
   {
-    id: "indianServices",
-    name: "Indian Services",
+    id: "serviceProviders",
+    name: "Professional Services",
     roles: [
       {
-        id: "dabbawalah",
-        name: "Dabbawalah",
-        icon: "🍱",
-        description: "Tiffin delivery tracking, route optimization, and customer subscription management."
+        id: "lawyer",
+        name: "Lawyer",
+        icon: "⚖️",
+        description: "Case management, legal document processing, and client representation workflows."
       },
       {
-        id: "ayurvedicDoctor",
-        name: "Ayurvedic Doctor",
-        icon: "🌿",
-        description: "Patient history tracking, herbal remedy inventory, and treatment planning."
+        id: "consultant",
+        name: "Consultant",
+        icon: "💡",
+        description: "Client engagement management, project delivery, and solution implementation."
       },
-      {
-        id: "weddingPlanner",
-        name: "Wedding Planner",
-        icon: "💍",
-        description: "Event coordination, vendor management, and budget tracking for Indian weddings."
-      },
-      {
-        id: "yogaInstructor",
-        name: "Yoga Instructor",
-        icon: "🧘",
-        description: "Class scheduling, student progress tracking, and asana sequence planning."
-      }
-    ]
-  },
-  // American Society Professions
-  {
-    id: "americanProfessions",
-    name: "American Professions",
-    roles: [
       {
         id: "realEstateAgent",
         name: "Real Estate Agent",
@@ -369,113 +342,40 @@ export const roleCategories = [
         description: "Property listing management, client tracking, and market analysis tools."
       },
       {
-        id: "foodTruckOwner",
-        name: "Food Truck Owner",
-        icon: "🚚",
-        description: "Location scheduling, inventory management, and mobile ordering systems."
-      },
-      {
-        id: "freelanceWriter",
-        name: "Freelance Writer",
-        icon: "✍️",
-        description: "Project tracking, deadline management, and client communication tools."
-      },
-      {
-        id: "podcastHost",
-        name: "Podcast Host",
-        icon: "🎙️",
-        description: "Episode planning, guest scheduling, and audience analytics tracking."
+        id: "marketingConsultant",
+        name: "Marketing Consultant",
+        icon: "📊",
+        description: "Campaign planning, audience targeting, and marketing performance analysis."
       }
     ]
   },
   {
-    id: "americanServices",
-    name: "American Services",
+    id: "manufacturing",
+    name: "Manufacturing & Production",
     roles: [
       {
-        id: "personalShopper",
-        name: "Personal Shopper",
-        icon: "👜",
-        description: "Client preference tracking, purchase organization, and style recommendation tools."
+        id: "productionManager",
+        name: "Production Manager",
+        icon: "🏭",
+        description: "Production scheduling, resource allocation, and quality control management."
       },
       {
-        id: "dogWalker",
-        name: "Dog Walker",
-        icon: "🐕",
-        description: "Pet schedule management, route planning, and client billing systems."
+        id: "qualityControl",
+        name: "Quality Control Specialist",
+        icon: "✅",
+        description: "Product inspection, quality standard implementation, and defect reduction."
       },
       {
-        id: "fitnessInfluencer",
-        name: "Fitness Influencer",
-        icon: "💪",
-        description: "Content scheduling, engagement analytics, and sponsorship management tools."
+        id: "supplyChainManager",
+        name: "Supply Chain Manager",
+        icon: "⛓️",
+        description: "Materials sourcing, vendor management, and production supply coordination."
       },
       {
-        id: "virtualAssistant",
-        name: "Virtual Assistant",
-        icon: "💼",
-        description: "Task management, calendar organization, and client communication systems."
-      }
-    ]
-  },
-  // Chinese Society Professions
-  {
-    id: "chineseProfessions",
-    name: "Chinese Professions",
-    roles: [
-      {
-        id: "tcmPractitioner",
-        name: "TCM Practitioner",
-        icon: "🧪",
-        description: "Patient diagnosis tracking, herbal formula management, and treatment planning."
-      },
-      {
-        id: "streetFoodVendor",
-        name: "Street Food Vendor",
-        icon: "🥢",
-        description: "Menu management, ingredient inventory, and mobile payment processing."
-      },
-      {
-        id: "calligrapher",
-        name: "Calligrapher",
-        icon: "🖌️",
-        description: "Commission tracking, artwork catalog, and client communication tools."
-      },
-      {
-        id: "teaMaster",
-        name: "Tea Master",
-        icon: "🍵",
-        description: "Tea inventory management, ceremony scheduling, and customer preference tracking."
-      }
-    ]
-  },
-  {
-    id: "chineseServices",
-    name: "Chinese Services",
-    roles: [
-      {
-        id: "ecommerceStreamer",
-        name: "E-commerce Streamer",
-        icon: "📱",
-        description: "Product inventory, live stream scheduling, and sales performance analytics."
-      },
-      {
-        id: "deliveryRider",
-        name: "Delivery Rider",
-        icon: "🛵",
-        description: "Order tracking, route optimization, and delivery time management tools."
-      },
-      {
-        id: "urbanFarmer",
-        name: "Urban Farmer",
-        icon: "🌱",
-        description: "Crop planning, growth monitoring, and community-supported agriculture management."
-      },
-      {
-        id: "digitalArtisan",
-        name: "Digital Artisan",
-        icon: "🖼️",
-        description: "Project management, client communication, and digital asset organization."
+        id: "maintenanceTech",
+        name: "Maintenance Technician",
+        icon: "🔧",
+        description: "Equipment maintenance scheduling, repair tracking, and facility upkeep management."
       }
     ]
   }
@@ -483,3 +383,4 @@ export const roleCategories = [
 
 export type RoleCategory = typeof roleCategories[number];
 export type ExpertRole = RoleCategory['roles'][number];
+
