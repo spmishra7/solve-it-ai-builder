@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,6 +19,12 @@ interface ChatMessage {
 interface PlaygroundChatProps {
   solutionId: string;
   onApplyChanges?: (changes: string) => void;
+}
+
+// Updated interface to make codeSnippet optional but consistent
+interface MockResponse {
+  response: string;
+  codeSnippet?: string;
 }
 
 // Mock responses for offline functionality
@@ -65,7 +70,7 @@ const mockResponses = {
   ]
 };
 
-const getRandomResponse = (category: string, prompt: string) => {
+const getRandomResponse = (category: string, prompt: string): MockResponse => {
   // Simple keyword matching for more relevant responses
   if (prompt.toLowerCase().includes('color') || prompt.toLowerCase().includes('style') || prompt.toLowerCase().includes('ui')) {
     return mockResponses.uiChanges[Math.floor(Math.random() * mockResponses.uiChanges.length)];
@@ -74,8 +79,9 @@ const getRandomResponse = (category: string, prompt: string) => {
   } else if (prompt.toLowerCase().includes('workflow') || prompt.toLowerCase().includes('automation') || prompt.toLowerCase().includes('function')) {
     return mockResponses.automationChanges[Math.floor(Math.random() * mockResponses.automationChanges.length)];
   } else {
-    // Default to general responses
-    return { response: mockResponses.general[Math.floor(Math.random() * mockResponses.general.length)] };
+    // Default to general responses - ensure we return a consistent object shape
+    const generalResponse = mockResponses.general[Math.floor(Math.random() * mockResponses.general.length)];
+    return { response: generalResponse };
   }
 };
 
@@ -118,7 +124,7 @@ const PlaygroundChat = ({ solutionId, onApplyChanges }: PlaygroundChatProps) => 
     try {
       // Try to use the real API first
       let response = "";
-      let codeSnippet = "";
+      let codeSnippet: string | undefined = undefined;
       
       try {
         // Create system prompt for specialized app development assistance
@@ -148,15 +154,15 @@ const PlaygroundChat = ({ solutionId, onApplyChanges }: PlaygroundChatProps) => 
         console.log("API error, falling back to mock responses:", apiError);
         // If API fails, use our mock responses
         const mockResponse = getRandomResponse("general", input);
-        response = mockResponse.response || "";
-        codeSnippet = mockResponse.codeSnippet || "";
+        response = mockResponse.response;
+        codeSnippet = mockResponse.codeSnippet;
       }
       
       // If we still don't have a response, use mock as fallback
       if (!response) {
         const mockResponse = getRandomResponse("general", input);
         response = mockResponse.response || "I understand what you're asking for. Let me help you implement that change.";
-        codeSnippet = mockResponse.codeSnippet || "";
+        codeSnippet = mockResponse.codeSnippet;
       }
       
       const assistantMessage: ChatMessage = {
