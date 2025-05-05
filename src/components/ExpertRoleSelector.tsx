@@ -1,184 +1,14 @@
 
 import { useState } from "react";
-import { Check, Info } from "lucide-react";
+import { Info } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
-// Define the categories and roles
-const roleCategories = [
-  {
-    id: "executive",
-    name: "Executive Team",
-    roles: [
-      {
-        id: "ceo",
-        name: "CEO",
-        icon: "👑",
-        description: "Strategic vision, market positioning, and business model evaluation."
-      },
-      {
-        id: "coo",
-        name: "COO",
-        icon: "⚙️",
-        description: "Operational efficiency, process optimization, and resource allocation."
-      },
-      {
-        id: "cfo",
-        name: "CFO",
-        icon: "💰",
-        description: "Cost optimization, revenue models, and financial projections."
-      },
-      {
-        id: "cto",
-        name: "CTO",
-        icon: "💻",
-        description: "Technical feasibility, architecture decisions, and technology stack."
-      },
-    ]
-  },
-  {
-    id: "management",
-    name: "Management",
-    roles: [
-      {
-        id: "product",
-        name: "Product Manager",
-        icon: "📊",
-        description: "Feature prioritization, user stories, and product roadmap."
-      },
-      {
-        id: "marketing",
-        name: "Marketing Director",
-        icon: "📣",
-        description: "Go-to-market strategy, audience targeting, and brand positioning."
-      },
-      {
-        id: "sales",
-        name: "Sales Director",
-        icon: "🤝",
-        description: "Sales strategy, pricing models, and customer acquisition."
-      }
-    ]
-  },
-  {
-    id: "dataTeam",
-    name: "Data Team",
-    roles: [
-      {
-        id: "dataAnalyst",
-        name: "Data Analyst",
-        icon: "📈",
-        description: "Data interpretation, metrics definition, and business insights."
-      },
-      {
-        id: "dataScientist",
-        name: "Data Scientist",
-        icon: "🧪",
-        description: "Statistical modeling, predictive analytics, and machine learning solutions."
-      },
-      {
-        id: "dataEngineer",
-        name: "Data Engineer",
-        icon: "🔌",
-        description: "Data pipeline design, ETL processes, and data infrastructure."
-      }
-    ]
-  },
-  {
-    id: "specialists",
-    name: "Specialists",
-    roles: [
-      {
-        id: "designer",
-        name: "UX Designer",
-        icon: "🎨",
-        description: "User experience, interface design, and visual aesthetics."
-      },
-      {
-        id: "engineer",
-        name: "Software Engineer",
-        icon: "🧰",
-        description: "Technical implementation, scalability, and coding best practices."
-      },
-      {
-        id: "security",
-        name: "Security Specialist",
-        icon: "🔒",
-        description: "Data protection, compliance, and security best practices."
-      },
-      {
-        id: "analyst",
-        name: "Business Analyst",
-        icon: "📊",
-        description: "Requirements gathering, process analysis, and solution documentation."
-      }
-    ]
-  },
-  {
-    id: "industry",
-    name: "Industry Experts",
-    roles: [
-      {
-        id: "healthcare",
-        name: "Healthcare Expert",
-        icon: "🏥",
-        description: "Medical workflows, patient management, and healthcare compliance."
-      },
-      {
-        id: "finance",
-        name: "Finance Expert",
-        icon: "💹",
-        description: "Financial regulations, payment processing, and accounting practices."
-      },
-      {
-        id: "retail",
-        name: "Retail Expert",
-        icon: "🛒",
-        description: "Inventory management, point of sale systems, and customer loyalty."
-      },
-      {
-        id: "education",
-        name: "Education Expert",
-        icon: "🎓",
-        description: "Learning management, student assessment, and educational workflows."
-      }
-    ]
-  },
-  {
-    id: "operations",
-    name: "Operations",
-    roles: [
-      {
-        id: "projectManager",
-        name: "Project Manager",
-        icon: "📋",
-        description: "Project planning, resource allocation, and delivery management."
-      },
-      {
-        id: "qualityAssurance",
-        name: "QA Specialist",
-        icon: "✅",
-        description: "Testing methodologies, quality standards, and defect management."
-      },
-      {
-        id: "devops",
-        name: "DevOps Engineer",
-        icon: "⚡",
-        description: "Deployment automation, CI/CD pipelines, and infrastructure as code."
-      },
-      {
-        id: "support",
-        name: "Customer Support",
-        icon: "🙋",
-        description: "User onboarding, troubleshooting, and support workflows."
-      }
-    ]
-  }
-];
+import { roleCategories } from "./expert-roles/roleData";
+import RoleCategory from "./expert-roles/RoleCategory";
 
 interface ExpertRoleSelectorProps {
   selectedRoles: string[];
@@ -214,52 +44,14 @@ const ExpertRoleSelector = ({ selectedRoles, onRoleToggle }: ExpertRoleSelectorP
 
       <div className="space-y-4">
         {roleCategories.map((category) => (
-          <div key={category.id} className="border rounded-lg overflow-hidden">
-            <button
-              className={`w-full p-3 text-left flex items-center justify-between ${
-                expandedCategory === category.id ? "bg-accent" : "bg-card"
-              }`}
-              onClick={() => toggleCategory(category.id)}
-            >
-              <span className="font-medium">{category.name}</span>
-              <span className="text-xs bg-muted text-muted-foreground px-2 py-1 rounded">
-                {category.roles.length} roles
-              </span>
-            </button>
-            
-            {expandedCategory === category.id && (
-              <div className="p-3">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                  {category.roles.map((role) => (
-                    <div
-                      key={role.id}
-                      className={`p-3 rounded-lg border cursor-pointer transition-all flex items-start ${
-                        selectedRoles.includes(role.id)
-                          ? "bg-brand-600/10 border-brand-600"
-                          : "border-border hover:border-brand-400"
-                      }`}
-                      onClick={() => onRoleToggle(role.id)}
-                    >
-                      <div className="h-8 w-8 text-xl flex items-center justify-center mr-3">
-                        {role.icon}
-                      </div>
-                      <div>
-                        <div className="flex items-center">
-                          <h4 className="text-sm font-medium">{role.name}</h4>
-                          {selectedRoles.includes(role.id) && (
-                            <Check size={14} className="ml-2 text-brand-600" />
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {role.description}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          <RoleCategory
+            key={category.id}
+            category={category}
+            selectedRoles={selectedRoles}
+            onRoleToggle={onRoleToggle}
+            isExpanded={expandedCategory === category.id}
+            onToggle={toggleCategory}
+          />
         ))}
       </div>
     </div>
