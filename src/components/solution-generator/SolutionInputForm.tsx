@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useSolution } from "@/contexts/SolutionContext";
 import { motion } from "framer-motion";
 import PromptInput from "./PromptInput";
-import ExpertRoleSelector from "@/components/ExpertRoleSelector";
+import ExpertRoleSelector from "../expert-roles/ExpertRoleSelector";
 import ContentUploader from "./ContentUploader";
 import GenerateButton from "./GenerateButton";
 import { useToast } from "@/hooks/use-toast";
@@ -15,13 +15,15 @@ interface SolutionInputFormProps {
   handleGenerate: () => Promise<void>;
   handleRoleToggle: (roleId: string) => void;
   handleContentAnalyzed: (insights: string) => void;
+  handleSelectAll?: (allRoleIds: string[], allSelected: boolean) => void;
 }
 
 const SolutionInputForm = ({ 
   handleImprovePrompt, 
   handleGenerate, 
   handleRoleToggle,
-  handleContentAnalyzed
+  handleContentAnalyzed,
+  handleSelectAll
 }: SolutionInputFormProps) => {
   const [showUploader, setShowUploader] = useState(false);
   const { 
@@ -153,6 +155,7 @@ const SolutionInputForm = ({
             <ExpertRoleSelector
               selectedRoles={selectedRoles}
               onRoleToggle={handleRoleToggle}
+              onSelectAll={handleSelectAll}
             />
 
             <motion.div

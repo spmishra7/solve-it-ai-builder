@@ -24,7 +24,7 @@ export const useSolutionGenerator = () => {
   const { toast } = useToast();
   const progressTimerRef = useRef<number | null>(null);
 
-  const { handleRoleToggle } = useRoleManagement();
+  const { handleRoleToggle, handleSelectAll } = useRoleManagement();
   const { handleContentAnalyzed } = useContentAnalyzer();
   const { handleImprovePrompt } = usePromptImprover();
   const { handleSave } = useSolutionSaver();
@@ -148,6 +148,7 @@ export const useSolutionGenerator = () => {
     handleContentAnalyzed,
     handleGenerate,
     handleImprovePrompt,
+    handleSelectAll,
     handleSave
   };
 };

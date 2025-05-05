@@ -7,9 +7,14 @@ import RoleSelectorHeader from "./RoleSelectorHeader";
 interface ExpertRoleSelectorProps {
   selectedRoles: string[];
   onRoleToggle: (roleId: string) => void;
+  onSelectAll?: (allRoleIds: string[], allSelected: boolean) => void;
 }
 
-const ExpertRoleSelector = ({ selectedRoles, onRoleToggle }: ExpertRoleSelectorProps) => {
+const ExpertRoleSelector = ({ 
+  selectedRoles, 
+  onRoleToggle, 
+  onSelectAll 
+}: ExpertRoleSelectorProps) => {
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   
   // Set the first category expanded by default on component mount
@@ -39,22 +44,9 @@ const ExpertRoleSelector = ({ selectedRoles, onRoleToggle }: ExpertRoleSelectorP
   const handleSelectAll = () => {
     console.log("handleSelectAll called in ExpertRoleSelector, current state:", allSelected);
     
-    // Import the handleSelectAll function from useRoleManagement
-    // and just pass the allRoleIds and allSelected flag
-    if (allSelected) {
-      // Deselect all roles
-      console.log("Triggering deselection of all roles");
-      selectedRoles.forEach(roleId => {
-        onRoleToggle(roleId);
-      });
-    } else {
-      // Select all roles that aren't already selected
-      console.log("Triggering selection of all roles");
-      allRoleIds.forEach(roleId => {
-        if (!selectedRoles.includes(roleId)) {
-          onRoleToggle(roleId);
-        }
-      });
+    // Use the provided onSelectAll function if available
+    if (onSelectAll) {
+      onSelectAll(allRoleIds, allSelected);
     }
   };
   

@@ -10,6 +10,7 @@ const SolutionGeneratorContent = () => {
   const { solution } = useSolution();
   const { 
     handleRoleToggle, 
+    handleSelectAll,
     handleContentAnalyzed, 
     handleGenerate, 
     handleImprovePrompt,
@@ -23,6 +24,7 @@ const SolutionGeneratorContent = () => {
         handleGenerate={handleGenerate}
         handleRoleToggle={handleRoleToggle}
         handleContentAnalyzed={handleContentAnalyzed}
+        handleSelectAll={handleSelectAll}
       />
       
       {solution && (
