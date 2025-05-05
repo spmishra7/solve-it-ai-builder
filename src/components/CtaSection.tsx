@@ -4,30 +4,43 @@ import { ArrowRight, Code, Cloud, Download, Sparkles, Wrench, Shield } from "luc
 
 const CtaSection = () => {
   const handleGetStarted = () => {
+    console.log("CTA Get Started clicked");
     // Scroll to solution generator section
     const element = document.getElementById("solution-generator");
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
+      console.log("Scrolled to solution-generator from CTA");
+    } else {
+      console.error("Solution generator section not found from CTA");
     }
   };
 
   const handleLearnMore = () => {
+    console.log("Learn More clicked");
     // Scroll to features section
     const element = document.getElementById("features");
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
+      console.log("Scrolled to features section");
+    } else {
+      console.error("Features section not found");
     }
   };
 
   const handleTryAISolutionBuilder = () => {
+    console.log("Try AI Solution Builder clicked");
     // Also scroll to solution generator section
     const element = document.getElementById("solution-generator");
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
+      console.log("Scrolled to solution-generator from 'Try AI Solution Builder'");
+    } else {
+      console.error("Solution generator section not found from 'Try AI Solution Builder'");
     }
   };
 
   const handleContactSales = () => {
+    console.log("Contact Sales clicked");
     // In a real-world scenario, this would navigate to a contact page
     // For now, let's just alert
     alert("Contact sales feature coming soon!");

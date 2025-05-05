@@ -18,7 +18,8 @@ const SelectAllButton = ({ allSelected, onSelectAll }: SelectAllButtonProps) => 
           : "border-white text-white hover:bg-white/20"
       }`}
       onClick={(e) => {
-        e.stopPropagation();
+        e.stopPropagation(); // Prevent event bubbling
+        console.log("Select All button clicked, current state:", allSelected);
         onSelectAll();
       }}
     >

@@ -1,34 +1,41 @@
-
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
 const HeroSection = () => {
   const handleGetStarted = () => {
+    console.log("Get Started clicked");
     // Scroll to solution generator section
     const solutionGeneratorSection = document.getElementById("solution-generator");
     if (solutionGeneratorSection) {
       solutionGeneratorSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      console.log("Scrolled to solution-generator");
     } else {
+      console.error("Solution generator section not found");
       // Fallback: scroll to the approximate position
       window.scrollTo({
         top: 800,
         behavior: "smooth"
       });
+      console.log("Fallback scroll executed");
     }
   };
 
   const handleViewDemo = () => {
+    console.log("View Demo clicked");
     // Scroll to the templates section which has solution examples
     const templatesSection = document.getElementById("templates");
     if (templatesSection) {
       templatesSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      console.log("Scrolled to templates section");
     } else {
+      console.error("Templates section not found");
       // Fallback: scroll to the approximate position
       window.scrollTo({
         top: 1600,
         behavior: "smooth"
       });
+      console.log("Fallback scroll executed");
     }
   };
 
