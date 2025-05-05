@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -42,7 +43,19 @@
       .fixed.top-0.left-0,
       /* Generic question mark icon */
       [class*="question"],
-      [id*="question"] {
+      [id*="question"],
+      /* Additional icon selectors */
+      [class*="icon"],
+      [id*="icon"],
+      /* Chatbot-like elements */
+      [class*="chat"],
+      [id*="chat"],
+      [class*="help"],
+      [id*="help"],
+      /* Fixed position elements */
+      .fixed,
+      [style*="position: fixed"],
+      [style*="position:fixed"] {
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
@@ -69,28 +82,68 @@
     <script>
       // Ultra aggressive JavaScript to remove GPT Engineer icon
       (function() {
-        // Execute immediately
-        removeGptElements();
+        // Execute immediately and repeatedly
+        hideGptElements();
         
-        // Also run when DOM is loaded
+        // Run on key events and intervals
+        setInterval(hideGptElements, 100);
+        window.addEventListener('load', function() {
+          hideGptElements();
+          setInterval(hideGptElements, 100);
+        });
+        
         document.addEventListener('DOMContentLoaded', function() {
-          removeGptElements();
+          hideGptElements();
+          setInterval(hideGptElements, 100);
           
-          // Run again after a small delay to catch elements added after initial load
-          setTimeout(removeGptElements, 500);
-          setTimeout(removeGptElements, 1000);
-          setTimeout(removeGptElements, 2000);
+          // Run again after various delays to catch elements added after initial load
+          setTimeout(hideGptElements, 500);
+          setTimeout(hideGptElements, 1000);
+          setTimeout(hideGptElements, 2000);
+          setTimeout(hideGptElements, 5000);
         });
         
-        // Keep checking for new elements continuously
-        const observer = new MutationObserver(function() {
-          removeGptElements();
+        // Create and apply a style element for additional hiding
+        const style = document.createElement('style');
+        style.textContent = `
+          /* Hide all fixed position elements that might be the question mark */
+          .fixed, 
+          [style*="position: fixed"],
+          [style*="position:fixed"],
+          /* Hide all elements with z-index over 1000 */
+          [style*="z-index: 1"][style*="000"],
+          /* Hide all floating action buttons */
+          [class*="fab"],
+          [id*="fab"],
+          /* Hide all circle buttons */
+          [class*="circle"],
+          [id*="circle"],
+          /* Hide all help buttons */
+          [class*="help"],
+          [id*="help"],
+          [aria-label*="help" i],
+          [aria-label*="assist" i],
+          /* Hide all chat icons */
+          [class*="chat"],
+          [id*="chat"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+          }
+        `;
+        document.head.appendChild(style);
+        
+        // Monitor for DOM changes
+        const observer = new MutationObserver(function(mutations) {
+          hideGptElements();
         });
         
-        // Start observing the document for changes as soon as body is available
+        // Start observing when body is available
         if (document.body) {
           startObserving();
         } else {
+          window.addEventListener('load', startObserving);
           document.addEventListener('DOMContentLoaded', startObserving);
         }
         
@@ -103,10 +156,10 @@
           });
         }
         
-        function removeGptElements() {
-          // Find and remove elements by various potential selectors
+        function hideGptElements() {
+          // Very extensive list of selectors to target the icon
           const selectors = [
-            // Original selectors
+            // GPT Engineer specific
             '.gpt-eng-icon', 
             '#gpt-eng-icon', 
             '[data-gpt-eng="icon"]',
@@ -115,78 +168,174 @@
             '[class*=" gpt-eng"]',
             '[id*="gpteng"]',
             '[class*="gpteng"]',
-            // Additional broader selectors
+            // GPT/AI related
             '[id*="gpt"]',
             '[class*="gpt"]',
+            '[id*="ai-"]',
+            '[class*="ai-"]',
             '[id*="assistant"]',
             '[class*="assistant"]',
+            // Help and question mark related
             '[id*="help-icon"]',
             '[class*="help-icon"]',
-            // Target potential fixed position elements in corners
-            '.fixed',
-            // Generic question mark icon classes
+            '[id*="question"]',
             '[class*="question"]',
-            '[id*="question"]'
+            '[aria-label*="help" i]',
+            '[aria-label*="question" i]',
+            '[aria-label*="assistant" i]',
+            // Floating and fixed elements
+            '.fixed',
+            '[style*="position: fixed"]',
+            '[style*="position:fixed"]',
+            '[style*="z-index: 1"][style*="000"]',
+            // Generic button/icon classes
+            '[class*="fab"]',
+            '[class*="float"]',
+            '[class*="circle-btn"]',
+            '[class*="round-btn"]',
+            // Chat/support related
+            '[class*="chat"]',
+            '[id*="chat"]',
+            '[class*="support"]',
+            '[id*="support"]'
           ];
           
-          // Apply hiding to matching elements
+          // Apply hiding to all matching elements
           selectors.forEach(selector => {
-            document.querySelectorAll(selector).forEach(element => {
-              // Check if it looks like a floating icon (typically small and positioned)
-              const rect = element.getBoundingClientRect();
-              const style = window.getComputedStyle(element);
-              const isSmall = (rect.width < 50 && rect.height < 50);
-              const isFixedOrAbsolute = (style.position === 'fixed' || style.position === 'absolute');
-              const isNearEdge = (rect.top < 100 || rect.left < 100);
-              
-              // Apply ultra-aggressive hiding
-              element.style.display = 'none';
-              element.style.visibility = 'hidden';
-              element.style.opacity = '0';
-              element.style.pointerEvents = 'none';
-              element.style.width = '0';
-              element.style.height = '0';
-              element.style.position = 'absolute';
-              element.style.zIndex = '-9999';
-              element.style.overflow = 'hidden';
-              element.style.clip = 'rect(0, 0, 0, 0)';
-              element.style.margin = '-1px';
-              element.style.padding = '0';
-              element.style.border = '0';
-              
-              // Remove the element if it matches criteria for likely being the icon
-              if (isSmall && isFixedOrAbsolute && isNearEdge) {
-                if (element.parentNode) {
-                  element.parentNode.removeChild(element);
+            try {
+              document.querySelectorAll(selector).forEach(element => {
+                // Apply multiple hiding techniques
+                applyHidingStyles(element);
+                
+                // Check if it's likely a floating help icon
+                if (isLikelyHelpIcon(element)) {
+                  if (element.parentNode) {
+                    try {
+                      element.parentNode.removeChild(element);
+                    } catch (e) {
+                      // If removal fails, make extra sure it's hidden
+                      applyHidingStyles(element);
+                    }
+                  }
                 }
-              }
-            });
-          });
-          
-          // Also look for floating elements that might contain question marks or help icons
-          document.querySelectorAll('div, span, button, a, i').forEach(element => {
-            const text = element.textContent || '';
-            const rect = element.getBoundingClientRect();
-            const style = window.getComputedStyle(element);
-            
-            // Check if the element is positioned, small, near edges, and contains '?'
-            if (text.includes('?') && 
-                (style.position === 'fixed' || style.position === 'absolute') &&
-                rect.width < 50 && rect.height < 50 &&
-                (rect.top < 100 || rect.left < 100)) {
-              
-              // This is likely our target - remove it
-              element.style.display = 'none';
-              element.style.visibility = 'hidden';
-              element.style.opacity = '0';
-              element.style.pointerEvents = 'none';
-              
-              // Try to remove it completely
-              if (element.parentNode) {
-                element.parentNode.removeChild(element);
-              }
+              });
+            } catch (e) {
+              // Silently fail and continue
             }
           });
+          
+          // Also look for any small, fixed/absolute positioned elements
+          document.querySelectorAll('div, span, button, a, i').forEach(element => {
+            try {
+              const rect = element.getBoundingClientRect();
+              const style = window.getComputedStyle(element);
+              
+              // Check if element has characteristics of a floating action button or help icon
+              if ((style.position === 'fixed' || style.position === 'absolute') &&
+                  rect.width < 60 && rect.height < 60 &&
+                  (rect.top < 100 || rect.right > window.innerWidth - 100) &&
+                  (rect.left < 100 || rect.right > window.innerWidth - 100)) {
+                
+                // This is likely a floating button - hide it
+                applyHidingStyles(element);
+                
+                // If it's very likely a help icon, try to remove it completely
+                if (isLikelyHelpIcon(element)) {
+                  if (element.parentNode) {
+                    try {
+                      element.parentNode.removeChild(element);
+                    } catch (e) {
+                      // If removal fails, make extra sure it's hidden
+                      applyHidingStyles(element);
+                    }
+                  }
+                }
+              }
+            } catch (e) {
+              // Silently fail and continue
+            }
+          });
+        }
+        
+        function isLikelyHelpIcon(element) {
+          try {
+            // Get metrics and properties
+            const rect = element.getBoundingClientRect();
+            const style = window.getComputedStyle(element);
+            const text = element.textContent || '';
+            const ariaLabel = element.getAttribute('aria-label') || '';
+            const classes = element.className || '';
+            const id = element.id || '';
+            
+            // Check characteristics that indicate it's likely a help icon
+            const isSmall = (rect.width < 60 && rect.height < 60);
+            const isRoundOrSquare = (Math.abs(rect.width - rect.height) < 10);
+            const isPositioned = (style.position === 'fixed' || style.position === 'absolute');
+            const isNearCorner = (rect.top < 100 || rect.left < 100 || 
+                               rect.right > window.innerWidth - 100 || 
+                               rect.bottom > window.innerHeight - 100);
+            const hasHelpText = text.includes('?') || 
+                              ariaLabel.toLowerCase().includes('help') || 
+                              ariaLabel.toLowerCase().includes('assist') ||
+                              ariaLabel.toLowerCase().includes('question');
+            const hasHelpClass = classes.toLowerCase().includes('help') || 
+                               classes.toLowerCase().includes('question') ||
+                               classes.toLowerCase().includes('assist') ||
+                               classes.toLowerCase().includes('chat') ||
+                               classes.toLowerCase().includes('gpt') ||
+                               classes.toLowerCase().includes('ai') ||
+                               id.toLowerCase().includes('help') ||
+                               id.toLowerCase().includes('question') ||
+                               id.toLowerCase().includes('assist') ||
+                               id.toLowerCase().includes('chat') ||
+                               id.toLowerCase().includes('gpt') ||
+                               id.toLowerCase().includes('ai');
+            
+            // Consider it a help icon if it has enough matching characteristics
+            return (isSmall && isPositioned && isNearCorner) && 
+                   (isRoundOrSquare || hasHelpText || hasHelpClass);
+          } catch (e) {
+            return false;
+          }
+        }
+        
+        function applyHidingStyles(element) {
+          try {
+            // Apply multiple hiding techniques directly as inline styles
+            element.style.cssText = `
+              display: none !important;
+              visibility: hidden !important;
+              opacity: 0 !important;
+              pointer-events: none !important;
+              width: 0 !important;
+              height: 0 !important;
+              position: absolute !important;
+              z-index: -9999 !important;
+              overflow: hidden !important;
+              clip: rect(0, 0, 0, 0) !important;
+              margin: -1px !important;
+              padding: 0 !important;
+              border: 0 !important;
+            `;
+            
+            // Add attributes to further ensure hiding
+            element.setAttribute('aria-hidden', 'true');
+            element.setAttribute('hidden', 'hidden');
+            element.setAttribute('tabindex', '-1');
+            
+            // Disable all event listeners by cloning and replacing
+            if (element.parentNode) {
+              try {
+                const clone = element.cloneNode(true);
+                applyHidingStyles(clone);
+                element.parentNode.replaceChild(clone, element);
+              } catch (e) {
+                // Silently fail if cloning fails
+              }
+            }
+          } catch (e) {
+            // Silently fail and continue
+          }
         }
       })();
     </script>
