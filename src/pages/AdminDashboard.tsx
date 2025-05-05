@@ -2,63 +2,39 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
-import { Shield, Users, Layout, PieChart, Filter } from 'lucide-react';
-import { Stepper, Step } from '@/components/ui/stepper';
+import { PieChart, Users, Layout, Shield, Filter } from 'lucide-react';
 import { toast } from 'sonner';
 
-// Define admin UI types
-interface UserData {
-  id: string;
-  email: string | null;
-  created_at: string;
-  last_sign_in_at: string | null;
-  full_name: string | null;
-  avatar_url: string | null;
-}
+// Import our new components
+import { AdminOverview } from '@/components/admin/AdminOverview';
+import { UsersTable } from '@/components/admin/UsersTable';
+import { SolutionsTable } from '@/components/admin/SolutionsTable';
+import { TemplatesTable } from '@/components/admin/TemplatesTable';
+import { GuardrailsTable } from '@/components/admin/GuardrailsTable';
 
-interface SolutionData {
-  id: string;
-  title: string;
-  user_id: string;
-  created_at: string;
-  business_prompt: string;
-}
-
-interface TemplateData {
-  id: string;
-  title: string;
-  category: string;
-  active: boolean;
-}
-
-interface GuardrailData {
-  id: string;
-  name: string;
-  description: string;
-  enabled: boolean;
-}
+// Import our custom hook for data fetching
+import { useAdminData } from '@/hooks/useAdminData';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
-  const [users, setUsers] = useState<UserData[]>([]);
-  const [solutions, setSolutions] = useState<SolutionData[]>([]);
-  const [templates, setTemplates] = useState<TemplateData[]>([]);
-  const [guardrails, setGuardrails] = useState<GuardrailData[]>([]);
-  const [stats, setStats] = useState({
-    totalUsers: 0,
-    totalSolutions: 0,
-    activeSubscriptions: 0,
-    usageLast30Days: 0
-  });
+  
+  // Use our custom hook to handle all data fetching and state management
+  const {
+    users,
+    solutions,
+    templates,
+    setTemplates,
+    guardrails,
+    setGuardrails,
+    stats,
+    isLoading,
+    loadAdminData
+  } = useAdminData();
 
   // Check if user is admin
   useEffect(() => {
@@ -82,7 +58,6 @@ const AdminDashboard = () => {
         }
 
         await loadAdminData();
-        setIsLoading(false);
       } catch (error) {
         console.error('Error checking admin status:', error);
         toast.error('Failed to verify admin privileges');
@@ -91,98 +66,7 @@ const AdminDashboard = () => {
     };
 
     checkAdminStatus();
-  }, [user, navigate]);
-
-  const loadAdminData = async () => {
-    try {
-      // Load profiles (instead of users)
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('*')
-        .limit(100);
-      
-      if (profilesError) throw profilesError;
-      
-      // Since we don't have direct access to auth.users, we'll create UserData objects
-      // from the profiles data, with some placeholder values where needed
-      const userData: UserData[] = profilesData?.map(profile => ({
-        id: profile.id,
-        email: user?.email || null, // We'll use the current user's email as placeholder
-        created_at: profile.created_at,
-        last_sign_in_at: null, // Not available in profiles table
-        full_name: profile.full_name,
-        avatar_url: profile.avatar_url
-      })) || [];
-      
-      setUsers(userData);
-      
-      // Load solutions
-      const { data: solutionsData, error: solutionsError } = await supabase
-        .from('solutions')
-        .select('*')
-        .limit(100);
-      
-      if (solutionsError) throw solutionsError;
-      setSolutions(solutionsData || []);
-      
-      // For demo purposes, let's create some sample template and guardrail data
-      setTemplates([
-        { id: '1', title: 'Patient Manager', category: 'Healthcare', active: true },
-        { id: '2', title: 'Invoice Generator', category: 'Finance', active: true },
-        { id: '3', title: 'Learning Tracker', category: 'Education', active: true },
-        { id: '4', title: 'Inventory Tracker', category: 'Retail', active: true },
-      ]);
-      
-      setGuardrails([
-        { id: '1', name: 'Content Filter', description: 'Filter inappropriate content', enabled: true },
-        { id: '2', name: 'Bias Detection', description: 'Detect and mitigate bias in AI responses', enabled: true },
-        { id: '3', name: 'Usage Limits', description: 'Enforce daily usage limits for free users', enabled: true },
-      ]);
-      
-      // Set overview stats
-      setStats({
-        totalUsers: profilesData?.length || 0,
-        totalSolutions: solutionsData?.length || 0,
-        activeSubscriptions: Math.floor(Math.random() * 50), // Demo data
-        usageLast30Days: Math.floor(Math.random() * 1000) // Demo data
-      });
-    } catch (error) {
-      console.error('Error loading admin data:', error);
-      toast.error('Failed to load admin data');
-    }
-  };
-
-  // Toggle template status
-  const toggleTemplateStatus = async (id: string, currentStatus: boolean) => {
-    try {
-      // Update local state first for immediate feedback
-      setTemplates(templates.map(template => 
-        template.id === id ? { ...template, active: !currentStatus } : template
-      ));
-      
-      // In a real app, you would update this in the database
-      toast.success(`Template ${currentStatus ? 'deactivated' : 'activated'} successfully`);
-    } catch (error) {
-      console.error('Error toggling template status:', error);
-      toast.error('Failed to update template status');
-    }
-  };
-
-  // Toggle guardrail status
-  const toggleGuardrailStatus = async (id: string, currentStatus: boolean) => {
-    try {
-      // Update local state
-      setGuardrails(guardrails.map(guardrail => 
-        guardrail.id === id ? { ...guardrail, enabled: !currentStatus } : guardrail
-      ));
-      
-      // In a real app, update the database
-      toast.success(`Guardrail ${currentStatus ? 'disabled' : 'enabled'} successfully`);
-    } catch (error) {
-      console.error('Error toggling guardrail status:', error);
-      toast.error('Failed to update guardrail status');
-    }
-  };
+  }, [user, navigate, loadAdminData]);
 
   if (isLoading) {
     return (
@@ -227,234 +111,27 @@ const AdminDashboard = () => {
         <div className="mt-6">
           {/* Overview Tab */}
           <TabsContent value="overview">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Total Users</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">{stats.totalUsers}</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Generated Solutions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">{stats.totalSolutions}</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Active Subscriptions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">{stats.activeSubscriptions}</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Usage (Last 30 Days)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">{stats.usageLast30Days}</p>
-                </CardContent>
-              </Card>
-            </div>
-            
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle>Platform Status</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Stepper activeStep={3} orientation="horizontal">
-                  <Step label="System Health" description="All systems operational" />
-                  <Step label="API Status" description="APIs responding normally" />
-                  <Step label="Database" description="0 pending migrations" />
-                  <Step label="AI Models" description="All models available" />
-                </Stepper>
-              </CardContent>
-            </Card>
+            <AdminOverview stats={stats} />
           </TabsContent>
 
           {/* Users Tab */}
           <TabsContent value="users">
-            <Card>
-              <CardHeader>
-                <CardTitle>Registered Users</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Full Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {users.length > 0 ? (
-                      users.map((user) => (
-                        <TableRow key={user.id}>
-                          <TableCell>{user.full_name || 'N/A'}</TableCell>
-                          <TableCell>{user.email || 'N/A'}</TableCell>
-                          <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
-                          <TableCell>
-                            <Button variant="outline" size="sm">View Details</Button>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={4} className="text-center py-4">
-                          No users found
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            <UsersTable users={users} />
           </TabsContent>
 
           {/* Solutions Tab */}
           <TabsContent value="solutions">
-            <Card>
-              <CardHeader>
-                <CardTitle>Generated Solutions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead>User</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {solutions.length > 0 ? (
-                      solutions.map((solution) => (
-                        <TableRow key={solution.id}>
-                          <TableCell>{solution.title}</TableCell>
-                          <TableCell>{new Date(solution.created_at).toLocaleDateString()}</TableCell>
-                          <TableCell>{solution.user_id}</TableCell>
-                          <TableCell className="space-x-2">
-                            <Button variant="outline" size="sm">View</Button>
-                            <Button variant="outline" size="sm">Delete</Button>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={4} className="text-center py-4">
-                          No solutions found
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            <SolutionsTable solutions={solutions} />
           </TabsContent>
 
           {/* Templates Tab */}
           <TabsContent value="templates">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Sector Templates</CardTitle>
-                <Button>Add New Template</Button>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {templates.map((template) => (
-                      <TableRow key={template.id}>
-                        <TableCell>{template.title}</TableCell>
-                        <TableCell>{template.category}</TableCell>
-                        <TableCell>
-                          <span className={`px-2 py-1 rounded-full text-xs ${
-                            template.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                          }`}>
-                            {template.active ? 'Active' : 'Inactive'}
-                          </span>
-                        </TableCell>
-                        <TableCell className="space-x-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => toggleTemplateStatus(template.id, template.active)}
-                          >
-                            {template.active ? 'Disable' : 'Enable'}
-                          </Button>
-                          <Button variant="outline" size="sm">Edit</Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            <TemplatesTable templates={templates} setTemplates={setTemplates} />
           </TabsContent>
 
           {/* Guardrails Tab */}
           <TabsContent value="guardrails">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>AI Guardrails</CardTitle>
-                <Button>Add New Guardrail</Button>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {guardrails.map((guardrail) => (
-                      <TableRow key={guardrail.id}>
-                        <TableCell>{guardrail.name}</TableCell>
-                        <TableCell>{guardrail.description}</TableCell>
-                        <TableCell>
-                          <span className={`px-2 py-1 rounded-full text-xs ${
-                            guardrail.enabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                          }`}>
-                            {guardrail.enabled ? 'Enabled' : 'Disabled'}
-                          </span>
-                        </TableCell>
-                        <TableCell className="space-x-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => toggleGuardrailStatus(guardrail.id, guardrail.enabled)}
-                          >
-                            {guardrail.enabled ? 'Disable' : 'Enable'}
-                          </Button>
-                          <Button variant="outline" size="sm">Configure</Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            <GuardrailsTable guardrails={guardrails} setGuardrails={setGuardrails} />
           </TabsContent>
         </div>
       </Tabs>
