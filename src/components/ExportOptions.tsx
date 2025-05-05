@@ -14,8 +14,11 @@ import {
   Key,
   Code,
   Share2,
-  Server
+  Server,
+  IndianRupee
 } from "lucide-react";
+import UpiPayment from "./UpiPayment";
+import PaymentMethodSelector, { PaymentMethod } from "./PaymentMethodSelector";
 
 interface ExportOptionsProps {
   solutionId: string;
@@ -26,15 +29,24 @@ interface ExportOptionsProps {
 const ExportOptions = ({ solutionId, isAuthenticated, isPremium = false }: ExportOptionsProps) => {
   const [activeTab, setActiveTab] = useState("code");
   const [isExporting, setIsExporting] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
   const { toast } = useToast();
   
+  const premiumFeaturePrice = 499; // Price in rupees
+  
   const handleExport = async (type: string) => {
-    if (!isAuthenticated || !isPremium) {
+    if (!isAuthenticated) {
       toast({
-        title: "Feature Locked",
-        description: "This feature is available for premium users only.",
+        title: "Authentication Required",
+        description: "Please log in to use this feature.",
         variant: "destructive"
       });
+      return;
+    }
+    
+    if (!isPremium) {
+      setShowPayment(true);
       return;
     }
     
@@ -59,13 +71,31 @@ const ExportOptions = ({ solutionId, isAuthenticated, isPremium = false }: Expor
     }
   };
   
+  const handlePaymentSuccess = () => {
+    setShowPayment(false);
+    
+    toast({
+      title: "Premium Access Granted",
+      description: "Thank you for your purchase! You now have access to premium features.",
+    });
+    
+    // In a real implementation, we would update the user's premium status here
+    // For now, we'll just redirect them to the export flow
+    handleExport(activeTab);
+  };
+  
   const handleGenerateApiKey = async () => {
-    if (!isAuthenticated || !isPremium) {
+    if (!isAuthenticated) {
       toast({
-        title: "Feature Locked",
-        description: "API access is available for premium users only.",
+        title: "Authentication Required",
+        description: "Please log in to use this feature.",
         variant: "destructive"
       });
+      return;
+    }
+    
+    if (!isPremium) {
+      setShowPayment(true);
       return;
     }
     
@@ -90,6 +120,70 @@ const ExportOptions = ({ solutionId, isAuthenticated, isPremium = false }: Expor
     }
   };
   
+  // If showing payment screen
+  if (showPayment) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Premium Feature</CardTitle>
+          <CardDescription>
+            Complete the payment to unlock export and deployment features
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="bg-brand-50 border border-brand-100 p-4 rounded-lg">
+            <h3 className="text-lg font-medium text-brand-700 mb-2">Premium Export Package</h3>
+            <ul className="space-y-1">
+              <li className="flex items-center text-sm text-brand-600">
+                <span className="mr-2">✓</span> Download code as ZIP
+              </li>
+              <li className="flex items-center text-sm text-brand-600">
+                <span className="mr-2">✓</span> Export to GitHub
+              </li>
+              <li className="flex items-center text-sm text-brand-600">
+                <span className="mr-2">✓</span> Custom deployment options
+              </li>
+              <li className="flex items-center text-sm text-brand-600">
+                <span className="mr-2">✓</span> API integration capabilities
+              </li>
+            </ul>
+            <div className="mt-3 text-xl font-bold text-brand-800">₹{premiumFeaturePrice}</div>
+          </div>
+          
+          <PaymentMethodSelector 
+            selectedMethod={paymentMethod}
+            onSelectMethod={setPaymentMethod}
+          />
+          
+          {paymentMethod === 'upi' ? (
+            <UpiPayment 
+              amount={premiumFeaturePrice}
+              onSuccess={handlePaymentSuccess}
+              isTestMode={true}
+            />
+          ) : (
+            <div className="p-4 border rounded-md bg-gray-50">
+              <p className="text-center text-gray-500">
+                {paymentMethod === 'card' ? (
+                  "Credit/Debit card payment will be available at launch."
+                ) : (
+                  "Digital wallet payment will be available at launch."
+                )}
+              </p>
+            </div>
+          )}
+          
+          <div className="flex justify-between">
+            <Button variant="outline" onClick={() => setShowPayment(false)}>
+              Cancel
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  // Regular export options view
   return (
     <Card>
       <CardHeader>

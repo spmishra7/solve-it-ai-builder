@@ -2,44 +2,65 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   allowedRoles?: string[];
   requireAuth?: boolean;
+  redirectPath?: string;
 }
 
 export default function ProtectedRoute({ 
   children, 
   allowedRoles = [], 
-  requireAuth = true 
+  requireAuth = true,
+  redirectPath = '/auth'
 }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!loading) {
       // If authentication is required and user is not logged in
       if (requireAuth && !user) {
-        navigate('/auth');
+        // Show a toast notification to inform users why they are being redirected
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to access this feature.",
+          variant: "destructive",
+        });
+        
+        navigate(redirectPath);
         return;
       }
 
-      // If we need to implement role-based access in the future:
-      // if (allowedRoles.length > 0 && user) {
-      //   const hasRole = allowedRoles.some(role => user.roles?.includes(role));
-      //   if (!hasRole) {
-      //     navigate('/');
-      //     return;
-      //   }
-      // }
+      // Role-based access implementation
+      if (allowedRoles.length > 0 && user) {
+        const hasRole = allowedRoles.some(role => user.roles?.includes(role));
+        if (!hasRole) {
+          toast({
+            title: "Access Restricted",
+            description: "You don't have permission to access this section.",
+            variant: "destructive",
+          });
+          
+          navigate('/');
+          return;
+        }
+      }
     }
-  }, [user, loading, navigate, requireAuth, allowedRoles]);
+  }, [user, loading, navigate, requireAuth, allowedRoles, toast, redirectPath]);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-brand-600"></div>
+        <div className="flex flex-col items-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-brand-600" />
+          <p className="text-sm text-gray-500">Loading...</p>
+        </div>
       </div>
     );
   }
