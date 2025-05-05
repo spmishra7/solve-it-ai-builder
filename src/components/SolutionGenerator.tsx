@@ -32,6 +32,7 @@ const SolutionGeneratorContent = () => {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", damping: 15, stiffness: 300 }}
+          className="mt-8"
         >
           <SolutionCard handleSave={handleSave} />
         </motion.div>
@@ -44,7 +45,7 @@ const SolutionGenerator = () => {
   return (
     <section id="solution-generator" className="py-12 relative">
       <motion.div 
-        className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-accent/5 to-transparent -z-10"
+        className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-[#00B5D8]/5 to-transparent -z-10"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
@@ -64,7 +65,7 @@ const SolutionGenerator = () => {
               initial={{ backgroundPosition: "0% 50%" }}
               animate={{ backgroundPosition: "100% 50%" }}
               transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
-              className="bg-clip-text text-transparent bg-gradient-to-r from-accent to-brand-600"
+              className="bg-clip-text text-transparent bg-gradient-to-r from-[#00B5D8] to-[#00A3C4]"
             >
               Create Your SaaS Solution
             </motion.span>

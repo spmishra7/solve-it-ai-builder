@@ -16,36 +16,40 @@ const Navbar = () => {
   };
 
   return (
-    <header className="sticky top-0 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 z-30">
+    <header className="sticky top-0 bg-white border-b border-gray-200 z-30">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center space-x-2">
-            <img src="/logo.png" alt="Logo" className="h-8 w-8" />
-            <span className="text-xl font-bold text-gray-900 dark:text-gray-100">AIExperts</span>
+            <img 
+              src="/lovable-uploads/479729cb-d2dd-4061-a516-fed53c310b4c.png" 
+              alt="AIExperts Logo" 
+              className="h-8 w-8" 
+            />
+            <span className="text-xl font-bold text-gray-900">AIExperts</span>
           </Link>
 
           {isMobile ? (
             <>
               <button
                 onClick={toggleMenu}
-                className="p-2 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                className="p-2 rounded-md text-gray-500 hover:text-gray-700"
               >
                 {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
               
               {isMenuOpen && (
-                <div className="absolute top-16 left-0 right-0 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 py-4 px-4 shadow-lg">
+                <div className="absolute top-16 left-0 right-0 bg-white border-b border-gray-200 py-4 px-4 shadow-lg">
                   <nav className="flex flex-col space-y-4">
                     <Link
                       to="/"
-                      className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                      className="text-gray-600 hover:text-gray-900"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Home
                     </Link>
                     <Link
                       to="/model-manager"
-                      className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 flex items-center"
+                      className="text-gray-600 hover:text-gray-900 flex items-center"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <Settings className="mr-1 h-4 w-4" />
@@ -55,7 +59,7 @@ const Navbar = () => {
                       <>
                         <Link
                           to="/my-solutions"
-                          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                          className="text-gray-600 hover:text-gray-900"
                           onClick={() => setIsMenuOpen(false)}
                         >
                           My Solutions
@@ -66,7 +70,7 @@ const Navbar = () => {
                       </>
                     ) : (
                       <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
-                        <Button>Sign In</Button>
+                        <Button className="bg-[#00B5D8] text-white hover:bg-[#00A3C4]">Sign In</Button>
                       </Link>
                     )}
                   </nav>
@@ -78,13 +82,13 @@ const Navbar = () => {
               <nav className="flex items-center space-x-6">
                 <Link
                   to="/"
-                  className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                  className="text-gray-600 hover:text-gray-900"
                 >
                   Home
                 </Link>
                 <Link
                   to="/model-manager"
-                  className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 flex items-center"
+                  className="text-gray-600 hover:text-gray-900 flex items-center"
                 >
                   <Settings className="mr-1 h-4 w-4" />
                   Models
@@ -92,7 +96,7 @@ const Navbar = () => {
                 {user && (
                   <Link
                     to="/my-solutions"
-                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                    className="text-gray-600 hover:text-gray-900"
                   >
                     My Solutions
                   </Link>
@@ -105,7 +109,7 @@ const Navbar = () => {
                 </Button>
               ) : (
                 <Link to="/auth">
-                  <Button>Sign In</Button>
+                  <Button className="bg-[#00B5D8] text-white hover:bg-[#00A3C4]">Sign In</Button>
                 </Link>
               )}
             </div>
