@@ -45,7 +45,8 @@ export const useSolutionGenerator = () => {
       progressTimer = window.setTimeout(() => {
         // Create an incremental progress that slows down as it approaches 95%
         const increment = Math.max(0.5, (95 - progress) * 0.1);
-        setProgress(prev => Math.min(95, prev + increment));
+        // Fix: Convert to number and not use a function callback
+        setProgress(Math.min(95, progress + increment));
       }, 300);
     }
     
@@ -57,13 +58,12 @@ export const useSolutionGenerator = () => {
   }, [isGenerating, progress, setProgress]);
 
   const handleRoleToggle = (roleId: string) => {
-    setSelectedRoles(prev => {
-      if (prev.includes(roleId)) {
-        return prev.filter(id => id !== roleId);
-      } else {
-        return [...prev, roleId];
-      }
-    });
+    // Fix: Update to directly set the new array without using a callback function
+    const newSelectedRoles = selectedRoles.includes(roleId)
+      ? selectedRoles.filter(id => id !== roleId)
+      : [...selectedRoles, roleId];
+    
+    setSelectedRoles(newSelectedRoles);
   };
 
   const handleContentAnalyzed = (insights: string) => {
@@ -72,9 +72,9 @@ export const useSolutionGenerator = () => {
     if (!businessDescription.trim()) {
       setBusinessDescription(insights);
     } else {
-      setBusinessDescription(prev => {
-        return `${prev}\n\nContent Analysis Insights:\n${insights}`;
-      });
+      // Fix: Create the new string directly and pass it to the setter
+      const updatedDescription = `${businessDescription}\n\nContent Analysis Insights:\n${insights}`;
+      setBusinessDescription(updatedDescription);
     }
     
     toast({

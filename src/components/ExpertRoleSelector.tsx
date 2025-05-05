@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { useState } from "react";
 import RoleCategory from "@/components/expert-roles/RoleCategory";
-import ExpertRole from "@/components/expert-roles/ExpertRole";
 import { roleCategories } from "@/components/expert-roles/roleData";
 
 interface ExpertRoleSelectorProps {
@@ -68,18 +67,9 @@ const ExpertRoleSelector = ({ selectedRoles, onRoleToggle }: ExpertRoleSelectorP
             category={category}
             isExpanded={expandedCategory === category.id}
             onToggle={() => toggleCategory(category.id)}
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mt-2">
-              {category.roles.map((role) => (
-                <ExpertRole
-                  key={role.id}
-                  role={role}
-                  isSelected={selectedRoles.includes(role.id)}
-                  onToggle={() => onRoleToggle(role.id)}
-                />
-              ))}
-            </div>
-          </RoleCategory>
+            selectedRoles={selectedRoles}
+            onRoleToggle={onRoleToggle}
+          />
         ))}
       </div>
     </div>

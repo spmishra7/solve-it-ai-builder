@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import ExpertRole from "./ExpertRole";
 
@@ -17,7 +16,7 @@ interface RoleCategoryProps {
   selectedRoles: string[];
   onRoleToggle: (roleId: string) => void;
   isExpanded: boolean;
-  onToggle: (categoryId: string) => void;
+  onToggle: () => void;
 }
 
 const RoleCategory = ({ 
@@ -35,7 +34,7 @@ const RoleCategory = ({
         className={`w-full p-3 text-left flex items-center justify-between ${
           isExpanded ? "bg-accent" : "bg-card"
         }`}
-        onClick={() => onToggle(category.id)}
+        onClick={onToggle}
       >
         <div className="flex items-center">
           {isExpanded ? <ChevronDown size={16} className="mr-2" /> : <ChevronRight size={16} className="mr-2" />}
