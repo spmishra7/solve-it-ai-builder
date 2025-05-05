@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Code, Cloud, Download } from "lucide-react";
+import { ArrowRight, Code, Cloud, Download, Sparkles, Wrench, Shield } from "lucide-react";
 
 const CtaSection = () => {
   return (
@@ -37,6 +37,44 @@ const CtaSection = () => {
                 <p className="text-sm text-muted-foreground mb-4">One-time purchase for complete code ownership</p>
                 <Button variant="outline" size="sm" className="mt-auto border-white/20 text-white hover:bg-white/10">
                   Contact Sales
+                </Button>
+              </div>
+            </div>
+            
+            <div className="mt-12 pt-8 border-t border-white/10">
+              <h3 className="text-2xl font-semibold mb-6">Our AI Expert Agents</h3>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-card/10 backdrop-blur-sm border border-white/5 rounded-lg p-4 flex flex-col items-center">
+                  <Sparkles className="h-8 w-8 mb-2 text-blue-400" />
+                  <h4 className="text-sm font-medium">CEO Vision</h4>
+                  <p className="text-xs text-muted-foreground">Strategic market positioning</p>
+                </div>
+                <div className="bg-card/10 backdrop-blur-sm border border-white/5 rounded-lg p-4 flex flex-col items-center">
+                  <Shield className="h-8 w-8 mb-2 text-green-400" />
+                  <h4 className="text-sm font-medium">CFO Planning</h4>
+                  <p className="text-xs text-muted-foreground">Cost optimization & ROI focus</p>
+                </div>
+                <div className="bg-card/10 backdrop-blur-sm border border-white/5 rounded-lg p-4 flex flex-col items-center">
+                  <Wrench className="h-8 w-8 mb-2 text-purple-400" />
+                  <h4 className="text-sm font-medium">Engineer Solutions</h4>
+                  <p className="text-xs text-muted-foreground">Scalable architecture design</p>
+                </div>
+                <div className="bg-card/10 backdrop-blur-sm border border-white/5 rounded-lg p-4 flex flex-col items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 mb-2 text-orange-400">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 9.05v-.1"></path>
+                    <path d="M16 9.05v-.1"></path>
+                    <path d="M12 13a4 4 0 0 1-4 4"></path>
+                    <path d="M16 17a4 4 0 0 0-4-4"></path>
+                  </svg>
+                  <h4 className="text-sm font-medium">Designer Touch</h4>
+                  <p className="text-xs text-muted-foreground">Beautiful, intuitive interfaces</p>
+                </div>
+              </div>
+              <div className="mt-8">
+                <Button className="bg-brand-600 hover:bg-brand-700">
+                  <ArrowRight className="mr-2 h-4 w-4" />
+                  Try Our AI Solution Builder
                 </Button>
               </div>
             </div>
