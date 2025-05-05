@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import Navbar from "./components/Navbar";
@@ -25,7 +26,7 @@ function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <AuthProvider>
-          <div className="flex flex-col min-h-screen bg-white">
+          <div className="flex flex-col min-h-screen bg-background">
             <OfflineModeBanner />
             <Navbar />
             <main className="flex-grow">

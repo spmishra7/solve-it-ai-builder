@@ -73,6 +73,10 @@ const HeroSection = () => {
       {/* Dark background */}
       <div className="absolute inset-0 bg-[#0A1120] -z-10"></div>
       
+      {/* Add nebula effects */}
+      <div className="hero-nebula-blue"></div>
+      <div className="hero-nebula-red"></div>
+      
       <div className="container mx-auto px-4 z-10">
         <div className="flex flex-col items-center text-center">
           <motion.div 
@@ -102,7 +106,7 @@ const HeroSection = () => {
           </motion.span>
           
           <motion.h1 
-            className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 max-w-4xl leading-tight text-white"
+            className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 max-w-4xl leading-tight text-white hero-text"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
@@ -111,7 +115,7 @@ const HeroSection = () => {
           </motion.h1>
           
           <motion.p 
-            className="text-white text-xl max-w-2xl mb-8"
+            className="text-white text-xl max-w-2xl mb-8 hero-text"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
@@ -126,7 +130,7 @@ const HeroSection = () => {
             transition={{ delay: 0.8 }}
           >
             <Button 
-              className="text-lg py-6 px-8 bg-[#00B5D8] hover:bg-[#00A3C4] text-white group flex items-center gap-2 w-full sm:w-auto"
+              className="text-lg py-6 px-8 bg-[#00B5D8] hover:bg-[#00A3C4] text-white group flex items-center gap-2 w-full sm:w-auto get-started-button"
               onClick={handleGetStarted}
             >
               <span className="flex items-center">
@@ -135,7 +139,7 @@ const HeroSection = () => {
             </Button>
             <Button 
               variant="outline" 
-              className="text-lg py-6 px-8 border-white/20 bg-transparent text-white hover:bg-white/10 w-full sm:w-auto"
+              className="text-lg py-6 px-8 border-white/20 bg-transparent text-white hover:bg-white/10 w-full sm:w-auto demo-button"
               onClick={handleViewDemo}
             >
               View Demo
@@ -152,7 +156,7 @@ const HeroSection = () => {
               {['JD', 'SM', 'RJ'].map((initials, i) => (
                 <motion.div 
                   key={initials}
-                  className="w-8 h-8 rounded-full bg-[#00B5D8]/20 border border-[#00B5D8]/50 flex items-center justify-center text-xs font-medium text-white"
+                  className="w-8 h-8 rounded-full bg-[#00B5D8]/20 border border-[#00B5D8]/50 flex items-center justify-center text-xs font-medium text-white user-avatar"
                   initial={{ x: -10, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 1.0 + (i * 0.1) }}
@@ -187,6 +191,9 @@ const HeroSection = () => {
           </motion.div>
         </div>
       </div>
+      
+      {/* Hero background with radial gradient */}
+      <div className="hero-background"></div>
     </div>
   );
 };
