@@ -1,8 +1,8 @@
 
 import { useState } from "react";
 import RoleCategoryList from "./RoleCategoryList";
-import RoleSelectorHeader from "./RoleSelectorHeader";
 import { roleCategories } from "./roleData";
+import RoleSelectorHeader from "./RoleSelectorHeader";
 
 interface ExpertRoleSelectorProps {
   selectedRoles: string[];
@@ -10,50 +10,48 @@ interface ExpertRoleSelectorProps {
 }
 
 const ExpertRoleSelector = ({ selectedRoles, onRoleToggle }: ExpertRoleSelectorProps) => {
-  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
-
-  const toggleCategory = (categoryId: string) => {
-    setExpandedCategory(expandedCategory === categoryId ? null : categoryId);
-  };
-
-  // Get all role IDs for Select All functionality
-  const getAllRoleIds = () => {
-    return roleCategories.flatMap(category => 
-      category.roles.map(role => role.id)
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([roleCategories[0].id]);
+  
+  const allRoles = roleCategories.flatMap(category => category.roles.map(role => role.id));
+  const allSelected = allRoles.every(roleId => selectedRoles.includes(roleId));
+  
+  const handleExpandToggle = (categoryId: string) => {
+    setExpandedCategories(prev => 
+      prev.includes(categoryId)
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
     );
   };
-
-  // Handle Select All functionality
+  
   const handleSelectAll = () => {
-    const allRoleIds = getAllRoleIds();
-    
-    // If all are already selected, deselect all
-    if (allRoleIds.every(id => selectedRoles.includes(id))) {
-      // Clear selections by passing empty array
-      allRoleIds.forEach(id => onRoleToggle(id));
+    if (allSelected) {
+      // If all are selected, deselect all
+      allRoles.forEach(roleId => {
+        if (selectedRoles.includes(roleId)) {
+          onRoleToggle(roleId);
+        }
+      });
     } else {
-      // Select all that aren't already selected
-      allRoleIds.forEach(id => {
-        if (!selectedRoles.includes(id)) {
-          onRoleToggle(id);
+      // Select all roles that aren't already selected
+      allRoles.forEach(roleId => {
+        if (!selectedRoles.includes(roleId)) {
+          onRoleToggle(roleId);
         }
       });
     }
   };
   
-  // Check if all roles are selected
-  const allSelected = getAllRoleIds().every(id => selectedRoles.includes(id));
-
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 rounded-lg bg-gradient-to-br from-secondary/40 to-secondary/80 p-4 border border-accent/10">
       <RoleSelectorHeader 
-        allSelected={allSelected} 
-        onSelectAll={handleSelectAll} 
+        allSelected={allSelected}
+        onSelectAll={handleSelectAll}
       />
-      <RoleCategoryList
+      
+      <RoleCategoryList 
         categories={roleCategories}
-        expandedCategory={expandedCategory}
-        toggleCategory={toggleCategory}
+        expandedCategories={expandedCategories}
+        onExpandToggle={handleExpandToggle}
         selectedRoles={selectedRoles}
         onRoleToggle={onRoleToggle}
       />
