@@ -8,7 +8,7 @@ import { useProgressTracking } from "./useProgressTracking";
 import { usePromptImprover } from "./usePromptImprover";
 import { useSolutionSaver } from "./useSolutionSaver";
 import { roleCategories } from "@/components/expert-roles/roleData";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export const useSolutionGenerator = () => {
   const {
@@ -22,11 +22,21 @@ export const useSolutionGenerator = () => {
   } = useSolution();
   
   const { toast } = useToast();
+  const progressTimerRef = useRef<number | null>(null);
 
   const { handleRoleToggle } = useRoleManagement();
   const { handleContentAnalyzed } = useContentAnalyzer();
   const { handleImprovePrompt } = usePromptImprover();
   const { handleSave } = useSolutionSaver();
+
+  // Clean up interval on unmount
+  useEffect(() => {
+    return () => {
+      if (progressTimerRef.current !== null) {
+        clearInterval(progressTimerRef.current);
+      }
+    };
+  }, []);
 
   // Build a mapping of role IDs to role names for expert insights
   useEffect(() => {
@@ -61,15 +71,23 @@ export const useSolutionGenerator = () => {
         });
       }
       
+      // Clear any existing interval
+      if (progressTimerRef.current !== null) {
+        clearInterval(progressTimerRef.current);
+      }
+      
       // Simulate progress to provide feedback during generation
-      const progressInterval = setInterval(() => {
-        setProgress((prevProgress) => {
-          if (prevProgress >= 90) {
-            clearInterval(progressInterval);
-            return 90;
+      let currentProgress = 10;
+      progressTimerRef.current = window.setInterval(() => {
+        if (currentProgress >= 90) {
+          if (progressTimerRef.current !== null) {
+            clearInterval(progressTimerRef.current);
+            progressTimerRef.current = null;
           }
-          return prevProgress + 10;
-        });
+          return;
+        }
+        currentProgress += 10;
+        setProgress(currentProgress);
       }, 2000);
       
       const result = await generateSolution(
@@ -81,7 +99,10 @@ export const useSolutionGenerator = () => {
       );
       
       // Clear the interval and set progress to 100
-      clearInterval(progressInterval);
+      if (progressTimerRef.current !== null) {
+        clearInterval(progressTimerRef.current);
+        progressTimerRef.current = null;
+      }
       setProgress(100);
       
       // Transform the result to match our component's expected format

@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { Progress } from "@/components/ui/progress";
 
 interface GenerateButtonProps {
   handleGenerate: () => void;
@@ -18,12 +19,10 @@ const GenerateButton = ({ handleGenerate, isGenerating, disabled, progress }: Ge
         whileTap={{ scale: disabled ? 1 : 0.98 }}
       >
         <Button
-          onClick={() => {
-            console.log("Generate button clicked");
-            handleGenerate();
-          }}
+          onClick={handleGenerate} 
           className="bg-brand-600 hover:bg-brand-700 w-full relative overflow-hidden group"
           disabled={isGenerating || disabled}
+          type="button"
         >
           {isGenerating ? (
             <>
@@ -54,13 +53,11 @@ const GenerateButton = ({ handleGenerate, isGenerating, disabled, progress }: Ge
       </motion.div>
 
       {isGenerating && (
-        <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2 overflow-hidden">
-          <motion.div
-            className="bg-brand-600 h-2.5 rounded-full"
-            initial={{ width: "5%" }}
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.3 }}
-          />
+        <div className="w-full mt-2 overflow-hidden">
+          <Progress value={progress} className="h-2" />
+          <div className="text-xs text-gray-500 mt-1 text-right">
+            {progress}% complete
+          </div>
         </div>
       )}
     </>
