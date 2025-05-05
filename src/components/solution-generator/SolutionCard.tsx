@@ -1,131 +1,108 @@
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Save } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
 import { useSolution } from "@/contexts/SolutionContext";
-import SolutionPreview from "./SolutionPreview";
+import UICode from "./SolutionPreview";
 import DatabaseSchema from "./DatabaseSchema";
 import AutomationCode from "./AutomationCode";
+import ExpertInsights from "./ExpertInsights";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Share2, Save, Download } from "lucide-react";
 import ExportOptions from "./ExportOptions";
-import { downloadAsFile } from "@/lib/fileUtils";
 import { motion } from "framer-motion";
 
-const SolutionCard = ({ handleSave }: { handleSave: () => Promise<void> }) => {
-  const [activeTab, setActiveTab] = useState("preview");
-  const [isSaving, setIsSaving] = useState(false);
-  const { solution, selectedRoles, roleNames } = useSolution();
-  const { session } = useAuth();
+interface SolutionCardProps {
+  handleSave: () => Promise<void>;
+}
 
-  if (!solution) return null;
+const SolutionCard = ({ handleSave }: SolutionCardProps) => {
+  const { solution, solutionTitle, isSaving } = useSolution();
+  const [currentTab, setCurrentTab] = useState("ui");
+  const [showExport, setShowExport] = useState(false);
 
   const handleExport = (type: 'ui' | 'database' | 'automation' | 'all') => {
-    if (!solution) return;
-
-    switch(type) {
-      case 'ui':
-        downloadAsFile(solution.ui, 'ui-code.html');
-        break;
-      case 'database':
-        downloadAsFile(solution.database, 'database-schema.sql');
-        break;
-      case 'automation':
-        downloadAsFile(solution.automation, 'automation-code.js');
-        break;
-      case 'all':
-        const allContent = `
-/* UI CODE */
-${solution.ui}
-
-/* DATABASE SCHEMA */
-${solution.database}
-
-/* AUTOMATION CODE */
-${solution.automation}
-`;
-        downloadAsFile(allContent, 'complete-solution.txt');
-        break;
-    }
+    // Export implementation (will be added in future)
+    console.log('Exporting:', type);
   };
 
-  const handleSaveWrapper = async () => {
-    setIsSaving(true);
-    await handleSave();
-    setIsSaving(false);
-  };
-
+  // Add ID and class for easier targeting
   return (
-    <motion.div
-      id="solution-preview" 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="scroll-mt-24" 
-    >
-      <Card className="shadow-lg border-accent/20">
-        <CardContent className="p-0">
-          <div className="border-b">
-            <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
-              <div className="flex justify-between items-center px-6 py-4">
-                <TabsList className="grid grid-cols-4 w-fit">
-                  <TabsTrigger value="preview">Preview</TabsTrigger>
-                  <TabsTrigger value="database">Database</TabsTrigger>
-                  <TabsTrigger value="automation">Automation</TabsTrigger>
-                  <TabsTrigger value="export">Export</TabsTrigger>
-                </TabsList>
+    <Card id="solution-preview" className="mt-8 border-accent/20 solution-card">
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 pt-6 px-6">
+        <div>
+          <CardTitle className="text-2xl font-bold">{solutionTitle || "Your SaaS Solution"}</CardTitle>
+          <p className="text-sm text-gray-500 mt-1">Based on your business description</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={() => setShowExport(!showExport)}>
+            <Download className="h-4 w-4 mr-2" />
+            {showExport ? "Hide Export" : "Export"}
+          </Button>
+          <Button size="sm" variant="outline">
+            <Share2 className="h-4 w-4 mr-2" />
+            Share
+          </Button>
+          <Button 
+            size="sm" 
+            variant="secondary" 
+            onClick={handleSave}
+            disabled={isSaving}
+          >
+            <Save className="h-4 w-4 mr-2" />
+            {isSaving ? "Saving..." : "Save"}
+          </Button>
+        </div>
+      </CardHeader>
 
-                <div className="flex items-center gap-2">
-                  {session?.user && (
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={handleSaveWrapper}
-                      disabled={isSaving}
-                      className="relative overflow-hidden group"
-                    >
-                      {isSaving ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Saving...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
-                          Save Solution
-                          <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-accent group-hover:w-full transition-all duration-300"></span>
-                        </>
-                      )}
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </Tabs>
-          </div>
-
-          <TabsContent value="preview" className="p-6">
-            <SolutionPreview 
-              solution={solution} 
-              selectedRoles={selectedRoles}
-              roleNames={roleNames}
-            />
-          </TabsContent>
-
-          <TabsContent value="database" className="p-6">
-            <DatabaseSchema schema={solution.database} />
-          </TabsContent>
-
-          <TabsContent value="automation" className="p-6">
-            <AutomationCode code={solution.automation} />
-          </TabsContent>
-
-          <TabsContent value="export" className="p-6">
+      {showExport && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <CardContent className="py-4 border-b">
             <ExportOptions handleExport={handleExport} />
+          </CardContent>
+        </motion.div>
+      )}
+
+      <CardContent className="p-0">
+        <Tabs defaultValue="ui" value={currentTab} onValueChange={setCurrentTab} className="w-full">
+          <TabsList className="w-full justify-start p-0 bg-transparent border-b rounded-none">
+            <TabsTrigger value="ui" className="py-3 px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-b-accent">
+              UI Solution
+            </TabsTrigger>
+            <TabsTrigger value="database" className="py-3 px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-b-accent">
+              Database Schema
+            </TabsTrigger>
+            <TabsTrigger value="automation" className="py-3 px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-b-accent">
+              Workflow Automation
+            </TabsTrigger>
+            <TabsTrigger value="insights" className="py-3 px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-b-accent">
+              Expert Insights
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="ui" className="p-6">
+            <UICode content={solution?.ui || ""} />
           </TabsContent>
-        </CardContent>
-      </Card>
-    </motion.div>
+          
+          <TabsContent value="database" className="p-6">
+            <DatabaseSchema content={solution?.database || ""} />
+          </TabsContent>
+          
+          <TabsContent value="automation" className="p-6">
+            <AutomationCode content={solution?.automation || ""} />
+          </TabsContent>
+
+          <TabsContent value="insights" className="p-6">
+            <ExpertInsights insights={solution?.expertInsights || {}} />
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 };
 

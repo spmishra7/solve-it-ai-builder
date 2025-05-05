@@ -113,5 +113,6 @@
   color: white;
   font-size: 12px;
   font-weight: 500;
+  position: relative;
+  z-index: 10; /* Ensure avatars appear above other elements */
 }
-

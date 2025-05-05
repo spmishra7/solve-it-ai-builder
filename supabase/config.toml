@@ -3,3 +3,9 @@ project_id = "margqbeftjiulyaepxyy"
 
 [functions.analyze-content]
 verify_jwt = false
+
+[functions.generate-solution]
+verify_jwt = false
+
+[functions.llm-proxy]
+verify_jwt = false

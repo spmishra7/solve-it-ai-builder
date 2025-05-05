@@ -62,7 +62,30 @@ export const useSolutionGenerator = () => {
     setIsGenerating(true);
     setProgress(10);
 
+    // Clear any existing interval
+    if (progressTimerRef.current !== null) {
+      clearInterval(progressTimerRef.current);
+    }
+    
+    // Simulate progress to provide feedback during generation
+    let currentProgress = 10;
+    progressTimerRef.current = window.setInterval(() => {
+      if (currentProgress >= 90) {
+        if (progressTimerRef.current !== null) {
+          clearInterval(progressTimerRef.current);
+          progressTimerRef.current = null;
+        }
+        return;
+      }
+      currentProgress += 5;
+      setProgress(currentProgress);
+      console.log("Progress updated:", currentProgress);
+    }, 1000);
+
     try {
+      console.log("Starting solution generation with description:", businessDescription.substring(0, 50) + "...");
+      console.log("Selected roles:", selectedRoles);
+      
       // Show toast for selected roles with the count
       if (selectedRoles.length > 0) {
         toast({
@@ -71,25 +94,6 @@ export const useSolutionGenerator = () => {
         });
       }
       
-      // Clear any existing interval
-      if (progressTimerRef.current !== null) {
-        clearInterval(progressTimerRef.current);
-      }
-      
-      // Simulate progress to provide feedback during generation
-      let currentProgress = 10;
-      progressTimerRef.current = window.setInterval(() => {
-        if (currentProgress >= 90) {
-          if (progressTimerRef.current !== null) {
-            clearInterval(progressTimerRef.current);
-            progressTimerRef.current = null;
-          }
-          return;
-        }
-        currentProgress += 10;
-        setProgress(currentProgress);
-      }, 2000);
-      
       const result = await generateSolution(
         businessDescription,
         "business owner",  // default user type
@@ -97,6 +101,8 @@ export const useSolutionGenerator = () => {
         undefined,         // use default model config
         selectedRoles      // pass selected roles
       );
+      
+      console.log("Solution generation result received:", result ? "success" : "undefined or null");
       
       // Clear the interval and set progress to 100
       if (progressTimerRef.current !== null) {
@@ -107,15 +113,15 @@ export const useSolutionGenerator = () => {
       
       // Transform the result to match our component's expected format
       const transformedResult = {
-        ui: result.ui_solution || "No UI solution generated",
-        database: result.database_solution || "No database schema generated",
-        automation: result.automation_solution || "No automation solution generated",
-        expertInsights: result.expert_insights || {}
+        ui: result?.ui_solution || "No UI solution generated",
+        database: result?.database_solution || "No database schema generated",
+        automation: result?.automation_solution || "No automation solution generated",
+        expertInsights: result?.expert_insights || {}
       };
       
-      console.log("Solution generated:", transformedResult);
+      console.log("Transformed result:", transformedResult);
       setSolution(transformedResult);
-      setSolutionTitle(result.title || businessDescription.substring(0, 50) + '...');
+      setSolutionTitle(result?.title || businessDescription.substring(0, 50) + '...');
       
       toast({
         title: "Solution Generated",
@@ -126,18 +132,49 @@ export const useSolutionGenerator = () => {
       setTimeout(() => {
         const solutionElement = document.querySelector("#solution-preview");
         if (solutionElement) {
+          console.log("Found solution preview element, scrolling to it");
           solutionElement.scrollIntoView({ behavior: "smooth", block: "start" });
         } else {
-          console.error("Solution preview element not found");
+          console.error("Solution preview element not found for ID #solution-preview");
+          // Try alternative scroll method
+          const solutionCard = document.querySelector(".solution-card");
+          if (solutionCard) {
+            console.log("Found solution card via class, scrolling to it");
+            solutionCard.scrollIntoView({ behavior: "smooth", block: "start" });
+          } else {
+            console.error("Solution card element not found via class either");
+          }
         }
       }, 300);
     } catch (error) {
       console.error("Error generating solution:", error);
+      
+      // Clear the progress interval
+      if (progressTimerRef.current !== null) {
+        clearInterval(progressTimerRef.current);
+        progressTimerRef.current = null;
+      }
+      
+      // Show more detailed error message
+      let errorMessage = "There was an error generating your solution.";
+      if (error instanceof Error) {
+        errorMessage += " " + error.message;
+        console.error("Error details:", error.message);
+      }
+      
+      // Display API error if available
+      if (typeof error === 'object' && error !== null && 'message' in error) {
+        console.error("API Error:", (error as any).message);
+      }
+      
       toast({
         title: "Generation Failed",
-        description: "There was an error generating your solution.",
+        description: errorMessage,
         variant: "destructive"
       });
+      
+      // Set progress to 0 to indicate failure
+      setProgress(0);
     } finally {
       setIsGenerating(false);
     }

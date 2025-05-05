@@ -38,6 +38,33 @@ serve(async (req) => {
   }
 
   try {
+    // Check for API keys early
+    const apiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!apiKey) {
+      console.error("OPENAI_API_KEY not set in environment variables");
+      return new Response(
+        JSON.stringify({ 
+          error: "API key configuration error. Please contact the administrator to set up the OpenAI API key." 
+        }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    // Parse request body with error handling
+    let requestBody;
+    try {
+      requestBody = await req.json();
+    } catch (parseError) {
+      console.error("Error parsing request body:", parseError);
+      return new Response(
+        JSON.stringify({ error: "Invalid request format" }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
     const { 
       businessPrompt, 
       userType = "business owner", 
@@ -45,13 +72,16 @@ serve(async (req) => {
       modelConfig,
       expertRoles = [],
       priorKnowledge = ""
-    } = await req.json() as GenerateSolutionRequest;
+    } = requestBody as GenerateSolutionRequest;
     
-    console.log(`Request received: Business prompt: "${businessPrompt.substring(0, 50)}..."`);
+    console.log(`Request received: Business prompt: "${businessPrompt?.substring(0, 50) || ""}..."`);
     console.log(`User type: ${userType}, Template: ${selectedTemplate}`);
     
     if (!businessPrompt) {
-      throw new Error("Business prompt is required");
+      return new Response(
+        JSON.stringify({ error: "Business prompt is required" }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Use provided model config or defaults
@@ -66,33 +96,55 @@ serve(async (req) => {
     }
 
     // Generate solutions using our llm-proxy
-    const [uiSolution, dbSolution, automationSolution] = await Promise.all([
-      generateSolutionPart("ui", businessPrompt, userType, selectedTemplate, provider, model, expertRoles, priorKnowledge),
-      generateSolutionPart("database", businessPrompt, userType, selectedTemplate, provider, model, expertRoles, priorKnowledge),
-      generateSolutionPart("automation", businessPrompt, userType, selectedTemplate, provider, model, expertRoles, priorKnowledge)
-    ]);
+    console.log("Starting generation for UI solution");
+    const uiPromise = generateSolutionPart("ui", businessPrompt, userType, selectedTemplate, provider, model, expertRoles, priorKnowledge);
+    
+    console.log("Starting generation for database solution");
+    const dbPromise = generateSolutionPart("database", businessPrompt, userType, selectedTemplate, provider, model, expertRoles, priorKnowledge);
+    
+    console.log("Starting generation for automation solution");
+    const automationPromise = generateSolutionPart("automation", businessPrompt, userType, selectedTemplate, provider, model, expertRoles, priorKnowledge);
+    
+    try {
+      const [uiSolution, dbSolution, automationSolution] = await Promise.all([
+        uiPromise, dbPromise, automationPromise
+      ]);
+      
+      console.log("All solutions generated successfully");
 
-    // Create title from business prompt or use template name if it's one of our predefined templates
-    const title = businessPrompt.length > 40 
-      ? `${businessPrompt.substring(0, 40)}...`
-      : businessPrompt;
+      // Create title from business prompt or use template name if it's one of our predefined templates
+      const title = businessPrompt.length > 40 
+        ? `${businessPrompt.substring(0, 40)}...`
+        : businessPrompt;
 
-    const response = {
-      title: title,
-      description: `Solution for ${userType}`,
-      business_prompt: businessPrompt,
-      ui_solution: uiSolution,
-      database_solution: dbSolution,
-      automation_solution: automationSolution,
-    };
+      const response = {
+        title: title,
+        description: `Solution for ${userType}`,
+        business_prompt: businessPrompt,
+        ui_solution: uiSolution,
+        database_solution: dbSolution,
+        automation_solution: automationSolution,
+        expert_insights: {}, // Will be populated in the future
+      };
 
-    return new Response(JSON.stringify(response), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+      return new Response(JSON.stringify(response), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    } catch (parallelError) {
+      console.error('Error in Promise.all for solution parts:', parallelError);
+      throw parallelError;
+    }
   } catch (error) {
     console.error('Error in generate-solution function:', error);
+    let errorMessage = "Unknown error occurred";
+    
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      console.error('Error details:', error.stack);
+    }
+    
     return new Response(
-      JSON.stringify({ error: error.message || "Unknown error" }),
+      JSON.stringify({ error: errorMessage }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
@@ -142,6 +194,8 @@ ${solutionPrompts[solutionType]}
 `;
 
   try {
+    console.log(`Calling llm-proxy for ${solutionType} solution`);
+    
     // Call our llm-proxy edge function
     const response = await fetch(new URL("/functions/v1/llm-proxy", Deno.env.get("SUPABASE_URL")), {
       method: "POST",
@@ -161,14 +215,15 @@ ${solutionPrompts[solutionType]}
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`Error from llm-proxy (${solutionType}):`, errorText);
-      throw new Error(`Failed to generate ${solutionType} solution: ${errorText}`);
+      console.error(`Error from llm-proxy (${solutionType}): Status ${response.status}`, errorText);
+      throw new Error(`Failed to generate ${solutionType} solution: ${errorText || response.statusText}`);
     }
 
     const data = await response.json();
+    console.log(`Successfully received ${solutionType} solution response`);
     return data.content || `Failed to generate ${solutionType} solution.`;
   } catch (error) {
     console.error(`Error generating ${solutionType} solution:`, error);
-    return `Error generating ${solutionType} solution: ${error.message}`;
+    return `Error generating ${solutionType} solution: ${error instanceof Error ? error.message : String(error)}`;
   }
 }
