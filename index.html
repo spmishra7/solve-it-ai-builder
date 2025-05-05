@@ -19,7 +19,7 @@
     <link rel="icon" href="/lovable-uploads/b8bd828d-1db2-4ecf-ad16-701fd9844c9e.png" type="image/png">
     
     <style>
-      /* Enhanced hiding for GPT Engineer question mark icon */
+      /* Ultra aggressive hiding for GPT Engineer question mark icon */
       .gpt-eng-icon, 
       #gpt-eng-icon, 
       [data-gpt-eng="icon"],
@@ -27,7 +27,22 @@
       [class^="gpt-eng"],
       [class*=" gpt-eng"],
       [id*="gpteng"],
-      [class*="gpteng"] {
+      [class*="gpteng"],
+      /* Additional broader selectors */
+      [id*="gpt"],
+      [class*="gpt"],
+      [id*="assistant"],
+      [class*="assistant"],
+      [id*="help-icon"],
+      [class*="help-icon"],
+      [id*="float"],
+      [class*="float"],
+      /* Target fixed positioned elements in corner */
+      .fixed[style*="top: 0"][style*="left: 0"],
+      .fixed.top-0.left-0,
+      /* Generic question mark icon */
+      [class*="question"],
+      [id*="question"] {
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
@@ -36,6 +51,11 @@
         height: 0 !important;
         position: absolute !important;
         z-index: -9999 !important;
+        clip: rect(0, 0, 0, 0) !important;
+        overflow: hidden !important;
+        margin: -1px !important;
+        padding: 0 !important;
+        border: 0 !important;
       }
     </style>
   </head>
@@ -47,25 +67,46 @@
     <script type="module" src="/src/main.tsx"></script>
     
     <script>
-      // Additional JavaScript to remove GPT Engineer icon
-      document.addEventListener('DOMContentLoaded', function() {
-        // Initial removal
+      // Ultra aggressive JavaScript to remove GPT Engineer icon
+      (function() {
+        // Execute immediately
         removeGptElements();
         
-        // Keep checking for new elements that might be added dynamically
+        // Also run when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+          removeGptElements();
+          
+          // Run again after a small delay to catch elements added after initial load
+          setTimeout(removeGptElements, 500);
+          setTimeout(removeGptElements, 1000);
+          setTimeout(removeGptElements, 2000);
+        });
+        
+        // Keep checking for new elements continuously
         const observer = new MutationObserver(function() {
           removeGptElements();
         });
         
-        // Start observing the document body for DOM changes
-        observer.observe(document.body, { 
-          childList: true, 
-          subtree: true 
-        });
+        // Start observing the document for changes as soon as body is available
+        if (document.body) {
+          startObserving();
+        } else {
+          document.addEventListener('DOMContentLoaded', startObserving);
+        }
+        
+        function startObserving() {
+          observer.observe(document.body, { 
+            childList: true, 
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['class', 'style', 'id']
+          });
+        }
         
         function removeGptElements() {
           // Find and remove elements by various potential selectors
           const selectors = [
+            // Original selectors
             '.gpt-eng-icon', 
             '#gpt-eng-icon', 
             '[data-gpt-eng="icon"]',
@@ -73,11 +114,32 @@
             '[class^="gpt-eng"]',
             '[class*=" gpt-eng"]',
             '[id*="gpteng"]',
-            '[class*="gpteng"]'
+            '[class*="gpteng"]',
+            // Additional broader selectors
+            '[id*="gpt"]',
+            '[class*="gpt"]',
+            '[id*="assistant"]',
+            '[class*="assistant"]',
+            '[id*="help-icon"]',
+            '[class*="help-icon"]',
+            // Target potential fixed position elements in corners
+            '.fixed',
+            // Generic question mark icon classes
+            '[class*="question"]',
+            '[id*="question"]'
           ];
           
+          // Apply hiding to matching elements
           selectors.forEach(selector => {
             document.querySelectorAll(selector).forEach(element => {
+              // Check if it looks like a floating icon (typically small and positioned)
+              const rect = element.getBoundingClientRect();
+              const style = window.getComputedStyle(element);
+              const isSmall = (rect.width < 50 && rect.height < 50);
+              const isFixedOrAbsolute = (style.position === 'fixed' || style.position === 'absolute');
+              const isNearEdge = (rect.top < 100 || rect.left < 100);
+              
+              // Apply ultra-aggressive hiding
               element.style.display = 'none';
               element.style.visibility = 'hidden';
               element.style.opacity = '0';
@@ -86,10 +148,47 @@
               element.style.height = '0';
               element.style.position = 'absolute';
               element.style.zIndex = '-9999';
+              element.style.overflow = 'hidden';
+              element.style.clip = 'rect(0, 0, 0, 0)';
+              element.style.margin = '-1px';
+              element.style.padding = '0';
+              element.style.border = '0';
+              
+              // Remove the element if it matches criteria for likely being the icon
+              if (isSmall && isFixedOrAbsolute && isNearEdge) {
+                if (element.parentNode) {
+                  element.parentNode.removeChild(element);
+                }
+              }
             });
           });
+          
+          // Also look for floating elements that might contain question marks or help icons
+          document.querySelectorAll('div, span, button, a, i').forEach(element => {
+            const text = element.textContent || '';
+            const rect = element.getBoundingClientRect();
+            const style = window.getComputedStyle(element);
+            
+            // Check if the element is positioned, small, near edges, and contains '?'
+            if (text.includes('?') && 
+                (style.position === 'fixed' || style.position === 'absolute') &&
+                rect.width < 50 && rect.height < 50 &&
+                (rect.top < 100 || rect.left < 100)) {
+              
+              // This is likely our target - remove it
+              element.style.display = 'none';
+              element.style.visibility = 'hidden';
+              element.style.opacity = '0';
+              element.style.pointerEvents = 'none';
+              
+              // Try to remove it completely
+              if (element.parentNode) {
+                element.parentNode.removeChild(element);
+              }
+            }
+          });
         }
-      });
+      })();
     </script>
   </body>
 </html>
