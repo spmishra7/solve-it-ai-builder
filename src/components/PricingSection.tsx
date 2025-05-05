@@ -9,36 +9,37 @@ const PricingSection = () => {
 
   const pricingPlans = [
     {
-      name: "Free",
+      name: "UI Only",
       price: {
         monthly: 0,
         annual: 0
       },
-      description: "Try DrSolveIt with basic features",
+      description: "Take the generated UI and integrate it into your own codebase",
       features: [
         "Natural language input",
         "5 AI solution generations per month",
-        "Basic UI preview",
+        "Basic UI preview and export",
         "Community support",
-        "Limited database schemas"
+        "Frontend code only",
+        "No backend support"
       ],
-      buttonText: "Get Started",
+      buttonText: "Get Started Free",
       buttonVariant: "outline" as const,
       mostPopular: false
     },
     {
-      name: "Professional",
+      name: "Managed Backend",
       price: {
         monthly: 49,
         annual: 39
       },
-      description: "Everything you need for serious SaaS building",
+      description: "We host and manage the backend, you integrate the frontend",
       features: [
         "Unlimited AI generations",
-        "Full UI preview & customization",
+        "Full UI customization & export",
         "Complete database schemas",
-        "Basic workflow automation",
-        "Export codebase (React/Node.js)",
+        "Managed API endpoints",
+        "Cloud hosting included",
         "Email support"
       ],
       buttonText: "Start Free Trial",
@@ -46,18 +47,19 @@ const PricingSection = () => {
       mostPopular: true
     },
     {
-      name: "Enterprise",
+      name: "Complete Solution",
       price: {
-        monthly: 199,
-        annual: 169
+        monthly: null,
+        annual: null,
+        oneTime: 999
       },
-      description: "Advanced solutions for teams and organizations",
+      description: "One-time purchase for complete ownership of solution",
       features: [
-        "All Professional features",
-        "Advanced workflow automation",
-        "Custom subdomains",
-        "Team collaboration",
-        "API access",
+        "All Managed Backend features",
+        "Full source code ownership",
+        "Database export and setup",
+        "Deployment documentation",
+        "30-day implementation support",
         "Custom integrations",
         "Priority support"
       ],
@@ -77,30 +79,34 @@ const PricingSection = () => {
           </p>
 
           <div className="flex items-center justify-center mt-6">
-            <div className="bg-gray-100 p-1 rounded-full inline-flex">
-              <button
-                className={`px-4 py-2 rounded-full text-sm font-medium ${
-                  isAnnual ? "bg-white shadow-sm" : ""
-                }`}
-                onClick={() => setIsAnnual(true)}
-              >
-                Annual (Save 20%)
-              </button>
-              <button
-                className={`px-4 py-2 rounded-full text-sm font-medium ${
-                  !isAnnual ? "bg-white shadow-sm" : ""
-                }`}
-                onClick={() => setIsAnnual(false)}
-              >
-                Monthly
-              </button>
-            </div>
+            {pricingPlans[2].price.monthly === null ? (
+              <div className="bg-gray-100 p-1 rounded-full inline-flex">
+                <button
+                  className={`px-4 py-2 rounded-full text-sm font-medium ${
+                    isAnnual ? "bg-white shadow-sm" : ""
+                  }`}
+                  onClick={() => setIsAnnual(true)}
+                >
+                  Annual (Save 20%)
+                </button>
+                <button
+                  className={`px-4 py-2 rounded-full text-sm font-medium ${
+                    !isAnnual ? "bg-white shadow-sm" : ""
+                  }`}
+                  onClick={() => setIsAnnual(false)}
+                >
+                  Monthly
+                </button>
+              </div>
+            ) : null}
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {pricingPlans.map((plan, index) => {
             const price = isAnnual ? plan.price.annual : plan.price.monthly;
+            const isOneTimePayment = plan.price.oneTime !== undefined;
+            
             return (
               <Card key={index} className={`relative ${plan.mostPopular ? 'border-2 border-brand-500 shadow-lg' : ''}`}>
                 {plan.mostPopular && (
@@ -113,12 +119,21 @@ const PricingSection = () => {
                 <CardContent className={`p-6 ${plan.mostPopular ? 'pt-8' : 'pt-6'}`}>
                   <h3 className="text-lg font-bold mb-2">{plan.name}</h3>
                   <div className="mb-4">
-                    <span className="text-3xl font-bold">${price}</span>
-                    <span className="text-gray-600">/month</span>
-                    {isAnnual && price > 0 && (
-                      <span className="text-xs text-brand-600 block mt-1">
-                        Billed annually (${price * 12}/year)
-                      </span>
+                    {isOneTimePayment ? (
+                      <>
+                        <span className="text-3xl font-bold">${plan.price.oneTime}</span>
+                        <span className="text-gray-600"> one-time</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-3xl font-bold">${price}</span>
+                        <span className="text-gray-600">/month</span>
+                        {isAnnual && price > 0 && (
+                          <span className="text-xs text-brand-600 block mt-1">
+                            Billed annually (${price * 12}/year)
+                          </span>
+                        )}
+                      </>
                     )}
                   </div>
                   <p className="text-gray-600 mb-6">{plan.description}</p>

@@ -1,9 +1,20 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowRight, Check, Info, Loader2, Save } from "lucide-react";
+import { 
+  ArrowRight, 
+  Check, 
+  Info, 
+  Loader2, 
+  Save,
+  Download,
+  Code,
+  RefreshCcw,
+  Sparkles
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -134,8 +145,8 @@ CREATE TABLE medical_records (
           automation: `// Weekly Patient Report Generation
 schedule.weekly(() => {
   // Get all patient activity from the past week
-  const patients = db.query('SELECT * FROM patients WHERE created_at > now() - interval \'7 days\'');
-  const appointments = db.query('SELECT * FROM appointments WHERE appointment_date > now() - interval \'7 days\'');
+  const patients = db.query('SELECT * FROM patients WHERE created_at > now() - interval \\'7 days\\'');
+  const appointments = db.query('SELECT * FROM appointments WHERE appointment_date > now() - interval \\'7 days\\'');
   
   // Generate PDF report
   const report = generatePDF({
@@ -538,7 +549,7 @@ CREATE TABLE activity_logs (
           automation: `// Daily Digest Emails
 schedule.daily(() => {
   // Get all active users
-  const users = db.query('SELECT * FROM users WHERE role != \'inactive\'');
+  const users = db.query('SELECT * FROM users WHERE role != \\'inactive\\'');
   
   users.forEach(user => {
     // Get user's projects
@@ -699,9 +710,37 @@ const ExpertInsights = ({ insights }: { insights: Record<string, string> | undef
   );
 };
 
+// Helper function to download content as a file
+const downloadAsFile = (content: string, filename: string) => {
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+// Helper function to improve text prompts
+const improvePrompt = async (prompt: string): Promise<string> => {
+  // In a real implementation, this would call an API to improve the prompt
+  // For now, we'll just simulate it
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const improved = prompt.trim() + 
+        (prompt.endsWith('.') ? '' : '.') + 
+        " Include details about user authentication, payment processing, admin dashboard needs, and mobile responsiveness.";
+      resolve(improved);
+    }, 1000);
+  });
+};
+
 const SolutionGenerator = () => {
   const [businessDescription, setBusinessDescription] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isImprovingPrompt, setIsImprovingPrompt] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [solution, setSolution] = useState<null | {ui: string, database: string, automation: string, expertInsights?: Record<string, string>}>(null);
   const [activeTab, setActiveTab] = useState("preview");
@@ -711,3 +750,454 @@ const SolutionGenerator = () => {
   const [examplePrompts] = useState([
     "I need a patient management system for my small clinic.",
     "We need an invoice generation tool for our accounting department.",
+    "Build a project management platform for remote teams."
+  ]);
+
+  const { toast } = useToast();
+  const { session } = useAuth();
+  const navigate = useNavigate();
+
+  // Reset progress when not generating
+  useEffect(() => {
+    if (!isGenerating) setProgress(0);
+  }, [isGenerating]);
+
+  // Update progress bar while generating
+  useEffect(() => {
+    if (isGenerating && progress < 95) {
+      const timer = setTimeout(() => {
+        setProgress(prev => prev + (95 - prev) * 0.2);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isGenerating, progress]);
+
+  const handleRoleToggle = (roleId: string) => {
+    if (selectedRoles.includes(roleId)) {
+      setSelectedRoles(selectedRoles.filter(id => id !== roleId));
+    } else {
+      setSelectedRoles([...selectedRoles, roleId]);
+    }
+  };
+
+  const handleGenerate = async () => {
+    if (!businessDescription.trim()) {
+      toast({
+        title: "Description Required",
+        description: "Please describe your business problem.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+    setProgress(10);
+
+    try {
+      const result = await mockSolutionGeneration(businessDescription, selectedRoles);
+      setProgress(100);
+      setSolution(result);
+      
+      // Generate a title based on the business description
+      setSolutionTitle(
+        businessDescription
+          .split(' ')
+          .slice(0, 5)
+          .join(' ')
+          .replace(/[^\w\s]/gi, '') + '...'
+      );
+      
+      toast({
+        title: "Solution Generated",
+        description: "Your SaaS solution is ready."
+      });
+    } catch (error) {
+      toast({
+        title: "Generation Failed",
+        description: "There was an error generating your solution.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleImprovePrompt = async () => {
+    if (!businessDescription.trim()) {
+      toast({
+        title: "Description Required",
+        description: "Please enter a description to improve.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsImprovingPrompt(true);
+
+    try {
+      const improved = await improvePrompt(businessDescription);
+      setBusinessDescription(improved);
+      
+      toast({
+        title: "Prompt Improved",
+        description: "Your business description has been enhanced."
+      });
+    } catch (error) {
+      toast({
+        title: "Improvement Failed",
+        description: "There was an error improving your description.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsImprovingPrompt(false);
+    }
+  };
+
+  const handleExport = (type: 'ui' | 'database' | 'automation' | 'all') => {
+    if (!solution) return;
+
+    switch(type) {
+      case 'ui':
+        downloadAsFile(solution.ui, 'ui-code.html');
+        break;
+      case 'database':
+        downloadAsFile(solution.database, 'database-schema.sql');
+        break;
+      case 'automation':
+        downloadAsFile(solution.automation, 'automation-code.js');
+        break;
+      case 'all':
+        const allContent = `
+/* UI CODE */
+${solution.ui}
+
+/* DATABASE SCHEMA */
+${solution.database}
+
+/* AUTOMATION CODE */
+${solution.automation}
+`;
+        downloadAsFile(allContent, 'complete-solution.txt');
+        break;
+    }
+
+    toast({
+      title: "Export Complete",
+      description: `Your ${type === 'all' ? 'complete solution' : type + ' code'} has been downloaded.`
+    });
+  };
+
+  const handleSave = async () => {
+    if (!session?.user || !solution) {
+      toast({
+        title: "Cannot Save",
+        description: session ? "No solution to save." : "You must be logged in to save solutions.",
+        variant: "destructive"
+      });
+      
+      if (!session?.user) {
+        navigate("/auth");
+      }
+      
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      const { data, error } = await supabase
+        .from('solutions')
+        .insert([
+          {
+            title: solutionTitle,
+            business_prompt: businessDescription,
+            ui_solution: solution.ui,
+            database_solution: solution.database,
+            automation_solution: solution.automation,
+            user_id: session.user.id
+          }
+        ])
+        .select();
+
+      if (error) throw error;
+
+      toast({
+        title: "Solution Saved",
+        description: "Your solution has been saved to your account."
+      });
+
+      // Redirect to the solution detail page
+      if (data && data[0]) {
+        navigate(`/solutions/${data[0].id}`);
+      }
+    } catch (error) {
+      console.error("Error saving solution:", error);
+      toast({
+        title: "Save Failed",
+        description: "There was an error saving your solution.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <section id="solution-generator" className="py-16 bg-gray-50">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Create Your SaaS Solution</h2>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Describe your business problem, and our AI will generate a complete SaaS solution with UI, database schema, and workflow automation.
+          </p>
+        </div>
+
+        <Card className="mb-8">
+          <CardContent className="p-6">
+            <div className="flex flex-col space-y-4">
+              <div className="mb-2">
+                <label htmlFor="business-description" className="block text-sm font-medium text-gray-700 mb-1">
+                  Describe your business problem or SaaS idea
+                </label>
+                <div className="relative">
+                  <Textarea
+                    id="business-description"
+                    placeholder="e.g., I need a project management tool for my construction company to track projects, assign tasks, and generate reports."
+                    value={businessDescription}
+                    onChange={(e) => setBusinessDescription(e.target.value)}
+                    className="min-h-[100px]"
+                    disabled={isGenerating}
+                  />
+                  <Button 
+                    size="sm"
+                    variant="ghost"
+                    className="absolute bottom-2 right-2 text-xs flex items-center gap-1"
+                    onClick={handleImprovePrompt}
+                    disabled={isGenerating || isImprovingPrompt || !businessDescription.trim()}
+                  >
+                    {isImprovingPrompt ? (
+                      <>
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                        Improving...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-3 w-3" />
+                        Improve Prompt
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {examplePrompts.map((prompt, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setBusinessDescription(prompt)}
+                      className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-1 rounded"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <ExpertRoleSelector
+                selectedRoles={selectedRoles}
+                onRoleToggle={handleRoleToggle}
+              />
+
+              <Button
+                onClick={handleGenerate}
+                className="bg-brand-600 hover:bg-brand-700 w-full"
+                disabled={isGenerating || !businessDescription.trim()}
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generating Solution...
+                  </>
+                ) : (
+                  <>
+                    <ArrowRight className="mr-2 h-4 w-4" />
+                    Generate Solution
+                  </>
+                )}
+              </Button>
+
+              {isGenerating && (
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div
+                    className="bg-brand-600 h-2.5 rounded-full transition-all duration-300"
+                    style={{ width: `${progress}%` }}
+                  ></div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {solution && (
+          <Card>
+            <CardContent className="p-0">
+              <div className="border-b">
+                <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+                  <div className="flex justify-between items-center px-6 py-4">
+                    <TabsList className="grid grid-cols-4 w-fit">
+                      <TabsTrigger value="preview">Preview</TabsTrigger>
+                      <TabsTrigger value="database">Database</TabsTrigger>
+                      <TabsTrigger value="automation">Automation</TabsTrigger>
+                      <TabsTrigger value="export">Export</TabsTrigger>
+                    </TabsList>
+
+                    <div className="flex items-center gap-2">
+                      {session?.user && (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={handleSave}
+                          disabled={isSaving}
+                        >
+                          {isSaving ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Saving...
+                            </>
+                          ) : (
+                            <>
+                              <Save className="mr-2 h-4 w-4" />
+                              Save Solution
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </Tabs>
+              </div>
+
+              <TabsContent value="preview" className="p-6">
+                <div className="flex flex-col md:flex-row gap-6">
+                  <div className="md:w-2/3 bg-white border rounded-lg overflow-hidden shadow-sm">
+                    <div className="bg-gray-100 border-b p-3 flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <div className="h-3 w-3 rounded-full bg-red-500"></div>
+                        <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
+                        <div className="h-3 w-3 rounded-full bg-green-500"></div>
+                      </div>
+                      <div className="text-xs text-gray-500">Preview</div>
+                    </div>
+                    <div className="p-4">
+                      <div dangerouslySetInnerHTML={{ __html: solution.ui }} />
+                    </div>
+                  </div>
+                  <div className="md:w-1/3">
+                    <ExpertInsights insights={solution.expertInsights} />
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="database" className="p-6">
+                <div className="bg-gray-50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
+                  <pre>{solution.database}</pre>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="automation" className="p-6">
+                <div className="bg-gray-50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
+                  <pre>{solution.automation}</pre>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="export" className="p-6">
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Export Options</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <Card>
+                        <CardContent className="p-6">
+                          <div className="mb-4 flex justify-center">
+                            <Code className="h-12 w-12 text-brand-600" />
+                          </div>
+                          <h4 className="text-center font-medium mb-2">Frontend UI</h4>
+                          <p className="text-sm text-gray-500 text-center mb-4">
+                            Export the UI code to integrate with your existing project
+                          </p>
+                          <Button onClick={() => handleExport('ui')} variant="outline" className="w-full">
+                            Export UI Code
+                          </Button>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card>
+                        <CardContent className="p-6">
+                          <div className="mb-4 flex justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-brand-600">
+                              <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                              <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"></path>
+                            </svg>
+                          </div>
+                          <h4 className="text-center font-medium mb-2">Database Schema</h4>
+                          <p className="text-sm text-gray-500 text-center mb-4">
+                            Export SQL schema to set up your database
+                          </p>
+                          <Button onClick={() => handleExport('database')} variant="outline" className="w-full">
+                            Export Schema
+                          </Button>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card>
+                        <CardContent className="p-6">
+                          <div className="mb-4 flex justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-brand-600">
+                              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                            </svg>
+                          </div>
+                          <h4 className="text-center font-medium mb-2">Automation Code</h4>
+                          <p className="text-sm text-gray-500 text-center mb-4">
+                            Export backend logic and automation workflows
+                          </p>
+                          <Button onClick={() => handleExport('automation')} variant="outline" className="w-full">
+                            Export Automation
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                      <h3 className="text-lg font-medium mb-2">Complete Solution Package</h3>
+                      <p className="text-sm text-gray-500 text-center mb-4">
+                        Download everything you need to implement or host this solution yourself
+                      </p>
+                      <Button onClick={() => handleExport('all')} className="bg-brand-600 hover:bg-brand-700">
+                        <Download className="mr-2 h-4 w-4" />
+                        Download Complete Package
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start">
+                    <Info className="h-5 w-5 text-blue-500 mr-3 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-blue-800 mb-1">Need help with implementation?</h4>
+                      <p className="text-sm text-blue-700">
+                        Our team can help you deploy this solution, or we can host and manage it for you.
+                        Check out our <a href="#pricing" className="underline">pricing plans</a> or contact our sales team for custom solutions.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </section>
+  );
+};
+
+export default SolutionGenerator;
