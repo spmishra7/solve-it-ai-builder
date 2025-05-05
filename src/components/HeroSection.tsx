@@ -7,7 +7,7 @@ const HeroSection = () => {
     // Scroll to solution generator section
     const element = document.getElementById("solution-generator");
     if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
@@ -15,7 +15,7 @@ const HeroSection = () => {
     // Scroll to the templates section which has solution examples
     const element = document.getElementById("templates");
     if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 

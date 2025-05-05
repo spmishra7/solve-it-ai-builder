@@ -12,7 +12,7 @@ const SelectAllButton = ({ allSelected, onSelectAll }: SelectAllButtonProps) => 
     <Button 
       variant={allSelected ? "default" : "outline"} 
       size="sm" 
-      className="flex items-center gap-1"
+      className={`flex items-center gap-1 ${allSelected ? "bg-brand-600 hover:bg-brand-700" : ""}`}
       onClick={onSelectAll}
     >
       {allSelected && <Check className="w-4 h-4" />}

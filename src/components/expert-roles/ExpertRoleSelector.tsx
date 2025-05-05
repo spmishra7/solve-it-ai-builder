@@ -12,8 +12,9 @@ interface ExpertRoleSelectorProps {
 const ExpertRoleSelector = ({ selectedRoles, onRoleToggle }: ExpertRoleSelectorProps) => {
   const [expandedCategories, setExpandedCategories] = useState<string[]>([roleCategories[0].id]);
   
+  // Get all role IDs across all categories
   const allRoles = roleCategories.flatMap(category => category.roles.map(role => role.id));
-  const allSelected = allRoles.every(roleId => selectedRoles.includes(roleId));
+  const allSelected = selectedRoles.length > 0 && allRoles.every(roleId => selectedRoles.includes(roleId));
   
   const handleExpandToggle = (categoryId: string) => {
     setExpandedCategories(prev => 
@@ -42,7 +43,7 @@ const ExpertRoleSelector = ({ selectedRoles, onRoleToggle }: ExpertRoleSelectorP
   };
   
   return (
-    <div className="space-y-3 rounded-lg bg-gradient-to-br from-secondary/40 to-secondary/80 p-4 border border-accent/10">
+    <div className="space-y-3 rounded-lg bg-gradient-to-br from-accent to-brand-600/80 p-4 border border-accent/10">
       <RoleSelectorHeader 
         allSelected={allSelected}
         onSelectAll={handleSelectAll}
