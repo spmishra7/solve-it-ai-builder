@@ -21,7 +21,7 @@ const WizardStepper = ({ steps, activeStep, setActiveStep }: WizardStepperProps)
             label={step.title} 
             description={step.description}
             onClick={() => index < activeStep && setActiveStep(index)}
-            className={index < activeStep ? "cursor-pointer" : ""}
+            className={index < activeStep ? "cursor-pointer hover:opacity-80 transition-opacity" : ""}
           />
         ))}
       </Stepper>

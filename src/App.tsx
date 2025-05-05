@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import Navbar from "./components/Navbar";
@@ -11,6 +10,7 @@ import LoadingSpinner from "./components/LoadingSpinner";
 import ScrollToTopButton from "./components/ScrollToTopButton";
 import Pricing from './pages/Pricing';
 import { Toaster } from "@/components/ui/toaster";
+import MCPIntegration from "./components/automation/MCPIntegration";
 
 // Lazy load components
 const Index = lazy(() => import("./pages/Index"));
