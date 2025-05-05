@@ -22,9 +22,12 @@ const UICode = ({ content, selectedRoles = [], roleNames = {} }: SolutionPreview
       .replace(/on\w+="[^"]*"/g, '');
   };
 
+  // Safely handle insights display
+  const hasInsights = selectedRoles && selectedRoles.length > 0 && roleNames;
+
   return (
     <div className="space-y-4">
-      {selectedRoles && selectedRoles.length > 0 && roleNames && (
+      {hasInsights && (
         <ExpertInsights 
           insights={{}} // Providing empty object as fallback
           selectedRoles={selectedRoles}

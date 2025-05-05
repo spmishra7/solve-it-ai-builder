@@ -25,6 +25,14 @@ const SolutionCard = ({ handleSave }: SolutionCardProps) => {
     // Export implementation (will be added in future)
     console.log('Exporting:', type);
   };
+  
+  // Ensure solution is defined
+  if (!solution) {
+    return null;
+  }
+
+  // Safely access expertInsights or provide default
+  const expertInsights = solution.expertInsights || {};
 
   // Add ID and class for easier targeting
   return (
@@ -103,7 +111,7 @@ const SolutionCard = ({ handleSave }: SolutionCardProps) => {
 
           <TabsContent value="insights" className="p-6">
             <ExpertInsights 
-              insights={solution?.expertInsights || {}} 
+              insights={expertInsights} 
               selectedRoles={selectedRoles}
               roleNames={roleNames}
             />

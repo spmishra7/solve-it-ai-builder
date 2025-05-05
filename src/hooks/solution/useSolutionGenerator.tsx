@@ -9,6 +9,7 @@ import { usePromptImprover } from "./usePromptImprover";
 import { useSolutionSaver } from "./useSolutionSaver";
 import { roleCategories } from "@/components/expert-roles/roleData";
 import { useEffect, useRef } from "react";
+import { toast as sonnerToast } from "sonner";
 
 export const useSolutionGenerator = () => {
   const {
@@ -88,40 +89,64 @@ export const useSolutionGenerator = () => {
       
       // Show toast for selected roles with the count
       if (selectedRoles.length > 0) {
-        toast({
-          title: `Including ${selectedRoles.length} expert perspective${selectedRoles.length === 1 ? '' : 's'}`,
+        sonnerToast.info(`Including ${selectedRoles.length} expert perspective${selectedRoles.length === 1 ? '' : 's'}`, {
           description: "Your solution will include these specialized insights."
         });
       }
-      
-      const result = await generateSolution(
-        businessDescription,
-        "business owner",  // default user type
-        "standard",        // default template
-        undefined,         // use default model config
-        selectedRoles      // pass selected roles
-      );
-      
-      console.log("Solution generation result received:", result ? "success" : "undefined or null");
-      
-      // Clear the interval and set progress to 100
-      if (progressTimerRef.current !== null) {
-        clearInterval(progressTimerRef.current);
-        progressTimerRef.current = null;
-      }
-      setProgress(100);
-      
-      // Transform the result to match our component's expected format
-      const transformedResult = {
-        ui: result?.ui_solution || "No UI solution generated",
-        database: result?.database_solution || "No database schema generated",
-        automation: result?.automation_solution || "No automation solution generated",
-        expertInsights: result?.expert_insights || {}
+
+      // Mock solution for testing when API key is missing
+      const mockSolution = {
+        ui: "<div><h1>Patient Management System</h1><p>This is a mock UI solution</p></div>",
+        database: "CREATE TABLE patients (\n  id SERIAL PRIMARY KEY,\n  name VARCHAR(255) NOT NULL\n);\n\nCREATE TABLE appointments (\n  id SERIAL PRIMARY KEY,\n  patient_id INTEGER REFERENCES patients(id),\n  appointment_date TIMESTAMP NOT NULL\n);",
+        automation: "function scheduleAppointment() {\n  // Mock automation workflow\n  console.log('Appointment scheduled');\n}",
+        expertInsights: {}
       };
       
-      console.log("Transformed result:", transformedResult);
-      setSolution(transformedResult);
-      setSolutionTitle(result?.title || businessDescription.substring(0, 50) + '...');
+      try {
+        // Try to call the real API
+        const result = await generateSolution(
+          businessDescription,
+          "business owner",
+          "standard",
+          undefined,
+          selectedRoles
+        );
+        
+        console.log("Solution generation result received:", result ? "success" : "undefined or null");
+
+        // Clear the interval and set progress to 100
+        if (progressTimerRef.current !== null) {
+          clearInterval(progressTimerRef.current);
+          progressTimerRef.current = null;
+        }
+        setProgress(100);
+        
+        // Transform the result to match our component's expected format
+        const transformedResult = {
+          ui: result?.ui_solution || "No UI solution generated",
+          database: result?.database_solution || "No database schema generated",
+          automation: result?.automation_solution || "No automation solution generated",
+          expertInsights: result?.expert_insights || {}
+        };
+        
+        console.log("Transformed result:", transformedResult);
+        setSolution(transformedResult);
+        setSolutionTitle(result?.title || businessDescription.substring(0, 50) + '...');
+      } catch (apiError) {
+        console.error("API Error:", apiError);
+        
+        // If there's an API error, show a message and use mock data for testing
+        toast({
+          title: "API Configuration Issue",
+          description: "Using demo data. Set up OpenAI API key for full functionality.",
+          variant: "warning"
+        });
+        
+        // Use mock solution when API fails
+        setProgress(100);
+        setSolution(mockSolution);
+        setSolutionTitle(businessDescription.substring(0, 50) + '... (Demo)');
+      }
       
       toast({
         title: "Solution Generated",
