@@ -7,8 +7,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Stepper, Step } from "@/components/ui/stepper";
 import { 
   Zap, Clock, Mail, BellRing, 
-  CheckCircle2, ArrowRight, Loader2, Calendar 
+  CheckCircle2, ArrowRight, Loader2, Calendar,
+  Network
 } from "lucide-react";
+import N8nIntegration from "./automation/N8nIntegration";
 
 interface AutomationWizardProps {
   automationSolution: string;
@@ -17,6 +19,8 @@ interface AutomationWizardProps {
 const AutomationWizard = ({ automationSolution }: AutomationWizardProps) => {
   const [activeStep, setActiveStep] = useState(0);
   const [implementingType, setImplementingType] = useState("");
+  const [selectedTab, setSelectedTab] = useState("built-in");
+  const [workflowId, setWorkflowId] = useState("");
   const { toast } = useToast();
   
   const automationTypes = [
@@ -37,13 +41,22 @@ const AutomationWizard = ({ automationSolution }: AutomationWizardProps) => {
     if (activeStep === steps.length - 1) {
       setImplementingType("deploy");
       
-      // Simulate deployment process
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      toast({
-        title: "Automation deployed!",
-        description: "Your automation workflow is now active and running.",
-      });
+      if (selectedTab === "n8n" && workflowId) {
+        // If n8n integration is selected and we have a workflow ID,
+        // we can skip the local deployment and just show success
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        toast({
+          title: "n8n workflow configured!",
+          description: "Your automation workflow is now active in n8n.",
+        });
+      } else {
+        // Simulate deployment process for built-in automation
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        toast({
+          title: "Automation deployed!",
+          description: "Your automation workflow is now active and running.",
+        });
+      }
       
       setImplementingType("");
     } else {
@@ -53,6 +66,14 @@ const AutomationWizard = ({ automationSolution }: AutomationWizardProps) => {
   
   const handleBack = () => {
     setActiveStep(prev => prev - 1);
+  };
+  
+  const handleWorkflowCreated = (id: string) => {
+    setWorkflowId(id);
+    toast({
+      title: "Workflow created",
+      description: "n8n workflow has been created successfully.",
+    });
   };
   
   const renderStepContent = () => {
@@ -120,21 +141,37 @@ const AutomationWizard = ({ automationSolution }: AutomationWizardProps) => {
         
       case 2:
         return (
-          <div className="space-y-4">
-            <div className="p-4 bg-gray-900 text-blue-400 rounded-md font-mono text-sm overflow-auto max-h-[300px]">
-              <pre>{automationSolution}</pre>
-            </div>
+          <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
+            <TabsList className="grid grid-cols-2 w-full mb-4">
+              <TabsTrigger value="built-in">Built-in Automation</TabsTrigger>
+              <TabsTrigger value="n8n">n8n Integration</TabsTrigger>
+            </TabsList>
             
-            <Button variant="outline" className="w-full" onClick={() => {
-              navigator.clipboard.writeText(automationSolution);
-              toast({ 
-                title: "Code copied to clipboard",
-                description: "You can now implement this automation code in your project."
-              });
-            }}>
-              Copy Code
-            </Button>
-          </div>
+            <TabsContent value="built-in">
+              <div className="space-y-4">
+                <div className="p-4 bg-gray-900 text-blue-400 rounded-md font-mono text-sm overflow-auto max-h-[300px]">
+                  <pre>{automationSolution}</pre>
+                </div>
+                
+                <Button variant="outline" className="w-full" onClick={() => {
+                  navigator.clipboard.writeText(automationSolution);
+                  toast({ 
+                    title: "Code copied to clipboard",
+                    description: "You can now implement this automation code in your project."
+                  });
+                }}>
+                  Copy Code
+                </Button>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="n8n">
+              <N8nIntegration 
+                automationSolution={automationSolution}
+                onWorkflowCreated={handleWorkflowCreated}
+              />
+            </TabsContent>
+          </Tabs>
         );
         
       case 3:
@@ -142,19 +179,21 @@ const AutomationWizard = ({ automationSolution }: AutomationWizardProps) => {
           <div className="space-y-4">
             <div className="p-6 text-center">
               <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-brand-100 text-brand-900 mb-4">
-                <Zap className="h-8 w-8" />
+                {selectedTab === "n8n" ? <Network className="h-8 w-8" /> : <Zap className="h-8 w-8" />}
               </div>
               <h3 className="text-xl font-semibold mb-2">Ready to Deploy</h3>
               <p className="text-gray-600 mb-4">
-                Your automation is configured and ready to go live.
+                {selectedTab === "n8n" 
+                  ? "Your n8n workflow is configured and ready to activate."
+                  : "Your automation is configured and ready to go live."}
               </p>
               
               <div className="flex justify-center space-x-2">
                 <Button variant="outline" onClick={() => setActiveStep(2)}>
-                  Review Code Again
+                  Review Again
                 </Button>
                 <Button onClick={handleNext}>
-                  Deploy Automation
+                  {selectedTab === "n8n" ? "Activate Workflow" : "Deploy Automation"}
                 </Button>
               </div>
             </div>
@@ -169,6 +208,7 @@ const AutomationWizard = ({ automationSolution }: AutomationWizardProps) => {
         <CardTitle>Implement Automation Workflows</CardTitle>
         <CardDescription>
           Follow this wizard to set up your automation code
+          {selectedTab === "n8n" && " using n8n workflow engine"}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -200,17 +240,17 @@ const AutomationWizard = ({ automationSolution }: AutomationWizardProps) => {
           </Button>
           <Button 
             onClick={handleNext}
-            disabled={!implementingType || implementingType === "deploy"}
+            disabled={!implementingType || implementingType === "deploy" || (selectedTab === "n8n" && activeStep === 3 && !workflowId)}
           >
             {implementingType === "deploy" ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Deploying...
+                {selectedTab === "n8n" ? "Activating..." : "Deploying..."}
               </>
             ) : activeStep === steps.length - 1 ? (
               <>
-                Deploy
-                <Zap className="ml-2 h-4 w-4" />
+                {selectedTab === "n8n" ? "Activate" : "Deploy"}
+                {selectedTab === "n8n" ? <Network className="ml-2 h-4 w-4" /> : <Zap className="ml-2 h-4 w-4" />}
               </>
             ) : (
               <>
