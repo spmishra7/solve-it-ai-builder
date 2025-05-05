@@ -2,12 +2,12 @@
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2, Sparkles, Zap } from "lucide-react";
-import { useSolution } from "@/contexts/SolutionContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 
 interface PromptInputProps {
   businessDescription: string;
+  setBusinessDescription: (description: string) => void;
   isGenerating: boolean;
   isImprovingPrompt: boolean;
   handleImprovePrompt: () => Promise<void>;
@@ -21,12 +21,17 @@ const examplePrompts = [
 
 const PromptInput = ({
   businessDescription,
+  setBusinessDescription,
   isGenerating,
   isImprovingPrompt,
   handleImprovePrompt
 }: PromptInputProps) => {
-  const { setBusinessDescription } = useSolution();
   const [focused, setFocused] = useState(false);
+
+  const handleExamplePromptClick = (prompt: string) => {
+    console.log("Example prompt selected:", prompt);
+    setBusinessDescription(prompt);
+  };
 
   return (
     <div className="mb-2">
@@ -98,32 +103,30 @@ const PromptInput = ({
         </Button>
       </div>
 
-      <AnimatePresence>
-        <motion.div 
-          className="flex flex-wrap gap-2 mt-3"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          {examplePrompts.map((prompt, i) => (
-            <motion.button
-              key={i}
-              onClick={() => setBusinessDescription(prompt)}
-              className="text-xs bg-brand-100 hover:bg-brand-200 text-brand-800 px-3 py-1.5 rounded-md font-medium shadow-sm"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ 
-                opacity: 1, 
-                y: 0,
-                transition: { delay: 0.3 + (i * 0.1) }
-              }}
-            >
-              {prompt}
-            </motion.button>
-          ))}
-        </motion.div>
-      </AnimatePresence>
+      <motion.div 
+        className="flex flex-wrap gap-2 mt-3"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        {examplePrompts.map((prompt, i) => (
+          <motion.button
+            key={i}
+            onClick={() => handleExamplePromptClick(prompt)}
+            className="text-xs bg-brand-100 hover:bg-brand-200 text-brand-800 px-3 py-1.5 rounded-md font-medium shadow-sm"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ 
+              opacity: 1, 
+              y: 0,
+              transition: { delay: 0.3 + (i * 0.1) }
+            }}
+          >
+            {prompt}
+          </motion.button>
+        ))}
+      </motion.div>
     </div>
   );
 };

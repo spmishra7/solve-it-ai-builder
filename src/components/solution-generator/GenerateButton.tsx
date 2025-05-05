@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Loader2, Sparkles } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface GenerateButtonProps {
@@ -18,7 +18,10 @@ const GenerateButton = ({ handleGenerate, isGenerating, disabled, progress }: Ge
         whileTap={{ scale: disabled ? 1 : 0.98 }}
       >
         <Button
-          onClick={handleGenerate}
+          onClick={() => {
+            console.log("Generate button clicked");
+            handleGenerate();
+          }}
           className="bg-brand-600 hover:bg-brand-700 w-full relative overflow-hidden group"
           disabled={isGenerating || disabled}
         >

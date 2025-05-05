@@ -73,6 +73,13 @@ const SolutionInputForm = ({
     }
   };
 
+  const handleGenerateClick = () => {
+    console.log("Generate button clicked in SolutionInputForm");
+    // Add a debugging output to see if we have a business description
+    console.log("Business description:", businessDescription);
+    handleGenerate();
+  };
+
   return (
     <motion.div
       variants={cardVariants}
@@ -93,6 +100,7 @@ const SolutionInputForm = ({
             >
               <PromptInput
                 businessDescription={businessDescription}
+                setBusinessDescription={setBusinessDescription}
                 isGenerating={isGenerating}
                 isImprovingPrompt={isImprovingPrompt}
                 handleImprovePrompt={handleImprovePrompt}
@@ -153,7 +161,7 @@ const SolutionInputForm = ({
               transition={{ delay: 0.3 }}
             >
               <GenerateButton
-                handleGenerate={handleGenerate}
+                handleGenerate={handleGenerateClick}
                 isGenerating={isGenerating}
                 disabled={!businessDescription.trim()}
                 progress={progress}

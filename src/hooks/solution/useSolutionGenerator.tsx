@@ -61,6 +61,17 @@ export const useSolutionGenerator = () => {
         });
       }
       
+      // Simulate progress to provide feedback during generation
+      const progressInterval = setInterval(() => {
+        setProgress((prevProgress) => {
+          if (prevProgress >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prevProgress + 10;
+        });
+      }, 2000);
+      
       const result = await generateSolution(
         businessDescription,
         "business owner",  // default user type
@@ -69,16 +80,19 @@ export const useSolutionGenerator = () => {
         selectedRoles      // pass selected roles
       );
       
+      // Clear the interval and set progress to 100
+      clearInterval(progressInterval);
       setProgress(100);
       
       // Transform the result to match our component's expected format
       const transformedResult = {
-        ui: result.ui_solution,
-        database: result.database_solution,
-        automation: result.automation_solution,
+        ui: result.ui_solution || "No UI solution generated",
+        database: result.database_solution || "No database schema generated",
+        automation: result.automation_solution || "No automation solution generated",
         expertInsights: result.expert_insights || {}
       };
       
+      console.log("Solution generated:", transformedResult);
       setSolution(transformedResult);
       setSolutionTitle(result.title || businessDescription.substring(0, 50) + '...');
       
@@ -92,6 +106,8 @@ export const useSolutionGenerator = () => {
         const solutionElement = document.querySelector("#solution-preview");
         if (solutionElement) {
           solutionElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+          console.error("Solution preview element not found");
         }
       }, 300);
     } catch (error) {

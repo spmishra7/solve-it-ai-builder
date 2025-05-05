@@ -16,6 +16,9 @@ export async function generateSolution(
     localStorage.removeItem("selectedTemplatePrompt");
     localStorage.removeItem("selectedTemplateTitle");
 
+    console.log("Generating solution for:", businessPrompt);
+    console.log("Selected expert roles:", expertRoles);
+
     // First check if we have similar solutions
     const similarSolutions = await findSimilarSolutions({
       businessPrompt,
@@ -47,9 +50,11 @@ export async function generateSolution(
 
     if (error) {
       console.error("Error generating solution:", error);
-      toast.error("Failed to generate solution");
+      toast.error("Failed to generate solution: " + error.message);
       throw error;
     }
+
+    console.log("Solution generated successfully:", data);
 
     // Learn from this new solution asynchronously
     // We don't need to await this as it's a background process
