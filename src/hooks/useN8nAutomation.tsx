@@ -1,16 +1,15 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-interface N8nWorkflow {
+export interface N8nWorkflow {
   id: string;
   name: string;
   active: boolean;
   createdAt: string;
 }
 
-interface UseN8nAutomationReturn {
+export interface UseN8nAutomationReturn {
   isLoading: boolean;
   workflows: N8nWorkflow[];
   error: string | null;
