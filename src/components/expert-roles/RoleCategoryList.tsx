@@ -4,16 +4,16 @@ import { RoleCategory as RoleCategoryType } from "./roleData";
 
 interface RoleCategoryListProps {
   categories: RoleCategoryType[];
-  expandedCategory: string | null;
-  toggleCategory: (categoryId: string) => void;
+  expandedCategories: string[];
+  onExpandToggle: (categoryId: string) => void;
   selectedRoles: string[];
   onRoleToggle: (roleId: string) => void;
 }
 
 const RoleCategoryList = ({
   categories,
-  expandedCategory,
-  toggleCategory,
+  expandedCategories,
+  onExpandToggle,
   selectedRoles,
   onRoleToggle,
 }: RoleCategoryListProps) => {
@@ -23,8 +23,8 @@ const RoleCategoryList = ({
         <RoleCategory
           key={category.id}
           category={category}
-          isExpanded={expandedCategory === category.id}
-          onToggle={() => toggleCategory(category.id)}
+          isExpanded={expandedCategories.includes(category.id)}
+          onToggle={() => onExpandToggle(category.id)}
           selectedRoles={selectedRoles}
           onRoleToggle={onRoleToggle}
         />
