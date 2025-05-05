@@ -1,0 +1,102 @@
+
+import { useToast } from "@/hooks/use-toast";
+import { useSolution } from "@/contexts/SolutionContext";
+import { generateSolution } from "@/lib/api";
+import { useRoleManagement } from "./useRoleManagement";
+import { useContentAnalyzer } from "./useContentAnalyzer";
+import { useProgressTracking } from "./useProgressTracking";
+import { usePromptImprover } from "./usePromptImprover";
+import { useSolutionSaver } from "./useSolutionSaver";
+
+export const useSolutionGenerator = () => {
+  const {
+    businessDescription,
+    setProgress,
+    setSolution,
+    setSolutionTitle,
+    setIsGenerating,
+    selectedRoles
+  } = useSolution();
+  
+  const { toast } = useToast();
+
+  const { handleRoleToggle } = useRoleManagement();
+  const { handleContentAnalyzed } = useContentAnalyzer();
+  const { handleImprovePrompt } = usePromptImprover();
+  const { handleSave } = useSolutionSaver();
+
+  const handleGenerate = async () => {
+    if (!businessDescription.trim()) {
+      toast({
+        title: "Description Required",
+        description: "Please describe your business problem.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+    setProgress(10);
+
+    try {
+      // Show toast for selected roles
+      if (selectedRoles.length > 0) {
+        toast({
+          title: `Including ${selectedRoles.length} expert perspective${selectedRoles.length === 1 ? '' : 's'}`,
+          description: "Your solution will include these specialized insights."
+        });
+      }
+      
+      const result = await generateSolution(
+        businessDescription,
+        "business owner",  // default user type
+        "standard",        // default template
+        undefined,         // use default model config
+        selectedRoles      // pass selected roles
+      );
+      
+      setProgress(100);
+      
+      // Transform the result to match our component's expected format
+      const transformedResult = {
+        ui: result.ui_solution,
+        database: result.database_solution,
+        automation: result.automation_solution,
+        expertInsights: result.expert_insights || {}
+      };
+      
+      setSolution(transformedResult);
+      setSolutionTitle(result.title || businessDescription.substring(0, 50) + '...');
+      
+      toast({
+        title: "Solution Generated",
+        description: "Your SaaS solution is ready."
+      });
+      
+      // Scroll to the solution
+      setTimeout(() => {
+        const solutionElement = document.querySelector("#solution-preview");
+        if (solutionElement) {
+          solutionElement.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 300);
+    } catch (error) {
+      console.error("Error generating solution:", error);
+      toast({
+        title: "Generation Failed",
+        description: "There was an error generating your solution.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  return {
+    handleRoleToggle,
+    handleContentAnalyzed,
+    handleGenerate,
+    handleImprovePrompt,
+    handleSave
+  };
+};
