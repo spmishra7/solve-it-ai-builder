@@ -1,135 +1,118 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import { Menu, X, User, LogOut, FileText } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useMobile } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
+import { Menu, X, Settings } from "lucide-react";
 
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
-  const navigate = useNavigate();
+  const isMobile = useMobile();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
   return (
-    <nav className="bg-card/50 backdrop-blur-md sticky top-0 z-50 border-b border-border">
+    <header className="sticky top-0 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 z-30">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center py-4">
-          <div className="flex items-center">
-            <Link to="/" className="font-bold text-xl text-foreground flex items-center gap-2">
-              <img 
-                src="/lovable-uploads/b8bd828d-1db2-4ecf-ad16-701fd9844c9e.png" 
-                alt="DrSolveIt Logo" 
-                className="h-8 w-auto"
-              />
-              <span className="gradient-text">DrSolveIt</span>
-            </Link>
-          </div>
-          
-          <div className="hidden md:flex items-center space-x-8">
-            <a href="#features" className="text-muted-foreground hover:text-accent transition-colors">Features</a>
-            <a href="#generator" className="text-muted-foreground hover:text-accent transition-colors">Build Now</a>
-            <a href="#templates" className="text-muted-foreground hover:text-accent transition-colors">Templates</a>
-            <a href="#pricing" className="text-muted-foreground hover:text-accent transition-colors">Pricing</a>
-            
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="flex items-center gap-2 border-accent">
-                    <User size={16} />
-                    Account
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-card border-border">
-                  <DropdownMenuItem onClick={() => navigate("/my-solutions")} className="cursor-pointer hover:bg-accent/10">
-                    <FileText size={16} className="mr-2" />
-                    My Solutions
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-border" />
-                  <DropdownMenuItem onClick={signOut} className="cursor-pointer text-red-400 hover:bg-red-500/10">
-                    <LogOut size={16} className="mr-2" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Button 
-                onClick={() => navigate('/auth')} 
-                variant="default" 
-                className="bg-brand-600 hover:bg-brand-700"
+        <div className="flex justify-between items-center h-16">
+          <Link to="/" className="flex items-center space-x-2">
+            <img src="/logo.png" alt="Logo" className="h-8 w-8" />
+            <span className="text-xl font-bold text-gray-900 dark:text-gray-100">AIExperts</span>
+          </Link>
+
+          {isMobile ? (
+            <>
+              <button
+                onClick={toggleMenu}
+                className="p-2 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
-                Login / Sign Up
-              </Button>
-            )}
-          </div>
-          
-          <div className="md:hidden">
-            <button
-              type="button"
-              className="text-foreground hover:text-accent"
-              onClick={toggleMenu}
-              aria-label="Toggle menu"
-            >
-              {isMenuOpen ? (
-                <X size={24} />
-              ) : (
-                <Menu size={24} />
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      {/* Mobile menu */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-card/80 backdrop-blur-md border-t border-border">
-          <div className="container mx-auto px-4 py-2">
-            <div className="flex flex-col space-y-3 py-3">
-              <a href="#features" className="text-muted-foreground hover:text-accent py-2" onClick={toggleMenu}>Features</a>
-              <a href="#generator" className="text-muted-foreground hover:text-accent py-2" onClick={toggleMenu}>Build Now</a>
-              <a href="#templates" className="text-muted-foreground hover:text-accent py-2" onClick={toggleMenu}>Templates</a>
-              <a href="#pricing" className="text-muted-foreground hover:text-accent py-2" onClick={toggleMenu}>Pricing</a>
+                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
               
-              {user ? (
-                <>
-                  <Link to="/my-solutions" className="text-muted-foreground hover:text-accent py-2 flex items-center" onClick={toggleMenu}>
-                    <FileText size={16} className="mr-2" />
+              {isMenuOpen && (
+                <div className="absolute top-16 left-0 right-0 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 py-4 px-4 shadow-lg">
+                  <nav className="flex flex-col space-y-4">
+                    <Link
+                      to="/"
+                      className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Home
+                    </Link>
+                    <Link
+                      to="/model-manager"
+                      className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 flex items-center"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Settings className="mr-1 h-4 w-4" />
+                      Models
+                    </Link>
+                    {user ? (
+                      <>
+                        <Link
+                          to="/my-solutions"
+                          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          My Solutions
+                        </Link>
+                        <Button variant="ghost" onClick={() => { signOut(); setIsMenuOpen(false); }}>
+                          Sign Out
+                        </Button>
+                      </>
+                    ) : (
+                      <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                        <Button>Sign In</Button>
+                      </Link>
+                    )}
+                  </nav>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="flex items-center space-x-6">
+              <nav className="flex items-center space-x-6">
+                <Link
+                  to="/"
+                  className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                >
+                  Home
+                </Link>
+                <Link
+                  to="/model-manager"
+                  className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 flex items-center"
+                >
+                  <Settings className="mr-1 h-4 w-4" />
+                  Models
+                </Link>
+                {user && (
+                  <Link
+                    to="/my-solutions"
+                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                  >
                     My Solutions
                   </Link>
-                  <button 
-                    onClick={() => {
-                      signOut();
-                      toggleMenu();
-                    }} 
-                    className="text-red-400 hover:text-red-300 py-2 flex items-center"
-                  >
-                    <LogOut size={16} className="mr-2" />
-                    Sign Out
-                  </button>
-                </>
+                )}
+              </nav>
+              
+              {user ? (
+                <Button variant="ghost" onClick={signOut}>
+                  Sign Out
+                </Button>
               ) : (
-                <Link to="/auth" onClick={toggleMenu}>
-                  <Button className="w-full bg-brand-600 hover:bg-brand-700">
-                    Login / Sign Up
-                  </Button>
+                <Link to="/auth">
+                  <Button>Sign In</Button>
                 </Link>
               )}
             </div>
-          </div>
+          )}
         </div>
-      )}
-    </nav>
+      </div>
+    </header>
   );
 };
 

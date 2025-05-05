@@ -11,6 +11,12 @@ type ExpertRole = 'ceo' | 'cfo' | 'product' | 'designer' | 'engineer' | 'securit
 interface RequestData {
   businessPrompt: string;
   selectedRoles: ExpertRole[];
+  modelSettings?: {
+    provider: string;
+    model: string;
+    temperature: number;
+    maxTokens: number;
+  };
 }
 
 interface SolutionResponse {
@@ -100,6 +106,40 @@ class ErrorHandler {
   }
 }
 
+async function callLLMProxy(provider: string, model: string, prompt: string, maxTokens: number, temperature: number, systemPrompt?: string) {
+  try {
+    const response = await fetch(
+      new URL("/functions/v1/llm-proxy", Deno.env.get("SUPABASE_URL")),
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
+        },
+        body: JSON.stringify({
+          provider,
+          model,
+          prompt,
+          maxTokens,
+          temperature,
+          systemPrompt,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`LLM proxy returned an error: ${errorText}`);
+    }
+
+    const data = await response.json();
+    return data.content;
+  } catch (error) {
+    console.error("Error calling LLM proxy:", error);
+    throw error;
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -107,7 +147,7 @@ serve(async (req) => {
   }
   
   try {
-    const { businessPrompt, selectedRoles } = await req.json() as RequestData;
+    const { businessPrompt, selectedRoles, modelSettings } = await req.json() as RequestData;
     
     if (!businessPrompt) {
       return new Response(
@@ -119,9 +159,58 @@ serve(async (req) => {
     console.log(`Generating solution for prompt: ${businessPrompt}`);
     console.log(`Selected roles: ${selectedRoles.join(', ')}`);
     
-    // For now, return mock data as we haven't integrated with OpenAI
-    // In a production implementation, this would call OpenAI, Claude, or another LLM
-    const mockResponse = generateMockSolution(businessPrompt, selectedRoles);
+    // Use LLM if model settings provided, otherwise use mock data
+    let mockResponse;
+    
+    if (modelSettings) {
+      try {
+        console.log(`Using LLM provider: ${modelSettings.provider}, model: ${modelSettings.model}`);
+        
+        // Construct an enhanced prompt that includes expert roles
+        const expertRolesString = selectedRoles.length > 0 
+          ? `Taking into account the perspectives of these expert roles: ${selectedRoles.join(', ')}. ` 
+          : '';
+          
+        const enhancedPrompt = `${expertRolesString}Generate a detailed solution for this business prompt: "${businessPrompt}". 
+        Format your response in JSON with the following keys:
+        1. "ui": HTML/CSS UI code for the solution
+        2. "database": SQL database schema for the solution
+        3. "automation": JavaScript code for automation workflows
+        4. "expertInsights": An object with keys for each selected role (${selectedRoles.join(', ')}) and their expert insights`;
+        
+        const systemPrompt = "You are an AI expert in business solution design, software development, database architecture, and automation workflows. Your task is to generate comprehensive solutions based on business requirements.";
+        
+        // Call the LLM proxy
+        const llmResponse = await callLLMProxy(
+          modelSettings.provider,
+          modelSettings.model,
+          enhancedPrompt,
+          modelSettings.maxTokens,
+          modelSettings.temperature,
+          systemPrompt
+        );
+        
+        // Try to parse the LLM response as JSON
+        try {
+          mockResponse = JSON.parse(llmResponse);
+          // Ensure all required fields are present
+          if (!mockResponse.ui || !mockResponse.database || !mockResponse.automation) {
+            throw new Error("LLM response missing required fields");
+          }
+        } catch (parseError) {
+          console.error("Failed to parse LLM response as JSON:", parseError);
+          console.log("Raw LLM response:", llmResponse);
+          // Fall back to mock data
+          mockResponse = generateMockSolution(businessPrompt, selectedRoles);
+        }
+      } catch (llmError) {
+        console.error("Error generating solution with LLM:", llmError);
+        // Fall back to mock data
+        mockResponse = generateMockSolution(businessPrompt, selectedRoles);
+      }
+    } else {
+      mockResponse = generateMockSolution(businessPrompt, selectedRoles);
+    }
     
     // Check for errors in the generated code and fix them automatically
     const uiErrors = ErrorHandler.detectErrors(mockResponse.ui, 'ui');
