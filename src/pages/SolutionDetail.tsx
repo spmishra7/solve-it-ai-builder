@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -9,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Stepper, Step } from "@/components/ui/stepper";
 import { format } from "date-fns";
-import { ArrowLeft, Calendar, Loader2, Code, Database, Zap } from "lucide-react";
+import { ArrowLeft, Calendar, Loader2, Code, Database, Zap, PlayCircle } from "lucide-react";
 import DeploymentOptions from "@/components/DeploymentOptions";
 import DatabaseExecutor from "@/components/DatabaseExecutor";
 import AutomationWizard from "@/components/AutomationWizard";
@@ -105,13 +104,21 @@ export default function SolutionDetail() {
         <ArrowLeft size={16} className="mr-2" /> Back to My Solutions
       </Button>
       
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">{solution.title}</h1>
-        <p className="text-gray-600 mb-4 max-w-4xl">{solution.description}</p>
-        <div className="flex items-center text-sm text-gray-500">
-          <Calendar size={14} className="mr-1" />
-          Created on {format(new Date(solution.created_at), 'MMMM d, yyyy')}
+      <div className="mb-8 flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">{solution.title}</h1>
+          <p className="text-gray-600 mb-4 max-w-4xl">{solution.description}</p>
+          <div className="flex items-center text-sm text-gray-500">
+            <Calendar size={14} className="mr-1" />
+            Created on {format(new Date(solution.created_at), 'MMMM d, yyyy')}
+          </div>
         </div>
+        <Button asChild className="flex items-center gap-2">
+          <Link to={`/playground/${solution.id}`}>
+            <PlayCircle size={18} />
+            Open in Playground
+          </Link>
+        </Button>
       </div>
       
       <div className="bg-gray-50 p-6 rounded-lg mb-8">

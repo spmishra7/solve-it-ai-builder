@@ -7,6 +7,7 @@ import ModelManagerSection from "./components/ModelManagerSection";
 import Auth from "./pages/Auth";
 import MySolutions from "./pages/MySolutions";
 import SolutionDetail from "./pages/SolutionDetail";
+import AppPlayground from "./pages/AppPlayground";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -36,6 +37,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <SolutionDetail />
+                  </ProtectedRoute>
+                }
+              />
+              <Route 
+                path="/playground/:id"
+                element={
+                  <ProtectedRoute>
+                    <AppPlayground />
                   </ProtectedRoute>
                 }
               />
