@@ -10,6 +10,7 @@ export interface SolutionData {
   user_id: string;
   created_at: string;
   business_prompt: string;
+  user_email?: string;
 }
 
 export const SolutionsTable = ({ solutions }: { solutions: SolutionData[] }) => {
@@ -34,7 +35,7 @@ export const SolutionsTable = ({ solutions }: { solutions: SolutionData[] }) => 
                 <TableRow key={solution.id}>
                   <TableCell>{solution.title}</TableCell>
                   <TableCell>{new Date(solution.created_at).toLocaleDateString()}</TableCell>
-                  <TableCell>{solution.user_id}</TableCell>
+                  <TableCell>{solution.user_email || solution.user_id}</TableCell>
                   <TableCell className="space-x-2">
                     <Button variant="outline" size="sm">View</Button>
                     <Button variant="outline" size="sm">Delete</Button>

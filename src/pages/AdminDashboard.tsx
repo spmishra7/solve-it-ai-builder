@@ -20,7 +20,6 @@ import { useAdminData } from '@/hooks/useAdminData';
 const AdminDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [isAdmin, setIsAdmin] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   
   // Use our custom hook to handle all data fetching and state management
@@ -36,33 +35,24 @@ const AdminDashboard = () => {
     loadAdminData
   } = useAdminData();
 
-  // Check if user is admin
+  // Check if user has admin role
   useEffect(() => {
     const checkAdminStatus = async () => {
       if (!user) {
-        navigate('/auth');
         return;
       }
 
-      try {
-        // In a real application, you would check against a roles table or admin users list
-        // For now, we'll simulate this check based on user email
-        // TODO: Replace this with proper role-based access control
-        const isAdminUser = user.email === 'admin@example.com'; // Example admin check
-        setIsAdmin(isAdminUser);
-        
-        if (!isAdminUser) {
-          toast("Access denied. You don't have admin privileges.");
-          navigate('/');
-          return;
-        }
-
-        await loadAdminData();
-      } catch (error) {
-        console.error('Error checking admin status:', error);
-        toast.error('Failed to verify admin privileges');
+      // Get user roles from user metadata
+      const userRoles = user.app_metadata?.roles || [];
+      const isAdmin = userRoles.includes('admin');
+      
+      if (!isAdmin) {
+        toast("Access denied. You don't have admin privileges.");
         navigate('/');
+        return;
       }
+
+      await loadAdminData();
     };
 
     checkAdminStatus();
@@ -74,10 +64,6 @@ const AdminDashboard = () => {
         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-brand-600"></div>
       </div>
     );
-  }
-
-  if (!isAdmin) {
-    return null; // Should never reach here due to navigation in useEffect, but just in case
   }
 
   return (
