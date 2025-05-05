@@ -8,10 +8,16 @@ interface StepProps extends React.HTMLAttributes<HTMLDivElement> {
   description?: string;
   status?: "incomplete" | "current" | "complete";
   index?: number;
+  completed?: boolean; // Add this line to support the completed prop
 }
 
 const Step = React.forwardRef<HTMLDivElement, StepProps>(
-  ({ label, description, status = "incomplete", className, index, ...props }, ref) => {
+  ({ label, description, status = "incomplete", className, index, completed, ...props }, ref) => {
+    // Use the completed prop to override status if provided
+    if (completed && status !== "complete") {
+      status = "complete";
+    }
+    
     return (
       <div
         ref={ref}
