@@ -1,10 +1,14 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowRight, Check, Loader2 } from "lucide-react";
+import { ArrowRight, Check, Loader2, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 // This would normally come from an API call to GPT-4/Claude
 const mockSolutionGeneration = (prompt: string) => {
@@ -623,15 +627,20 @@ schedule.hourly(() => {
 const SolutionGenerator = () => {
   const [businessDescription, setBusinessDescription] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [solution, setSolution] = useState<null | {ui: string, database: string, automation: string}>(null);
   const [activeTab, setActiveTab] = useState("preview");
   const [progress, setProgress] = useState(0);
+  const [solutionTitle, setSolutionTitle] = useState("");
   const [examplePrompts] = useState([
     "I need a patient management system for my small clinic.",
     "We need an invoice generation tool for our accounting department.",
     "Create a project management dashboard for our marketing team."
   ]);
+  
   const { toast } = useToast();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   
   useEffect(() => {
     if (isGenerating) {
@@ -646,8 +655,14 @@ const SolutionGenerator = () => {
       return () => clearInterval(interval);
     } else if (solution) {
       setProgress(100);
+      
+      // Generate a default title based on the business description
+      if (!solutionTitle) {
+        const words = businessDescription.split(' ').slice(0, 5).join(' ');
+        setSolutionTitle(`${words}...`);
+      }
     }
-  }, [isGenerating, solution]);
+  }, [isGenerating, solution, businessDescription, solutionTitle]);
   
   const handleGenerate = async () => {
     if (!businessDescription.trim()) {
@@ -674,6 +689,49 @@ const SolutionGenerator = () => {
       });
     } finally {
       setIsGenerating(false);
+    }
+  };
+  
+  const handleSaveSolution = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to save your solution.",
+        variant: "destructive",
+      });
+      navigate("/auth");
+      return;
+    }
+    
+    if (!solution) return;
+    
+    setIsSaving(true);
+    
+    try {
+      const { error } = await supabase.from('solutions').insert({
+        user_id: user.id,
+        title: solutionTitle || "Untitled Solution",
+        description: businessDescription.substring(0, 200) + (businessDescription.length > 200 ? "..." : ""),
+        business_prompt: businessDescription,
+        ui_solution: solution.ui,
+        database_solution: solution.database,
+        automation_solution: solution.automation
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Solution saved",
+        description: "Your solution has been saved successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to save solution: " + error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
   
@@ -760,10 +818,37 @@ const SolutionGenerator = () => {
                     <div className="bg-green-100 rounded-full p-1 mr-3">
                       <Check className="h-5 w-5 text-green-600" />
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <p className="text-green-800 font-medium">Solution Generated Successfully!</p>
                       <p className="text-green-600 text-sm">Preview your custom SaaS tool below or explore the code.</p>
                     </div>
+                    
+                    {user && (
+                      <div className="flex items-center space-x-2 ml-4">
+                        <input
+                          type="text"
+                          placeholder="Solution title"
+                          className="px-3 py-1 border rounded text-sm"
+                          value={solutionTitle}
+                          onChange={(e) => setSolutionTitle(e.target.value)}
+                        />
+                        <Button 
+                          onClick={handleSaveSolution} 
+                          size="sm" 
+                          className="bg-brand-600 hover:bg-brand-700"
+                          disabled={isSaving}
+                        >
+                          {isSaving ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <>
+                              <Save size={14} className="mr-1" />
+                              Save
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    )}
                   </div>
                   
                   <Tabs value={activeTab} onValueChange={setActiveTab}>
