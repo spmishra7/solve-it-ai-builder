@@ -8,10 +8,15 @@ const CtaSection = () => {
     // Scroll to solution generator section
     const element = document.getElementById("solution-generator");
     if (element) {
+      console.log("Found solution-generator from CTA, scrolling to it");
       element.scrollIntoView({ behavior: "smooth" });
-      console.log("Scrolled to solution-generator from CTA");
     } else {
       console.error("Solution generator section not found from CTA");
+      // Fallback: scroll to the approximate position
+      window.scrollTo({
+        top: 800,
+        behavior: "smooth"
+      });
     }
   };
 
@@ -20,10 +25,15 @@ const CtaSection = () => {
     // Scroll to features section
     const element = document.getElementById("features");
     if (element) {
+      console.log("Found features section, scrolling to it");
       element.scrollIntoView({ behavior: "smooth" });
-      console.log("Scrolled to features section");
     } else {
       console.error("Features section not found");
+      // Fallback: scroll to the approximate position
+      window.scrollTo({
+        top: 1200,
+        behavior: "smooth"
+      });
     }
   };
 
@@ -32,17 +42,22 @@ const CtaSection = () => {
     // Also scroll to solution generator section
     const element = document.getElementById("solution-generator");
     if (element) {
+      console.log("Found solution-generator from 'Try AI Solution Builder', scrolling to it");
       element.scrollIntoView({ behavior: "smooth" });
-      console.log("Scrolled to solution-generator from 'Try AI Solution Builder'");
     } else {
       console.error("Solution generator section not found from 'Try AI Solution Builder'");
+      // Fallback: scroll to the approximate position
+      window.scrollTo({
+        top: 800,
+        behavior: "smooth"
+      });
     }
   };
 
   const handleContactSales = () => {
     console.log("Contact Sales clicked");
     // In a real-world scenario, this would navigate to a contact page
-    // For now, let's just alert
+    // For now, let's just show a toast notification
     alert("Contact sales feature coming soon!");
   };
 

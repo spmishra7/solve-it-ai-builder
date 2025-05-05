@@ -4,12 +4,12 @@ import { ArrowRight } from "lucide-react";
 
 const HeroSection = () => {
   const handleGetStarted = () => {
-    console.log("Get Started clicked");
+    console.log("Get Started clicked in HeroSection");
     // Scroll to solution generator section
     const solutionGeneratorSection = document.getElementById("solution-generator");
     if (solutionGeneratorSection) {
+      console.log("Found solution-generator section, scrolling to it");
       solutionGeneratorSection.scrollIntoView({ behavior: "smooth", block: "start" });
-      console.log("Scrolled to solution-generator");
     } else {
       console.error("Solution generator section not found");
       // Fallback: scroll to the approximate position
@@ -17,17 +17,17 @@ const HeroSection = () => {
         top: 800,
         behavior: "smooth"
       });
-      console.log("Fallback scroll executed");
+      console.log("Fallback scroll to position 800 executed");
     }
   };
 
   const handleViewDemo = () => {
-    console.log("View Demo clicked");
+    console.log("View Demo clicked in HeroSection");
     // Scroll to the templates section which has solution examples
     const templatesSection = document.getElementById("templates");
     if (templatesSection) {
+      console.log("Found templates section, scrolling to it");
       templatesSection.scrollIntoView({ behavior: "smooth", block: "start" });
-      console.log("Scrolled to templates section");
     } else {
       console.error("Templates section not found");
       // Fallback: scroll to the approximate position
@@ -35,7 +35,7 @@ const HeroSection = () => {
         top: 1600,
         behavior: "smooth"
       });
-      console.log("Fallback scroll executed");
+      console.log("Fallback scroll to position 1600 executed");
     }
   };
 

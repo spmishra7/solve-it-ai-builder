@@ -20,7 +20,10 @@ const ExpertRoleSelector = ({ selectedRoles, onRoleToggle }: ExpertRoleSelectorP
   }, [expandedCategories]);
   
   // Get all role IDs across all categories
-  const allRoleIds = roleCategories.flatMap(category => category.roles.map(role => role.id));
+  const allRoleIds = roleCategories.flatMap(category => 
+    category.roles.map(role => role.id)
+  );
+  
   // Check if all roles are selected by comparing lengths and checking every role is included
   const allSelected = selectedRoles.length === allRoleIds.length && 
     allRoleIds.every(roleId => selectedRoles.includes(roleId));
@@ -34,13 +37,18 @@ const ExpertRoleSelector = ({ selectedRoles, onRoleToggle }: ExpertRoleSelectorP
   };
   
   const handleSelectAll = () => {
+    console.log("handleSelectAll called, current state:", allSelected);
     if (allSelected) {
-      // If all are selected, deselect all by toggling each role
+      // If all are selected, clear the selection
+      console.log("Deselecting all roles");
       allRoleIds.forEach(roleId => {
-        onRoleToggle(roleId);
+        if (selectedRoles.includes(roleId)) {
+          onRoleToggle(roleId);
+        }
       });
     } else {
       // If not all are selected, select all roles that aren't already selected
+      console.log("Selecting all roles");
       allRoleIds.forEach(roleId => {
         if (!selectedRoles.includes(roleId)) {
           onRoleToggle(roleId);

@@ -1,6 +1,7 @@
 
 import { useEffect } from "react";
 import { useSolution } from "@/contexts/SolutionContext";
+import { toast } from "sonner";
 
 export const useRoleManagement = () => {
   const { selectedRoles, setSelectedRoles } = useSolution();
@@ -32,12 +33,15 @@ export const useRoleManagement = () => {
   const handleRoleToggle = (roleId: string) => {
     console.log("Toggle role:", roleId);
     
-    const newSelectedRoles = selectedRoles.includes(roleId)
-      ? selectedRoles.filter(id => id !== roleId)
-      : [...selectedRoles, roleId];
-    
-    console.log("New selected roles:", newSelectedRoles);
-    setSelectedRoles(newSelectedRoles);
+    setSelectedRoles(prevSelectedRoles => {
+      const isCurrentlySelected = prevSelectedRoles.includes(roleId);
+      const newSelectedRoles = isCurrentlySelected
+        ? prevSelectedRoles.filter(id => id !== roleId)
+        : [...prevSelectedRoles, roleId];
+      
+      console.log("New selected roles:", newSelectedRoles);
+      return newSelectedRoles;
+    });
   };
 
   return { handleRoleToggle, selectedRoles };

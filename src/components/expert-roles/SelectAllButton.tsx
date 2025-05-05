@@ -14,7 +14,7 @@ const SelectAllButton = ({ allSelected, onSelectAll }: SelectAllButtonProps) => 
       size="sm" 
       className={`flex items-center gap-1.5 transition-colors duration-300 ${
         allSelected 
-          ? "bg-white hover:bg-gray-200 text-brand-700 shadow-md" 
+          ? "bg-brand-600 hover:bg-brand-700 text-white shadow-md" 
           : "border-white text-white hover:bg-white/20"
       }`}
       onClick={(e) => {
