@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Check, Shield, Download, Cloud } from "lucide-react";
+import { Check, Shield, Download, Cloud, Code } from "lucide-react";
 
 const PricingSection = () => {
   const [isAnnual, setIsAnnual] = useState(true);
