@@ -11,6 +11,7 @@ import DatabaseSchema from "./DatabaseSchema";
 import AutomationCode from "./AutomationCode";
 import ExportOptions from "./ExportOptions";
 import { downloadAsFile } from "@/lib/fileUtils";
+import { motion } from "framer-motion";
 
 const SolutionCard = ({ handleSave }: { handleSave: () => Promise<void> }) => {
   const [activeTab, setActiveTab] = useState("preview");
@@ -56,65 +57,75 @@ ${solution.automation}
   };
 
   return (
-    <Card>
-      <CardContent className="p-0">
-        <div className="border-b">
-          <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
-            <div className="flex justify-between items-center px-6 py-4">
-              <TabsList className="grid grid-cols-4 w-fit">
-                <TabsTrigger value="preview">Preview</TabsTrigger>
-                <TabsTrigger value="database">Database</TabsTrigger>
-                <TabsTrigger value="automation">Automation</TabsTrigger>
-                <TabsTrigger value="export">Export</TabsTrigger>
-              </TabsList>
+    <motion.div
+      id="solution-preview"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="scroll-mt-16"
+    >
+      <Card className="shadow-lg border-accent/20">
+        <CardContent className="p-0">
+          <div className="border-b">
+            <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+              <div className="flex justify-between items-center px-6 py-4">
+                <TabsList className="grid grid-cols-4 w-fit">
+                  <TabsTrigger value="preview">Preview</TabsTrigger>
+                  <TabsTrigger value="database">Database</TabsTrigger>
+                  <TabsTrigger value="automation">Automation</TabsTrigger>
+                  <TabsTrigger value="export">Export</TabsTrigger>
+                </TabsList>
 
-              <div className="flex items-center gap-2">
-                {session?.user && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleSaveWrapper}
-                    disabled={isSaving}
-                  >
-                    {isSaving ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="mr-2 h-4 w-4" />
-                        Save Solution
-                      </>
-                    )}
-                  </Button>
-                )}
+                <div className="flex items-center gap-2">
+                  {session?.user && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleSaveWrapper}
+                      disabled={isSaving}
+                      className="relative overflow-hidden group"
+                    >
+                      {isSaving ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
+                          Save Solution
+                          <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-accent group-hover:w-full transition-all duration-300"></span>
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
-          </Tabs>
-        </div>
+            </Tabs>
+          </div>
 
-        <TabsContent value="preview" className="p-6">
-          <SolutionPreview 
-            solution={solution} 
-            selectedRoles={selectedRoles}
-            roleNames={roleNames}
-          />
-        </TabsContent>
+          <TabsContent value="preview" className="p-6">
+            <SolutionPreview 
+              solution={solution} 
+              selectedRoles={selectedRoles}
+              roleNames={roleNames}
+            />
+          </TabsContent>
 
-        <TabsContent value="database" className="p-6">
-          <DatabaseSchema schema={solution.database} />
-        </TabsContent>
+          <TabsContent value="database" className="p-6">
+            <DatabaseSchema schema={solution.database} />
+          </TabsContent>
 
-        <TabsContent value="automation" className="p-6">
-          <AutomationCode code={solution.automation} />
-        </TabsContent>
+          <TabsContent value="automation" className="p-6">
+            <AutomationCode code={solution.automation} />
+          </TabsContent>
 
-        <TabsContent value="export" className="p-6">
-          <ExportOptions handleExport={handleExport} />
-        </TabsContent>
-      </CardContent>
-    </Card>
+          <TabsContent value="export" className="p-6">
+            <ExportOptions handleExport={handleExport} />
+          </TabsContent>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 

@@ -1,5 +1,4 @@
 
-import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import FeaturesSection from "@/components/FeaturesSection";
 import SolutionGenerator from "@/components/SolutionGenerator";
@@ -7,59 +6,75 @@ import TemplateSection from "@/components/TemplateSection";
 import TestimonialSection from "@/components/TestimonialSection";
 import PricingSection from "@/components/PricingSection";
 import CtaSection from "@/components/CtaSection";
-import Footer from "@/components/Footer";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { motion, useInView, useAnimation } from "framer-motion";
+
+// ScrollAnimationSection component for reuse
+const ScrollAnimationSection = ({ 
+  id, 
+  children 
+}: { 
+  id: string, 
+  children: React.ReactNode 
+}) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
+  const controls = useAnimation();
+  
+  useEffect(() => {
+    if (isInView) {
+      controls.start("visible");
+    }
+  }, [isInView, controls]);
+  
+  return (
+    <motion.div
+      id={id}
+      ref={ref}
+      variants={{
+        hidden: { opacity: 0, y: 50 },
+        visible: { opacity: 1, y: 0 }
+      }}
+      initial="hidden"
+      animate={controls}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="scroll-mt-16"
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 const Index = () => {
-  // Add smooth scrolling observer for animations
-  useEffect(() => {
-    // Create an Intersection Observer to add animation classes
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('animate-on-scroll');
-        }
-      });
-    }, { threshold: 0.1 });
-    
-    // Track all elements with animation-ready class
-    const elementsToAnimate = document.querySelectorAll('.animation-ready');
-    elementsToAnimate.forEach(el => observer.observe(el));
-    
-    return () => {
-      elementsToAnimate.forEach(el => observer.unobserve(el));
-    };
-  }, []);
-
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-grow">
         <HeroSection />
         
         {/* Move Solution Generator closer to the top */}
-        <div id="solution-generator" className="animation-ready">
+        <ScrollAnimationSection id="solution-generator">
           <SolutionGenerator />
-        </div>
+        </ScrollAnimationSection>
         
-        <div id="features" className="animation-ready">
+        <ScrollAnimationSection id="features">
           <FeaturesSection />
-        </div>
+        </ScrollAnimationSection>
         
-        <div id="templates" className="animation-ready">
+        <ScrollAnimationSection id="templates">
           <TemplateSection />
-        </div>
+        </ScrollAnimationSection>
         
-        <div id="testimonials" className="animation-ready">
+        <ScrollAnimationSection id="testimonials">
           <TestimonialSection />
-        </div>
+        </ScrollAnimationSection>
         
-        <div id="pricing" className="animation-ready">
+        <ScrollAnimationSection id="pricing">
           <PricingSection />
-        </div>
+        </ScrollAnimationSection>
         
-        <div id="cta" className="animation-ready">
+        <ScrollAnimationSection id="cta">
           <CtaSection />
-        </div>
+        </ScrollAnimationSection>
       </main>
     </div>
   );

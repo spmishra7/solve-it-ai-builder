@@ -1,16 +1,10 @@
 
-import { useState } from "react";
-import { Info, CheckSquare } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { roleCategories } from "./expert-roles/roleData";
-import RoleCategory from "./expert-roles/RoleCategory";
-import { motion } from "framer-motion";
+import { Check } from "lucide-react";
+import { useState } from "react";
+import RoleCategory from "@/components/expert-roles/RoleCategory";
+import ExpertRole from "@/components/expert-roles/ExpertRole";
+import { roleCategories } from "@/components/expert-roles/roleData";
 
 interface ExpertRoleSelectorProps {
   selectedRoles: string[];
@@ -18,31 +12,29 @@ interface ExpertRoleSelectorProps {
 }
 
 const ExpertRoleSelector = ({ selectedRoles, onRoleToggle }: ExpertRoleSelectorProps) => {
-  const [expandedCategory, setExpandedCategory] = useState<string | null>("executive");
-  
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+
   const toggleCategory = (categoryId: string) => {
     setExpandedCategory(expandedCategory === categoryId ? null : categoryId);
   };
-  
-  // Select all roles functionality
-  const handleSelectAll = () => {
-    // Get all role IDs
-    const allRoleIds = roleCategories.flatMap(category => 
+
+  // Get all role IDs for Select All functionality
+  const getAllRoleIds = () => {
+    return roleCategories.flatMap(category => 
       category.roles.map(role => role.id)
     );
+  };
+
+  // Handle Select All functionality
+  const handleSelectAll = () => {
+    const allRoleIds = getAllRoleIds();
     
-    // If all roles are already selected, deselect all
-    const isAllSelected = allRoleIds.every(id => selectedRoles.includes(id));
-    
-    if (isAllSelected) {
-      // Deselect all roles
-      allRoleIds.forEach(id => {
-        if (selectedRoles.includes(id)) {
-          onRoleToggle(id);
-        }
-      });
+    // If all are already selected, deselect all
+    if (allRoleIds.every(id => selectedRoles.includes(id))) {
+      // Clear selections by passing empty array
+      allRoleIds.forEach(id => onRoleToggle(id));
     } else {
-      // Select all roles
+      // Select all that aren't already selected
       allRoleIds.forEach(id => {
         if (!selectedRoles.includes(id)) {
           onRoleToggle(id);
@@ -51,71 +43,46 @@ const ExpertRoleSelector = ({ selectedRoles, onRoleToggle }: ExpertRoleSelectorP
     }
   };
   
-  // Get all role IDs
-  const allRoleIds = roleCategories.flatMap(category => 
-    category.roles.map(role => role.id)
-  );
-  
   // Check if all roles are selected
-  const isAllSelected = allRoleIds.every(id => selectedRoles.includes(id));
-  
+  const allSelected = getAllRoleIds().every(id => selectedRoles.includes(id));
+
   return (
-    <motion.div 
-      className="mb-6"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-    >
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <p className="text-sm text-muted-foreground">
-            Select expert perspectives to include in your solution:
-          </p>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="text-muted-foreground hover:text-foreground">
-                  <Info size={16} />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-xs">
-                <p>Get specialized insights from different roles in the organization. Each role provides unique perspectives on your solution or task.</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-        
-        <Button
-          variant="outline"
-          size="sm"
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-medium">Select Expert Perspectives</h3>
+        <Button 
+          variant={allSelected ? "default" : "outline"} 
+          size="sm" 
+          className="flex items-center gap-1"
           onClick={handleSelectAll}
-          className="flex items-center gap-2"
         >
-          <CheckSquare size={16} />
-          {isAllSelected ? "Deselect All" : "Select All"}
-          <span className="text-xs text-muted-foreground">(Solopreneur)</span>
+          {allSelected && <Check className="w-4 h-4" />}
+          {allSelected ? "Deselect All" : "Select All for Solopreneurs"}
         </Button>
       </div>
 
-      <div className="space-y-4">
-        {roleCategories.map((category, index) => (
-          <motion.div
+      <div className="space-y-2">
+        {roleCategories.map((category) => (
+          <RoleCategory
             key={category.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 * index }}
+            category={category}
+            isExpanded={expandedCategory === category.id}
+            onToggle={() => toggleCategory(category.id)}
           >
-            <RoleCategory
-              category={category}
-              selectedRoles={selectedRoles}
-              onRoleToggle={onRoleToggle}
-              isExpanded={expandedCategory === category.id}
-              onToggle={toggleCategory}
-            />
-          </motion.div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mt-2">
+              {category.roles.map((role) => (
+                <ExpertRole
+                  key={role.id}
+                  role={role}
+                  isSelected={selectedRoles.includes(role.id)}
+                  onToggle={() => onRoleToggle(role.id)}
+                />
+              ))}
+            </div>
+          </RoleCategory>
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 };
 

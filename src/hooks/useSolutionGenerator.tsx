@@ -23,7 +23,9 @@ export const useSolutionGenerator = () => {
     selectedRoles,
     setSelectedRoles,
     isImprovingPrompt,
-    setIsImprovingPrompt
+    setIsImprovingPrompt,
+    contentInsights,
+    setContentInsights
   } = useSolution();
   
   const { toast } = useToast();
@@ -37,32 +39,42 @@ export const useSolutionGenerator = () => {
 
   // Update progress bar while generating
   useEffect(() => {
+    let progressTimer: number | null = null;
+    
     if (isGenerating && progress < 95) {
-      const timer = setTimeout(() => {
-        // Fix: Convert the function to explicitly return a number
-        const newProgress = progress + (95 - progress) * 0.2;
-        setProgress(newProgress);
+      progressTimer = window.setTimeout(() => {
+        // Create an incremental progress that slows down as it approaches 95%
+        const increment = Math.max(0.5, (95 - progress) * 0.1);
+        setProgress(prev => Math.min(95, prev + increment));
       }, 300);
-      return () => clearTimeout(timer);
     }
+    
+    return () => {
+      if (progressTimer !== null) {
+        clearTimeout(progressTimer);
+      }
+    };
   }, [isGenerating, progress, setProgress]);
 
   const handleRoleToggle = (roleId: string) => {
-    if (selectedRoles.includes(roleId)) {
-      setSelectedRoles(selectedRoles.filter(id => id !== roleId));
-    } else {
-      setSelectedRoles([...selectedRoles, roleId]);
-    }
+    setSelectedRoles(prev => {
+      if (prev.includes(roleId)) {
+        return prev.filter(id => id !== roleId);
+      } else {
+        return [...prev, roleId];
+      }
+    });
   };
 
   const handleContentAnalyzed = (insights: string) => {
-    // Fix: Create intermediate values rather than using updater functions
+    setContentInsights(insights);
+    
     if (!businessDescription.trim()) {
       setBusinessDescription(insights);
     } else {
-      // Create the new string value first, then set it
-      const newBusinessDescription = `${businessDescription}\n\nContent Analysis Insights:\n${insights}`;
-      setBusinessDescription(newBusinessDescription);
+      setBusinessDescription(prev => {
+        return `${prev}\n\nContent Analysis Insights:\n${insights}`;
+      });
     }
     
     toast({
@@ -85,6 +97,14 @@ export const useSolutionGenerator = () => {
     setProgress(10);
 
     try {
+      // Show toast for selected roles
+      if (selectedRoles.length > 0) {
+        toast({
+          title: `Including ${selectedRoles.length} expert perspective${selectedRoles.length === 1 ? '' : 's'}`,
+          description: "Your solution will include these specialized insights."
+        });
+      }
+      
       const result = await generateSolution(
         businessDescription,
         "business owner",  // default user type
@@ -100,6 +120,7 @@ export const useSolutionGenerator = () => {
         ui: result.ui_solution,
         database: result.database_solution,
         automation: result.automation_solution,
+        expertInsights: result.expert_insights || {}
       };
       
       setSolution(transformedResult);
@@ -109,6 +130,14 @@ export const useSolutionGenerator = () => {
         title: "Solution Generated",
         description: "Your SaaS solution is ready."
       });
+      
+      // Scroll to the solution
+      setTimeout(() => {
+        const solutionElement = document.querySelector("#solution-preview");
+        if (solutionElement) {
+          solutionElement.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 300);
     } catch (error) {
       console.error("Error generating solution:", error);
       toast({
@@ -177,6 +206,7 @@ export const useSolutionGenerator = () => {
             ui_solution: solution.ui,
             database_solution: solution.database,
             automation_solution: solution.automation,
+            expert_insights: solution.expertInsights || {},
             user_id: session.user.id
           }
         ])
