@@ -18,6 +18,7 @@ import SolutionPreview from "./solution-generator/SolutionPreview";
 import DatabaseSchema from "./solution-generator/DatabaseSchema";
 import AutomationCode from "./solution-generator/AutomationCode";
 import ExportOptions from "./solution-generator/ExportOptions";
+import ContentUploader from "./solution-generator/ContentUploader";
 import { downloadAsFile, improvePrompt } from "@/lib/fileUtils";
 import { generateSolution } from "@/lib/api";
 
@@ -37,6 +38,8 @@ const SolutionGenerator = () => {
   const [solutionTitle, setSolutionTitle] = useState("");
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [roleNames, setRoleNames] = useState<Record<string, string>>({});
+  const [contentInsights, setContentInsights] = useState("");
+  const [showUploader, setShowUploader] = useState(false);
 
   const { toast } = useToast();
   const { session } = useAuth();
@@ -77,6 +80,22 @@ const SolutionGenerator = () => {
     } else {
       setSelectedRoles([...selectedRoles, roleId]);
     }
+  };
+
+  const handleContentAnalyzed = (insights: string) => {
+    setContentInsights(insights);
+    
+    // Update the business description with insights if it's empty or append to it
+    if (!businessDescription.trim()) {
+      setBusinessDescription(insights);
+    } else {
+      setBusinessDescription(prev => `${prev}\n\nContent Analysis Insights:\n${insights}`);
+    }
+    
+    toast({
+      title: "Content Analyzed",
+      description: "Insights from your content have been added to the business description."
+    });
   };
 
   const handleGenerate = async () => {
@@ -253,6 +272,10 @@ ${solution.automation}
     }
   };
 
+  const toggleUploader = () => {
+    setShowUploader(prev => !prev);
+  };
+
   return (
     <section id="solution-generator" className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
@@ -273,6 +296,28 @@ ${solution.automation}
                 isImprovingPrompt={isImprovingPrompt}
                 handleImprovePrompt={handleImprovePrompt}
               />
+
+              <div className="flex justify-between items-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={toggleUploader}
+                  disabled={isGenerating}
+                >
+                  {showUploader ? "Hide Content Analyzer" : "Analyze Existing Content"}
+                </Button>
+                
+                <span className="text-sm text-gray-500">
+                  {contentInsights ? "✓ Content analyzed" : ""}
+                </span>
+              </div>
+
+              {showUploader && (
+                <ContentUploader 
+                  onContentAnalyzed={handleContentAnalyzed}
+                  isGenerating={isGenerating}
+                />
+              )}
 
               <ExpertRoleSelector
                 selectedRoles={selectedRoles}

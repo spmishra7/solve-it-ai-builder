@@ -1,44 +1,5 @@
 
 project_id = "margqbeftjiulyaepxyy"
 
-[api]
-enabled = true
-port = 54321
-schemas = ["public", "storage"]
-
-[db]
-port = 54322
-
-[studio]
-port = 54323
-
-[inbucket]
-port = 54324
-
-[storage]
-enabled = true
-
-[auth]
-enabled = true
-
-[realtime]
-enabled = true
-
-[functions]
-  [functions.find-similar-solutions]
-  verify_jwt = true
-  
-  [functions.learn-from-solution]
-  verify_jwt = true
-  
-  [functions.get-solution-insights] 
-  verify_jwt = true
-  
-  [functions.generate-solution]
-  verify_jwt = true
-  
-  [functions.llm-proxy]
-  verify_jwt = true
-  
-  [functions.execute-sql]
-  verify_jwt = true
+[functions.analyze-content]
+verify_jwt = false
