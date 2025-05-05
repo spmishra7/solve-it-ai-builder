@@ -1,12 +1,10 @@
-
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
 const HeroSection = () => {
-  const navigate = useNavigate();
-
+  // Remove the useNavigate hook from the top level
+  
   const handleGetStarted = () => {
     // Scroll to solution generator section
     const element = document.getElementById("solution-generator");
