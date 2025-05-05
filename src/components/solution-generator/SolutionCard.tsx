@@ -17,7 +17,7 @@ interface SolutionCardProps {
 }
 
 const SolutionCard = ({ handleSave }: SolutionCardProps) => {
-  const { solution, solutionTitle, isSaving } = useSolution();
+  const { solution, solutionTitle, isSaving, selectedRoles, roleNames } = useSolution();
   const [currentTab, setCurrentTab] = useState("ui");
   const [showExport, setShowExport] = useState(false);
 
@@ -86,7 +86,11 @@ const SolutionCard = ({ handleSave }: SolutionCardProps) => {
           </TabsList>
 
           <TabsContent value="ui" className="p-6">
-            <UICode content={solution?.ui || ""} />
+            <UICode 
+              content={solution?.ui || ""} 
+              selectedRoles={selectedRoles}
+              roleNames={roleNames}
+            />
           </TabsContent>
           
           <TabsContent value="database" className="p-6">
@@ -98,7 +102,11 @@ const SolutionCard = ({ handleSave }: SolutionCardProps) => {
           </TabsContent>
 
           <TabsContent value="insights" className="p-6">
-            <ExpertInsights insights={solution?.expertInsights || {}} />
+            <ExpertInsights 
+              insights={solution?.expertInsights || {}} 
+              selectedRoles={selectedRoles}
+              roleNames={roleNames}
+            />
           </TabsContent>
         </Tabs>
       </CardContent>

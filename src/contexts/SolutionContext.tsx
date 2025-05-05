@@ -27,6 +27,8 @@ interface SolutionContextType {
   setContentInsights: (insights: string) => void;
   isImprovingPrompt: boolean;
   setIsImprovingPrompt: (isImproving: boolean) => void;
+  isSaving: boolean;
+  setIsSaving: (isSaving: boolean) => void;
 }
 
 const SolutionContext = createContext<SolutionContextType | undefined>(undefined);
@@ -41,6 +43,7 @@ export const SolutionProvider = ({ children }: { children: ReactNode }) => {
   const [roleNames, setRoleNames] = useState<Record<string, string>>({});
   const [contentInsights, setContentInsights] = useState("");
   const [isImprovingPrompt, setIsImprovingPrompt] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   return (
     <SolutionContext.Provider value={{
@@ -61,7 +64,9 @@ export const SolutionProvider = ({ children }: { children: ReactNode }) => {
       contentInsights,
       setContentInsights,
       isImprovingPrompt,
-      setIsImprovingPrompt
+      setIsImprovingPrompt,
+      isSaving,
+      setIsSaving
     }}>
       {children}
     </SolutionContext.Provider>

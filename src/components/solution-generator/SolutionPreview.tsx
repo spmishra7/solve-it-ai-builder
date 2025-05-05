@@ -6,17 +6,12 @@ import { Card } from "@/components/ui/card";
 import ExpertInsights from './ExpertInsights';
 
 interface SolutionPreviewProps {
-  solution: {
-    ui: string;
-    database: string;
-    automation: string;
-    expertInsights?: Record<string, string>;
-  };
+  content: string;
   selectedRoles?: string[];
   roleNames?: Record<string, string>;
 }
 
-const SolutionPreview = ({ solution, selectedRoles = [], roleNames = {} }: SolutionPreviewProps) => {
+const UICode = ({ content, selectedRoles = [], roleNames = {} }: SolutionPreviewProps) => {
   const [expanded, setExpanded] = useState(false);
   
   // Simple HTML sanitization for safety
@@ -29,9 +24,9 @@ const SolutionPreview = ({ solution, selectedRoles = [], roleNames = {} }: Solut
 
   return (
     <div className="space-y-4">
-      {solution.expertInsights && (
+      {selectedRoles && selectedRoles.length > 0 && roleNames && (
         <ExpertInsights 
-          insights={solution.expertInsights} 
+          insights={{}} // Providing empty object as fallback
           selectedRoles={selectedRoles}
           roleNames={roleNames}
         />
@@ -46,7 +41,7 @@ const SolutionPreview = ({ solution, selectedRoles = [], roleNames = {} }: Solut
           >
             <iframe
               title="Solution Preview"
-              srcDoc={sanitizeHtml(solution.ui)}
+              srcDoc={sanitizeHtml(content)}
               className="w-full h-[500px] border-0"
               sandbox="allow-scripts"
             />
@@ -88,4 +83,4 @@ const SolutionPreview = ({ solution, selectedRoles = [], roleNames = {} }: Solut
   );
 };
 
-export default SolutionPreview;
+export default UICode;

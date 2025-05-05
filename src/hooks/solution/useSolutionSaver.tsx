@@ -10,7 +10,8 @@ export const useSolutionSaver = () => {
     businessDescription,
     solution,
     solutionTitle,
-    selectedRoles
+    selectedRoles,
+    setIsSaving
   } = useSolution();
   
   const { toast } = useToast();
@@ -33,6 +34,8 @@ export const useSolutionSaver = () => {
     }
 
     try {
+      setIsSaving(true);
+      
       const { data, error } = await supabase
         .from('solutions')
         .insert([
@@ -66,6 +69,8 @@ export const useSolutionSaver = () => {
         description: "There was an error saving your solution.",
         variant: "destructive"
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
