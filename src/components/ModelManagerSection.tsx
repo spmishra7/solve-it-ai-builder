@@ -16,7 +16,7 @@ const ModelManagerSection: React.FC = () => {
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle>
-              <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="models" className="flex items-center gap-2">
                     <Cpu className="h-4 w-4" />
@@ -35,7 +35,7 @@ const ModelManagerSection: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs value={activeTab} className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsContent value="models" className="mt-0">
                 <ModelControlPanel />
               </TabsContent>
