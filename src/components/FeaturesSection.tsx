@@ -36,26 +36,26 @@ const features = [
 
 const FeaturesSection = () => {
   return (
-    <section id="features" className="py-16 bg-gray-50">
+    <section id="features" className="py-16 bg-card/30 grid-bg-pattern">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             How <span className="gradient-text">DrSolveIt</span> Works
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="text-muted-foreground max-w-2xl mx-auto">
             Generate complete SaaS solutions with powerful features designed to solve your specific business problems.
           </p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => (
-            <Card key={index} className="border-2 border-transparent hover:border-brand-200 transition-all duration-300">
+            <Card key={index} className="card-gradient-border bg-card/50 hover:bg-card/80 transition-all duration-300">
               <CardContent className="pt-6">
-                <div className="h-12 w-12 rounded-lg bg-brand-100 text-3xl flex items-center justify-center mb-4">
+                <div className="h-12 w-12 rounded-lg bg-accent/10 text-3xl flex items-center justify-center mb-4">
                   {feature.icon}
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
+                <h3 className="text-lg font-semibold mb-2 text-foreground">{feature.title}</h3>
+                <p className="text-muted-foreground">{feature.description}</p>
               </CardContent>
             </Card>
           ))}
