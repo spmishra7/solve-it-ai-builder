@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface GenerateButtonProps {
   handleGenerate: () => void;
@@ -12,30 +13,51 @@ interface GenerateButtonProps {
 const GenerateButton = ({ handleGenerate, isGenerating, disabled, progress }: GenerateButtonProps) => {
   return (
     <>
-      <Button
-        onClick={handleGenerate}
-        className="bg-brand-600 hover:bg-brand-700 w-full"
-        disabled={isGenerating || disabled}
+      <motion.div
+        whileHover={{ scale: disabled ? 1 : 1.02 }}
+        whileTap={{ scale: disabled ? 1 : 0.98 }}
       >
-        {isGenerating ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Generating Solution...
-          </>
-        ) : (
-          <>
-            <ArrowRight className="mr-2 h-4 w-4" />
-            Generate Solution
-          </>
-        )}
-      </Button>
+        <Button
+          onClick={handleGenerate}
+          className="bg-brand-600 hover:bg-brand-700 w-full relative overflow-hidden group"
+          disabled={isGenerating || disabled}
+        >
+          {isGenerating ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Generating Solution...
+            </>
+          ) : (
+            <>
+              <span className="relative z-10 flex items-center">
+                <motion.span
+                  animate={{ x: [0, 3, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.5 }}
+                >
+                  <ArrowRight className="mr-2 h-5 w-5" />
+                </motion.span>
+                Generate Solution
+              </span>
+              
+              <motion.span 
+                className="absolute inset-0 bg-gradient-to-r from-brand-600 via-brand-700 to-brand-600 bg-[length:200%_100%]"
+                animate={{ backgroundPosition: ["0% 0%", "100% 0%", "0% 0%"] }} 
+                transition={{ duration: 5, repeat: Infinity }} 
+                style={{ zIndex: 0 }}
+              />
+            </>
+          )}
+        </Button>
+      </motion.div>
 
       {isGenerating && (
-        <div className="w-full bg-gray-200 rounded-full h-2.5">
-          <div
-            className="bg-brand-600 h-2.5 rounded-full transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          ></div>
+        <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2 overflow-hidden">
+          <motion.div
+            className="bg-brand-600 h-2.5 rounded-full"
+            initial={{ width: "5%" }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.3 }}
+          />
         </div>
       )}
     </>
