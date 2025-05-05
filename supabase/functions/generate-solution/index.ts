@@ -59,8 +59,13 @@ serve(async (req) => {
       generateSolutionPart("automation", businessPrompt, userType, selectedTemplate, provider, model)
     ]);
 
+    // Create title from business prompt or use template name if it's one of our predefined templates
+    const title = businessPrompt.length > 40 
+      ? `${businessPrompt.substring(0, 40)}...`
+      : businessPrompt;
+
     const response = {
-      title: `${businessPrompt.substring(0, 40)}...`,
+      title: title,
       description: `Solution for ${userType}`,
       business_prompt: businessPrompt,
       ui_solution: uiSolution,
@@ -94,12 +99,18 @@ async function generateSolutionPart(
     automation: "You are a workflow automation expert. Create automation workflows for the following business need:"
   };
 
+  const solutionPrompts = {
+    ui: "Please create a detailed UI solution for this business need. Include component hierarchy, UX flow, and key screens. Focus on creating a clean, modern interface that is intuitive for users.",
+    database: "Please create a comprehensive database schema for this business need. Include tables, relationships, key fields, and sample data. Consider security, performance, and scalability concerns.",
+    automation: "Please create detailed automation workflows for this business need. Include process flows, trigger events, conditional logic, and any external integrations needed. Focus on efficiency and error handling."
+  };
+
   const prompt = `
 Business Prompt: ${businessPrompt}
 User Type: ${userType}
 Template: ${template}
 
-Please create a detailed ${solutionType} solution for this business need. Include all necessary components and implementation details.
+${solutionPrompts[solutionType]}
 `;
 
   try {

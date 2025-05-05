@@ -10,6 +10,10 @@ export async function generateSolution(
   modelConfig?: { provider: string; model: string }
 ) {
   try {
+    // Clear any previously stored template prompts
+    localStorage.removeItem("selectedTemplatePrompt");
+    localStorage.removeItem("selectedTemplateTitle");
+
     const { data, error } = await supabase.functions.invoke('generate-solution', {
       body: {
         businessPrompt,
