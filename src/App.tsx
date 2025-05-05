@@ -10,6 +10,7 @@ import SolutionDetail from "./pages/SolutionDetail";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -35,6 +36,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <SolutionDetail />
+                  </ProtectedRoute>
+                }
+              />
+              <Route 
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <AdminDashboard />
                   </ProtectedRoute>
                 }
               />

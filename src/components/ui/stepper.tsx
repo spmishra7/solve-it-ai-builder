@@ -97,8 +97,8 @@ const Stepper = ({
         
         if (!React.isValidElement(step)) return null;
         
-        // Create a new props object that includes valid StepProps
-        const stepProps: StepProps = {
+        // Create a new props object 
+        const stepProps = {
           ...step.props,
           status,
           index,
@@ -107,7 +107,7 @@ const Stepper = ({
         
         return (
           <React.Fragment key={index}>
-            {React.cloneElement(step, stepProps)}
+            {React.cloneElement(step as React.ReactElement<StepProps>, stepProps)}
             
             {index < steps.length - 1 && orientation === "horizontal" && (
               <div className="flex-1 flex items-center justify-center">
