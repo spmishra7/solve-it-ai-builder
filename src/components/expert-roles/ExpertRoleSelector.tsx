@@ -25,7 +25,7 @@ const ExpertRoleSelector = ({ selectedRoles, onRoleToggle }: ExpertRoleSelectorP
   );
   
   // Check if all roles are selected by comparing lengths and checking every role is included
-  const allSelected = selectedRoles.length === allRoleIds.length && 
+  const allSelected = allRoleIds.length > 0 && selectedRoles.length === allRoleIds.length && 
     allRoleIds.every(roleId => selectedRoles.includes(roleId));
   
   const handleExpandToggle = (categoryId: string) => {
@@ -37,18 +37,19 @@ const ExpertRoleSelector = ({ selectedRoles, onRoleToggle }: ExpertRoleSelectorP
   };
   
   const handleSelectAll = () => {
-    console.log("handleSelectAll called, current state:", allSelected);
+    console.log("handleSelectAll called in ExpertRoleSelector, current state:", allSelected);
+    
+    // Import the handleSelectAll function from useRoleManagement
+    // and just pass the allRoleIds and allSelected flag
     if (allSelected) {
-      // If all are selected, clear the selection
-      console.log("Deselecting all roles");
-      allRoleIds.forEach(roleId => {
-        if (selectedRoles.includes(roleId)) {
-          onRoleToggle(roleId);
-        }
+      // Deselect all roles
+      console.log("Triggering deselection of all roles");
+      selectedRoles.forEach(roleId => {
+        onRoleToggle(roleId);
       });
     } else {
-      // If not all are selected, select all roles that aren't already selected
-      console.log("Selecting all roles");
+      // Select all roles that aren't already selected
+      console.log("Triggering selection of all roles");
       allRoleIds.forEach(roleId => {
         if (!selectedRoles.includes(roleId)) {
           onRoleToggle(roleId);

@@ -33,16 +33,32 @@ export const useRoleManagement = () => {
   const handleRoleToggle = (roleId: string) => {
     console.log("Toggle role:", roleId);
     
-    setSelectedRoles(prevSelectedRoles => {
-      const isCurrentlySelected = prevSelectedRoles.includes(roleId);
-      const newSelectedRoles = isCurrentlySelected
-        ? prevSelectedRoles.filter(id => id !== roleId)
-        : [...prevSelectedRoles, roleId];
-      
-      console.log("New selected roles:", newSelectedRoles);
-      return newSelectedRoles;
-    });
+    // Fix: Instead of using a callback function with setSelectedRoles,
+    // create the new array first and then pass it directly
+    const isCurrentlySelected = selectedRoles.includes(roleId);
+    const newSelectedRoles = isCurrentlySelected
+      ? selectedRoles.filter(id => id !== roleId)
+      : [...selectedRoles, roleId];
+    
+    console.log("New selected roles:", newSelectedRoles);
+    
+    // Pass the array directly to setSelectedRoles
+    setSelectedRoles(newSelectedRoles);
   };
 
-  return { handleRoleToggle, selectedRoles };
+  const handleSelectAll = (allRoleIds: string[], allSelected: boolean) => {
+    console.log("handleSelectAll called with", allRoleIds.length, "roles. All currently selected:", allSelected);
+    
+    if (allSelected) {
+      // If all are selected, clear the selection
+      console.log("Deselecting all roles");
+      setSelectedRoles([]);
+    } else {
+      // If not all are selected, select all roles
+      console.log("Selecting all roles:", allRoleIds);
+      setSelectedRoles(allRoleIds);
+    }
+  };
+
+  return { handleRoleToggle, handleSelectAll, selectedRoles };
 };

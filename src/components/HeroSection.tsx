@@ -12,12 +12,20 @@ const HeroSection = () => {
       solutionGeneratorSection.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
       console.error("Solution generator section not found");
+      // Alternative selector approach
+      const alternativeElement = document.querySelector("[id='solution-generator']");
+      if (alternativeElement) {
+        console.log("Found solution-generator using alternative selector");
+        alternativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      
       // Fallback: scroll to the approximate position
+      console.log("Using fallback scroll");
       window.scrollTo({
         top: 800,
         behavior: "smooth"
       });
-      console.log("Fallback scroll to position 800 executed");
     }
   };
 
@@ -30,12 +38,20 @@ const HeroSection = () => {
       templatesSection.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
       console.error("Templates section not found");
+      // Alternative selector approach
+      const alternativeElement = document.querySelector("[id='templates']");
+      if (alternativeElement) {
+        console.log("Found templates using alternative selector");
+        alternativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      
       // Fallback: scroll to the approximate position
+      console.log("Using fallback scroll for templates");
       window.scrollTo({
         top: 1600,
         behavior: "smooth"
       });
-      console.log("Fallback scroll to position 1600 executed");
     }
   };
 
