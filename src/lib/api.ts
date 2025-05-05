@@ -86,13 +86,23 @@ export async function fetchAvailableModels() {
 // Save generated solution to the database
 export async function saveSolution(solutionData: any) {
   try {
-    const { error } = await supabase
+    // Add timestamps if they don't exist
+    if (!solutionData.created_at) {
+      solutionData.created_at = new Date().toISOString();
+    }
+    
+    if (!solutionData.updated_at) {
+      solutionData.updated_at = new Date().toISOString();
+    }
+    
+    const { data, error } = await supabase
       .from('solutions')
-      .insert(solutionData);
+      .insert(solutionData)
+      .select();
 
     if (error) {
       console.error("Error saving solution:", error);
-      toast.error("Failed to save solution");
+      toast.error("Failed to save solution: " + error.message);
       throw error;
     }
 
@@ -100,6 +110,8 @@ export async function saveSolution(solutionData: any) {
     learnFromSolution(solutionData);
     
     toast.success("Solution saved successfully");
+    
+    return data?.[0]?.id;
   } catch (error) {
     console.error("Error in saveSolution:", error);
     toast.error("Failed to save solution");
@@ -130,7 +142,7 @@ export async function generateWithLLM(
 
     if (error) {
       console.error("Error calling LLM:", error);
-      toast.error("Failed to generate response");
+      toast.error("Failed to generate response: " + error.message);
       throw error;
     }
 

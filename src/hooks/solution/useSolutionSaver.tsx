@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSolution } from "@/contexts/SolutionContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { saveSolution } from "@/lib/api";
 
 export const useSolutionSaver = () => {
   const {
@@ -36,37 +37,34 @@ export const useSolutionSaver = () => {
     try {
       setIsSaving(true);
       
-      const { data, error } = await supabase
-        .from('solutions')
-        .insert([
-          {
-            title: solutionTitle,
-            business_prompt: businessDescription,
-            ui_solution: solution.ui,
-            database_solution: solution.database,
-            automation_solution: solution.automation,
-            expert_insights: solution.expertInsights || {},
-            user_id: session.user.id
-          }
-        ])
-        .select();
-
-      if (error) throw error;
+      const solutionData = {
+        title: solutionTitle,
+        description: businessDescription.substring(0, 200) + (businessDescription.length > 200 ? '...' : ''),
+        business_prompt: businessDescription,
+        ui_solution: solution.ui,
+        database_solution: solution.database,
+        automation_solution: solution.automation,
+        expert_insights: solution.expertInsights || {},
+        user_id: session.user.id
+      };
+      
+      // Use the API service to save the solution
+      const solutionId = await saveSolution(solutionData);
 
       toast({
         title: "Solution Saved",
         description: "Your solution has been saved to your account."
       });
 
-      // Redirect to the solution detail page
-      if (data && data[0]) {
-        navigate(`/solutions/${data[0].id}`);
+      // Redirect to the solution detail page if we have an ID
+      if (solutionId) {
+        navigate(`/solutions/${solutionId}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving solution:", error);
       toast({
         title: "Save Failed",
-        description: "There was an error saving your solution.",
+        description: error.message || "There was an error saving your solution.",
         variant: "destructive"
       });
     } finally {

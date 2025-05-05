@@ -94,7 +94,7 @@ export const useSolutionGenerator = () => {
         });
       }
 
-      // Mock solution for testing when API key is missing
+      // Define mock solution for testing when API key is missing
       const mockSolution = {
         ui: "<div><h1>Patient Management System</h1><p>This is a mock UI solution</p></div>",
         database: "CREATE TABLE patients (\n  id SERIAL PRIMARY KEY,\n  name VARCHAR(255) NOT NULL\n);\n\nCREATE TABLE appointments (\n  id SERIAL PRIMARY KEY,\n  patient_id INTEGER REFERENCES patients(id),\n  appointment_date TIMESTAMP NOT NULL\n);",
@@ -139,7 +139,6 @@ export const useSolutionGenerator = () => {
         toast({
           title: "API Configuration Issue",
           description: "Using demo data. Set up OpenAI API key for full functionality.",
-          // Fixed type error - changing "warning" to "destructive"
           variant: "destructive"
         });
         

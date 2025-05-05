@@ -49,9 +49,15 @@ export async function findSimilarSolutions(
 export async function learnFromSolution(solutionData: any): Promise<void> {
   try {
     // Call the edge function that handles learning from solutions
-    await supabase.functions.invoke('learn-from-solution', {
+    const response = await supabase.functions.invoke('learn-from-solution', {
       body: solutionData,
     });
+    
+    if (response.error) {
+      console.error("Error in learn-from-solution:", response.error);
+    } else {
+      console.log("Solution successfully processed for learning");
+    }
   } catch (error) {
     console.error("Error in learnFromSolution:", error);
     // We don't need to throw here as this is a background learning process
