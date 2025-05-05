@@ -1,21 +1,48 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowRight, Check, Loader2, Save } from "lucide-react";
+import { ArrowRight, Check, Info, Loader2, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import ExpertRoleSelector from "./ExpertRoleSelector";
 
 // This would normally come from an API call to GPT-4/Claude
-const mockSolutionGeneration = (prompt: string) => {
-  return new Promise<{ui: string, database: string, automation: string}>((resolve) => {
+const mockSolutionGeneration = (prompt: string, roles: string[] = []) => {
+  return new Promise<{ui: string, database: string, automation: string, expertInsights?: Record<string, string>}>((resolve) => {
     // Simulate API call delay
     setTimeout(() => {
       const firstWord = prompt.split(' ')[0].toLowerCase();
+      
+      // Generate expert insights if roles are selected
+      const expertInsights: Record<string, string> = {};
+      
+      if (roles.includes('ceo')) {
+        expertInsights.ceo = "This solution offers strong market positioning with potential for scalable growth. Consider implementing a tiered pricing model to capture different market segments.";
+      }
+      
+      if (roles.includes('cfo')) {
+        expertInsights.cfo = "Initial development costs will be offset by an estimated 30% reduction in operational expenses. ROI projections indicate profitability within 8-12 months of deployment.";
+      }
+      
+      if (roles.includes('product')) {
+        expertInsights.product = "Prioritize user onboarding and dashboard customization features for initial release. Consider implementing A/B testing to optimize user engagement metrics.";
+      }
+      
+      if (roles.includes('designer')) {
+        expertInsights.designer = "The interface focuses on clarity and ease of use. Consider implementing dark mode and accessibility features to enhance user experience across different contexts.";
+      }
+      
+      if (roles.includes('engineer')) {
+        expertInsights.engineer = "Architecture employs microservices for scalability. Consider implementing caching strategies to improve performance under high load conditions.";
+      }
+      
+      if (roles.includes('security')) {
+        expertInsights.security = "Implementation follows OWASP security guidelines. Regular security audits and data encryption at rest and in transit are recommended.";
+      }
       
       // Very simplified mock response based on first word
       if (firstWord.includes('patient') || firstWord.includes('health') || firstWord.includes('doctor')) {
@@ -154,7 +181,8 @@ schedule.daily(() => {
       body: \`<h1>Appointment Reminder</h1><p>Dear \${appointment.first_name},</p><p>This is a reminder of your appointment scheduled for \${formatDate(appointment.appointment_date)} at \${formatTime(appointment.appointment_date)}.</p><p>Please click <a href="https://healthcare.com/confirm/\${appointment.id}">here</a> to confirm your appointment.</p>\`
     });
   });
-});`
+});`,
+          expertInsights
         });
       } else if (firstWord.includes('invoice') || firstWord.includes('finance') || firstWord.includes('payment')) {
         resolve({
@@ -362,7 +390,8 @@ schedule.monthly(() => {
     body: 'Please find attached the monthly revenue report.',
     attachments: [report]
   });
-});`
+});`,
+          expertInsights
         });
       } else {
         // Default response if no specific match
@@ -617,311 +646,68 @@ schedule.hourly(() => {
       }
     });
   });
-});`
+});`,
+          expertInsights
         });
       }
     }, 2000);
   });
 };
 
+// Component for displaying expert insights
+const ExpertInsights = ({ insights }: { insights: Record<string, string> | undefined }) => {
+  if (!insights || Object.keys(insights).length === 0) return null;
+  
+  const roleIcons: Record<string, string> = {
+    ceo: "👑",
+    cfo: "💰",
+    product: "📊",
+    designer: "🎨",
+    engineer: "🧰",
+    security: "🔒"
+  };
+  
+  const roleNames: Record<string, string> = {
+    ceo: "CEO",
+    cfo: "CFO",
+    product: "Product Manager",
+    designer: "UX Designer",
+    engineer: "Engineer",
+    security: "Security Expert"
+  };
+
+  return (
+    <div className="my-8 border rounded-lg overflow-hidden">
+      <div className="bg-card/50 backdrop-blur-sm p-4 border-b flex items-center">
+        <Info className="h-5 w-5 mr-2 text-brand-600" />
+        <h3 className="font-semibold">Expert Insights</h3>
+      </div>
+      <div className="space-y-4 p-4">
+        {Object.entries(insights).map(([role, insight]) => (
+          <div key={role} className="flex gap-3 p-3 bg-card/30 rounded-lg">
+            <div className="h-8 w-8 text-xl flex items-center justify-center">
+              {roleIcons[role] || "👤"}
+            </div>
+            <div>
+              <h4 className="text-sm font-medium mb-1">{roleNames[role] || role}</h4>
+              <p className="text-sm text-muted-foreground">{insight}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const SolutionGenerator = () => {
   const [businessDescription, setBusinessDescription] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [solution, setSolution] = useState<null | {ui: string, database: string, automation: string}>(null);
+  const [solution, setSolution] = useState<null | {ui: string, database: string, automation: string, expertInsights?: Record<string, string>}>(null);
   const [activeTab, setActiveTab] = useState("preview");
   const [progress, setProgress] = useState(0);
   const [solutionTitle, setSolutionTitle] = useState("");
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [examplePrompts] = useState([
     "I need a patient management system for my small clinic.",
     "We need an invoice generation tool for our accounting department.",
-    "Create a project management dashboard for our marketing team."
-  ]);
-  
-  const { toast } = useToast();
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  
-  useEffect(() => {
-    if (isGenerating) {
-      const interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 95) return prev;
-          const increment = Math.floor(Math.random() * 10) + 1;
-          return Math.min(prev + increment, 95);
-        });
-      }, 500);
-      
-      return () => clearInterval(interval);
-    } else if (solution) {
-      setProgress(100);
-      
-      // Generate a default title based on the business description
-      if (!solutionTitle) {
-        const words = businessDescription.split(' ').slice(0, 5).join(' ');
-        setSolutionTitle(`${words}...`);
-      }
-    }
-  }, [isGenerating, solution, businessDescription, solutionTitle]);
-  
-  const handleGenerate = async () => {
-    if (!businessDescription.trim()) {
-      toast({
-        title: "Error",
-        description: "Please describe your business problem first.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsGenerating(true);
-    setProgress(0);
-    setSolution(null);
-    
-    try {
-      const generatedSolution = await mockSolutionGeneration(businessDescription);
-      setSolution(generatedSolution);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to generate solution. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-  
-  const handleSaveSolution = async () => {
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please log in to save your solution.",
-        variant: "destructive",
-      });
-      navigate("/auth");
-      return;
-    }
-    
-    if (!solution) return;
-    
-    setIsSaving(true);
-    
-    try {
-      const { error } = await supabase.from('solutions').insert({
-        user_id: user.id,
-        title: solutionTitle || "Untitled Solution",
-        description: businessDescription.substring(0, 200) + (businessDescription.length > 200 ? "..." : ""),
-        business_prompt: businessDescription,
-        ui_solution: solution.ui,
-        database_solution: solution.database,
-        automation_solution: solution.automation
-      });
-      
-      if (error) throw error;
-      
-      toast({
-        title: "Solution saved",
-        description: "Your solution has been saved successfully.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: "Failed to save solution: " + error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-  
-  const useExamplePrompt = (prompt: string) => {
-    setBusinessDescription(prompt);
-  };
-  
-  return (
-    <section id="generator" className="py-16 pb-24">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Build Your <span className="gradient-text">Custom SaaS Tool</span>
-          </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Describe your business problem in natural language and our AI will generate a complete, customized SaaS solution for you.
-          </p>
-        </div>
-        
-        <div className="max-w-4xl mx-auto">
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-gray-600 mb-1 text-sm">
-                Describe your business problem
-              </p>
-              <Textarea
-                placeholder="I need a CRM system for my real estate business to track clients, properties, and follow-ups..."
-                className="mb-4 h-32"
-                value={businessDescription}
-                onChange={(e) => setBusinessDescription(e.target.value)}
-              />
-              
-              <div className="flex flex-wrap gap-2 mb-4">
-                <p className="text-sm text-gray-600 w-full md:w-auto shrink-0">Try an example:</p>
-                {examplePrompts.map((prompt, index) => (
-                  <button
-                    key={index}
-                    onClick={() => useExamplePrompt(prompt)}
-                    className="text-sm text-brand-600 hover:text-brand-800 underline"
-                  >
-                    {prompt}
-                  </button>
-                ))}
-              </div>
-              
-              <Button 
-                className="w-full bg-brand-600 hover:bg-brand-700 text-white py-6" 
-                onClick={handleGenerate}
-                disabled={isGenerating}
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generating Solution...
-                  </>
-                ) : (
-                  <>
-                    Generate SaaS Tool
-                    <ArrowRight size={16} className="ml-2" />
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-          
-          {(isGenerating || solution) && (
-            <div className="mt-10">
-              <div className="mb-6">
-                <div className="flex justify-between text-sm mb-1">
-                  <span>Generating solution...</span>
-                  <span>{progress}%</span>
-                </div>
-                <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-brand-600 transition-all duration-300 ease-out rounded-full"
-                    style={{ width: `${progress}%` }}
-                  ></div>
-                </div>
-              </div>
-              
-              {progress === 100 && solution && (
-                <>
-                  <div className="p-4 rounded-lg bg-green-50 border border-green-200 flex items-center mb-6">
-                    <div className="bg-green-100 rounded-full p-1 mr-3">
-                      <Check className="h-5 w-5 text-green-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-green-800 font-medium">Solution Generated Successfully!</p>
-                      <p className="text-green-600 text-sm">Preview your custom SaaS tool below or explore the code.</p>
-                    </div>
-                    
-                    {user && (
-                      <div className="flex items-center space-x-2 ml-4">
-                        <input
-                          type="text"
-                          placeholder="Solution title"
-                          className="px-3 py-1 border rounded text-sm"
-                          value={solutionTitle}
-                          onChange={(e) => setSolutionTitle(e.target.value)}
-                        />
-                        <Button 
-                          onClick={handleSaveSolution} 
-                          size="sm" 
-                          className="bg-brand-600 hover:bg-brand-700"
-                          disabled={isSaving}
-                        >
-                          {isSaving ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <>
-                              <Save size={14} className="mr-1" />
-                              Save
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <Tabs value={activeTab} onValueChange={setActiveTab}>
-                    <TabsList className="grid grid-cols-3 mb-6">
-                      <TabsTrigger value="preview">Preview</TabsTrigger>
-                      <TabsTrigger value="database">Database Schema</TabsTrigger>
-                      <TabsTrigger value="automation">Automations</TabsTrigger>
-                    </TabsList>
-                    
-                    <TabsContent value="preview">
-                      <Card>
-                        <CardContent className="p-2">
-                          <div className="border-b pb-2 mb-2 flex justify-between items-center">
-                            <div className="flex space-x-1">
-                              <div className="h-3 w-3 rounded-full bg-red-500"></div>
-                              <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
-                              <div className="h-3 w-3 rounded-full bg-green-500"></div>
-                            </div>
-                            <div className="text-xs text-gray-400">Generated SaaS Preview</div>
-                          </div>
-                          <div className="relative border rounded-lg shadow-inner p-2 overflow-hidden bg-gray-50">
-                            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/80 pointer-events-none z-10"></div>
-                            <div className="p-4 overflow-auto max-h-96" dangerouslySetInnerHTML={{ __html: solution.ui }}></div>
-                            <div className="absolute inset-x-0 bottom-0 flex justify-center p-4">
-                              <Button className="bg-brand-600 hover:bg-brand-700">
-                                Unlock Full Access
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </TabsContent>
-                    
-                    <TabsContent value="database">
-                      <Card>
-                        <CardContent className="p-4">
-                          <div className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-auto max-h-96 font-mono text-sm relative">
-                            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-900/90 pointer-events-none z-10"></div>
-                            <pre>{solution.database}</pre>
-                            <div className="absolute inset-x-0 bottom-0 flex justify-center p-4">
-                              <Button className="bg-brand-600 hover:bg-brand-700">
-                                Unlock Full Database Schema
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </TabsContent>
-                    
-                    <TabsContent value="automation">
-                      <Card>
-                        <CardContent className="p-4">
-                          <div className="bg-gray-900 text-blue-400 p-4 rounded-lg overflow-auto max-h-96 font-mono text-sm relative">
-                            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-900/90 pointer-events-none z-10"></div>
-                            <pre>{solution.automation}</pre>
-                            <div className="absolute inset-x-0 bottom-0 flex justify-center p-4">
-                              <Button className="bg-brand-600 hover:bg-brand-700">
-                                Unlock Full Automation
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </TabsContent>
-                  </Tabs>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-export default SolutionGenerator;

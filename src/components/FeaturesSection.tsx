@@ -8,6 +8,11 @@ const features = [
     description: "Describe your business problem in plain English. No technical jargon needed."
   },
   {
+    icon: "🧠",
+    title: "Multi-Perspective Analysis",
+    description: "Get insights from CEO, CFO, Product Manager, Designer, and Engineering perspectives to build a comprehensive plan."
+  },
+  {
     icon: "🤖",
     title: "AI-Powered Generation",
     description: "Advanced AI analyzes your needs and generates complete solutions tailored to your requirements."
@@ -26,6 +31,11 @@ const features = [
     icon: "⚙️",
     title: "Workflow Automation",
     description: "Built-in automations for notifications, reports, and business processes."
+  },
+  {
+    icon: "💰",
+    title: "Cost-Effective Solutions",
+    description: "Optimized implementations that deliver maximum value while minimizing resource usage."
   },
   {
     icon: "🚀",

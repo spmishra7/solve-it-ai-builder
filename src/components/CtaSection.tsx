@@ -9,7 +9,7 @@ const CtaSection = () => {
           <div className="px-6 py-12 md:p-12 text-white text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6 gradient-text">Ready to transform your business?</h2>
             <p className="text-xl mb-8 max-w-2xl mx-auto text-muted-foreground">
-              Start building your custom SaaS solution today. No coding required.
+              Plan like a CEO, budget like a CFO, design like a pro. Get multi-perspective SaaS solutions with no coding required.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Button className="bg-brand-600 text-white hover:bg-brand-700 text-lg py-6 px-8 glow-effect">
