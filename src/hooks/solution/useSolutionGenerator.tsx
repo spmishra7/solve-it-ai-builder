@@ -139,7 +139,8 @@ export const useSolutionGenerator = () => {
         toast({
           title: "API Configuration Issue",
           description: "Using demo data. Set up OpenAI API key for full functionality.",
-          variant: "warning"
+          // Fixed type error - changing "warning" to "destructive"
+          variant: "destructive"
         });
         
         // Use mock solution when API fails
