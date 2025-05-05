@@ -39,7 +39,9 @@ export const useSolutionGenerator = () => {
   useEffect(() => {
     if (isGenerating && progress < 95) {
       const timer = setTimeout(() => {
-        setProgress(prev => prev + (95 - prev) * 0.2);
+        // Fix: Convert the function to explicitly return a number
+        const newProgress = progress + (95 - progress) * 0.2;
+        setProgress(newProgress);
       }, 300);
       return () => clearTimeout(timer);
     }
@@ -54,11 +56,13 @@ export const useSolutionGenerator = () => {
   };
 
   const handleContentAnalyzed = (insights: string) => {
-    // Update the business description with insights if it's empty or append to it
+    // Fix: Create intermediate values rather than using updater functions
     if (!businessDescription.trim()) {
       setBusinessDescription(insights);
     } else {
-      setBusinessDescription(prev => `${prev}\n\nContent Analysis Insights:\n${insights}`);
+      // Create the new string value first, then set it
+      const newBusinessDescription = `${businessDescription}\n\nContent Analysis Insights:\n${insights}`;
+      setBusinessDescription(newBusinessDescription);
     }
     
     toast({
