@@ -1,7 +1,26 @@
 
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    // Scroll to solution generator section
+    const element = document.getElementById("solution-generator");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleViewDemo = () => {
+    // Scroll to the templates section which has solution examples
+    const element = document.getElementById("templates");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <div className="relative pt-24 pb-16 grid-bg-pattern">
       <div className="container mx-auto px-4">
@@ -27,10 +46,17 @@ const HeroSection = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 mb-12">
-            <Button className="bg-brand-600 hover:bg-brand-700 text-lg py-6 px-8 glow-effect">
+            <Button 
+              className="bg-brand-600 hover:bg-brand-700 text-lg py-6 px-8 glow-effect"
+              onClick={handleGetStarted}
+            >
               Get Started
             </Button>
-            <Button variant="outline" className="text-lg py-6 px-8 border-accent hover:bg-accent/10">
+            <Button 
+              variant="outline" 
+              className="text-lg py-6 px-8 border-accent hover:bg-accent/10"
+              onClick={handleViewDemo}
+            >
               View Demo
             </Button>
           </div>

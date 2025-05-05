@@ -3,6 +3,36 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Code, Cloud, Download, Sparkles, Wrench, Shield } from "lucide-react";
 
 const CtaSection = () => {
+  const handleGetStarted = () => {
+    // Scroll to solution generator section
+    const element = document.getElementById("solution-generator");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleLearnMore = () => {
+    // Scroll to features section
+    const element = document.getElementById("features");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleTryAISolutionBuilder = () => {
+    // Also scroll to solution generator section
+    const element = document.getElementById("solution-generator");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleContactSales = () => {
+    // In a real-world scenario, this would navigate to a contact page
+    // For now, let's just alert
+    alert("Contact sales feature coming soon!");
+  };
+
   return (
     <section className="py-16">
       <div className="container mx-auto px-4">
@@ -17,7 +47,12 @@ const CtaSection = () => {
                 <Code className="h-10 w-10 mb-4 text-brand-500" />
                 <h3 className="text-lg font-medium mb-2">UI Export</h3>
                 <p className="text-sm text-muted-foreground mb-4">Take our UI code and integrate it into your existing projects</p>
-                <Button variant="outline" size="sm" className="mt-auto border-white/20 text-white hover:bg-white/10">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-auto border-white/20 text-white hover:bg-white/10"
+                  onClick={handleLearnMore}
+                >
                   Learn More
                 </Button>
               </div>
@@ -26,7 +61,10 @@ const CtaSection = () => {
                 <Cloud className="h-10 w-10 mb-4 text-brand-500" />
                 <h3 className="text-lg font-medium mb-2">Managed Backend</h3>
                 <p className="text-sm text-muted-foreground mb-4">We host and run the backend, you focus on your frontend</p>
-                <Button className="mt-auto bg-brand-600 text-white hover:bg-brand-700 glow-effect">
+                <Button 
+                  className="mt-auto bg-brand-600 text-white hover:bg-brand-700 glow-effect"
+                  onClick={handleGetStarted}
+                >
                   Get Started
                 </Button>
               </div>
@@ -35,7 +73,12 @@ const CtaSection = () => {
                 <Download className="h-10 w-10 mb-4 text-brand-500" />
                 <h3 className="text-lg font-medium mb-2">Full Solution</h3>
                 <p className="text-sm text-muted-foreground mb-4">One-time purchase for complete code ownership</p>
-                <Button variant="outline" size="sm" className="mt-auto border-white/20 text-white hover:bg-white/10">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-auto border-white/20 text-white hover:bg-white/10"
+                  onClick={handleContactSales}
+                >
                   Contact Sales
                 </Button>
               </div>
@@ -72,7 +115,10 @@ const CtaSection = () => {
                 </div>
               </div>
               <div className="mt-8">
-                <Button className="bg-brand-600 hover:bg-brand-700">
+                <Button 
+                  className="bg-brand-600 hover:bg-brand-700"
+                  onClick={handleTryAISolutionBuilder}
+                >
                   <ArrowRight className="mr-2 h-4 w-4" />
                   Try Our AI Solution Builder
                 </Button>
