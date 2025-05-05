@@ -65,6 +65,30 @@ const roleCategories = [
     ]
   },
   {
+    id: "dataTeam",
+    name: "Data Team",
+    roles: [
+      {
+        id: "dataAnalyst",
+        name: "Data Analyst",
+        icon: "📈",
+        description: "Data interpretation, metrics definition, and business insights."
+      },
+      {
+        id: "dataScientist",
+        name: "Data Scientist",
+        icon: "🧪",
+        description: "Statistical modeling, predictive analytics, and machine learning solutions."
+      },
+      {
+        id: "dataEngineer",
+        name: "Data Engineer",
+        icon: "🔌",
+        description: "Data pipeline design, ETL processes, and data infrastructure."
+      }
+    ]
+  },
+  {
     id: "specialists",
     name: "Specialists",
     roles: [
@@ -88,9 +112,69 @@ const roleCategories = [
       },
       {
         id: "analyst",
-        name: "Data Analyst",
-        icon: "📈",
-        description: "Data modeling, metrics definition, and analytics implementation."
+        name: "Business Analyst",
+        icon: "📊",
+        description: "Requirements gathering, process analysis, and solution documentation."
+      }
+    ]
+  },
+  {
+    id: "industry",
+    name: "Industry Experts",
+    roles: [
+      {
+        id: "healthcare",
+        name: "Healthcare Expert",
+        icon: "🏥",
+        description: "Medical workflows, patient management, and healthcare compliance."
+      },
+      {
+        id: "finance",
+        name: "Finance Expert",
+        icon: "💹",
+        description: "Financial regulations, payment processing, and accounting practices."
+      },
+      {
+        id: "retail",
+        name: "Retail Expert",
+        icon: "🛒",
+        description: "Inventory management, point of sale systems, and customer loyalty."
+      },
+      {
+        id: "education",
+        name: "Education Expert",
+        icon: "🎓",
+        description: "Learning management, student assessment, and educational workflows."
+      }
+    ]
+  },
+  {
+    id: "operations",
+    name: "Operations",
+    roles: [
+      {
+        id: "projectManager",
+        name: "Project Manager",
+        icon: "📋",
+        description: "Project planning, resource allocation, and delivery management."
+      },
+      {
+        id: "qualityAssurance",
+        name: "QA Specialist",
+        icon: "✅",
+        description: "Testing methodologies, quality standards, and defect management."
+      },
+      {
+        id: "devops",
+        name: "DevOps Engineer",
+        icon: "⚡",
+        description: "Deployment automation, CI/CD pipelines, and infrastructure as code."
+      },
+      {
+        id: "support",
+        name: "Customer Support",
+        icon: "🙋",
+        description: "User onboarding, troubleshooting, and support workflows."
       }
     ]
   }
@@ -122,7 +206,7 @@ const ExpertRoleSelector = ({ selectedRoles, onRoleToggle }: ExpertRoleSelectorP
               </button>
             </TooltipTrigger>
             <TooltipContent className="max-w-xs">
-              <p>Get specialized insights from different roles in the organization. Each role provides unique perspectives on your solution.</p>
+              <p>Get specialized insights from different roles in the organization. Each role provides unique perspectives on your solution or task.</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

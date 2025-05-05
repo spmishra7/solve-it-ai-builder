@@ -60,6 +60,19 @@ const mockSolutionGeneration = (prompt: string, roles: string[] = []) => {
         expertInsights.sales = "Pricing should reflect the efficiency gains provided. Consider a base + usage model with incentives for annual commitments. Early adopter discounts could accelerate initial traction.";
       }
       
+      // Data Team insights
+      if (roles.includes('dataAnalyst')) {
+        expertInsights.dataAnalyst = "The data model enables comprehensive analytics across user behavior and business outcomes. Recommend implementing event tracking and establishing KPIs for measuring ROI and engagement.";
+      }
+      
+      if (roles.includes('dataScientist')) {
+        expertInsights.dataScientist = "This solution would benefit from predictive analytics to forecast user needs and optimize resource allocation. Consider implementing machine learning models to identify patterns and trends.";
+      }
+      
+      if (roles.includes('dataEngineer')) {
+        expertInsights.dataEngineer = "Recommend implementing data pipelines with proper validation and transformation steps. Consider using a data warehouse for historical analysis alongside operational databases.";
+      }
+      
       // Specialist insights
       if (roles.includes('designer')) {
         expertInsights.designer = "The interface focuses on clarity and ease of use. Consider implementing dark mode and accessibility features to enhance user experience across different contexts.";
@@ -74,7 +87,41 @@ const mockSolutionGeneration = (prompt: string, roles: string[] = []) => {
       }
       
       if (roles.includes('analyst')) {
-        expertInsights.analyst = "The data model supports comprehensive analytics. Recommend implementing event tracking and establishing key performance indicators for measuring business impact and user engagement.";
+        expertInsights.analyst = "The business processes align with industry best practices. Recommend establishing clear metrics for measuring success and automating reporting workflows.";
+      }
+      
+      // Industry Expert insights
+      if (roles.includes('healthcare')) {
+        expertInsights.healthcare = "This solution addresses key pain points in patient management workflows. Ensure HIPAA compliance and incorporate secure messaging for provider-patient communications.";
+      }
+      
+      if (roles.includes('finance')) {
+        expertInsights.finance = "Implement robust audit trails and compliance reporting. Consider integrating with standard accounting systems and supporting multiple currencies for global operations.";
+      }
+      
+      if (roles.includes('retail')) {
+        expertInsights.retail = "The inventory management system should support barcode scanning and real-time stock updates. Consider implementing customer loyalty features and personalized recommendations.";
+      }
+      
+      if (roles.includes('education')) {
+        expertInsights.education = "Include progress tracking and assessment tools. Support different learning styles with varied content formats and adaptive learning paths.";
+      }
+      
+      // Operations insights
+      if (roles.includes('projectManager')) {
+        expertInsights.projectManager = "Implementation should be phased to minimize disruption. Recommend starting with core features and gradually expanding functionality based on user feedback.";
+      }
+      
+      if (roles.includes('qualityAssurance')) {
+        expertInsights.qualityAssurance = "Implement automated testing for critical user journeys. Consider establishing user acceptance testing protocols and continuous integration practices.";
+      }
+      
+      if (roles.includes('devops')) {
+        expertInsights.devops = "Architecture supports containerized deployment and horizontal scaling. Recommend implementing robust monitoring and alerting systems with automated recovery procedures.";
+      }
+      
+      if (roles.includes('support')) {
+        expertInsights.support = "Include comprehensive documentation and in-app guidance. Consider implementing a knowledge base and chatbot for common questions to reduce support burden.";
       }
       
       // Very simplified mock response based on first word
@@ -704,11 +751,28 @@ const ExpertInsights = ({ insights }: { insights: Record<string, string> | undef
     marketing: "📣",
     sales: "🤝",
     
+    // Data Team
+    dataAnalyst: "📈",
+    dataScientist: "🧪",
+    dataEngineer: "🔌",
+    
     // Specialists
     designer: "🎨",
     engineer: "🧰",
     security: "🔒",
-    analyst: "📈"
+    analyst: "📊",
+    
+    // Industry Experts
+    healthcare: "🏥",
+    finance: "💹",
+    retail: "🛒",
+    education: "🎓",
+    
+    // Operations
+    projectManager: "📋",
+    qualityAssurance: "✅",
+    devops: "⚡",
+    support: "🙋"
   };
   
   const roleNames: Record<string, string> = {
@@ -723,11 +787,28 @@ const ExpertInsights = ({ insights }: { insights: Record<string, string> | undef
     marketing: "Marketing Director",
     sales: "Sales Director",
     
+    // Data Team
+    dataAnalyst: "Data Analyst",
+    dataScientist: "Data Scientist",
+    dataEngineer: "Data Engineer",
+    
     // Specialists
     designer: "UX Designer",
     engineer: "Software Engineer",
     security: "Security Specialist",
-    analyst: "Data Analyst"
+    analyst: "Business Analyst",
+    
+    // Industry Experts
+    healthcare: "Healthcare Expert",
+    finance: "Finance Expert",
+    retail: "Retail Expert",
+    education: "Education Expert",
+    
+    // Operations
+    projectManager: "Project Manager",
+    qualityAssurance: "QA Specialist",
+    devops: "DevOps Engineer",
+    support: "Customer Support"
   };
 
   return (
