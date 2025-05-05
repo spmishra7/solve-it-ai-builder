@@ -1,6 +1,6 @@
 
 import { useSolution } from "@/contexts/SolutionContext";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 export const useContentAnalyzer = () => {
   const { 
