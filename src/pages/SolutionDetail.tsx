@@ -7,11 +7,14 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
+import { Stepper, Step } from "@/components/ui/stepper";
 import { format } from "date-fns";
 import { ArrowLeft, Calendar, Loader2, Code, Database, Zap } from "lucide-react";
 import DeploymentOptions from "@/components/DeploymentOptions";
 import DatabaseExecutor from "@/components/DatabaseExecutor";
 import AutomationWizard from "@/components/AutomationWizard";
+import LivePreviewPlayground from "@/components/LivePreviewPlayground";
+import ExportOptions from "@/components/ExportOptions";
 
 type Solution = {
   id: string;
@@ -31,10 +34,14 @@ export default function SolutionDetail() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("preview");
   const [implementationTab, setImplementationTab] = useState("overview");
+  const [implementationStep, setImplementationStep] = useState(0);
   
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  
+  // This would come from a user subscription check in a real app
+  const isPremiumUser = true;
   
   useEffect(() => {
     if (!id || !user) return;
@@ -133,21 +140,12 @@ export default function SolutionDetail() {
         </TabsList>
         
         <TabsContent value="preview">
-          <Card>
-            <CardContent className="p-2">
-              <div className="border-b pb-2 mb-2 flex justify-between items-center">
-                <div className="flex space-x-1">
-                  <div className="h-3 w-3 rounded-full bg-red-500"></div>
-                  <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
-                  <div className="h-3 w-3 rounded-full bg-green-500"></div>
-                </div>
-                <div className="text-xs text-gray-400">Generated SaaS Preview</div>
-              </div>
-              <div className="border rounded-lg shadow-inner p-2 overflow-hidden bg-gray-50">
-                <div className="p-4 overflow-auto max-h-[600px]" dangerouslySetInnerHTML={{ __html: solution.ui_solution }}></div>
-              </div>
-            </CardContent>
-          </Card>
+          <LivePreviewPlayground
+            solutionId={solution.id}
+            uiSolution={solution.ui_solution}
+            title={solution.title}
+            isAuthenticated={!!user}
+          />
         </TabsContent>
         
         <TabsContent value="database">
@@ -174,9 +172,9 @@ export default function SolutionDetail() {
           <Tabs value={implementationTab} onValueChange={setImplementationTab}>
             <TabsList className="mb-6">
               <TabsTrigger value="overview">Implementation Overview</TabsTrigger>
-              <TabsTrigger value="deploy">Deploy Frontend</TabsTrigger>
-              <TabsTrigger value="database-setup">Setup Database</TabsTrigger>
-              <TabsTrigger value="automation-setup">Configure Automation</TabsTrigger>
+              <TabsTrigger value="preview">Live Preview</TabsTrigger>
+              <TabsTrigger value="export">Export & Deploy</TabsTrigger>
+              <TabsTrigger value="workflow">Implementation Workflow</TabsTrigger>
             </TabsList>
             
             <TabsContent value="overview">
@@ -186,14 +184,14 @@ export default function SolutionDetail() {
                     <div className="h-12 w-12 rounded-full bg-brand-100 flex items-center justify-center mb-4">
                       <Code className="h-6 w-6 text-brand-600" />
                     </div>
-                    <h3 className="font-medium text-lg mb-2">1. Deploy Frontend</h3>
+                    <h3 className="font-medium text-lg mb-2">1. Preview Solution</h3>
                     <p className="text-gray-600 text-sm mb-4">
-                      Deploy your UI to a hosting platform of your choice
+                      Interact with a live version of your SaaS solution
                     </p>
                     <Button 
                       variant="outline" 
                       className="mt-auto"
-                      onClick={() => setImplementationTab("deploy")}
+                      onClick={() => setImplementationTab("preview")}
                     >
                       Start
                     </Button>
@@ -205,14 +203,14 @@ export default function SolutionDetail() {
                     <div className="h-12 w-12 rounded-full bg-brand-100 flex items-center justify-center mb-4">
                       <Database className="h-6 w-6 text-brand-600" />
                     </div>
-                    <h3 className="font-medium text-lg mb-2">2. Set Up Database</h3>
+                    <h3 className="font-medium text-lg mb-2">2. Export & Deploy</h3>
                     <p className="text-gray-600 text-sm mb-4">
-                      Create your database schema in Supabase
+                      Download or deploy your solution to start using it
                     </p>
                     <Button 
                       variant="outline" 
                       className="mt-auto"
-                      onClick={() => setImplementationTab("database-setup")}
+                      onClick={() => setImplementationTab("export")}
                     >
                       Start
                     </Button>
@@ -224,14 +222,14 @@ export default function SolutionDetail() {
                     <div className="h-12 w-12 rounded-full bg-brand-100 flex items-center justify-center mb-4">
                       <Zap className="h-6 w-6 text-brand-600" />
                     </div>
-                    <h3 className="font-medium text-lg mb-2">3. Configure Automations</h3>
+                    <h3 className="font-medium text-lg mb-2">3. Step-by-Step Workflow</h3>
                     <p className="text-gray-600 text-sm mb-4">
-                      Set up your automation workflows
+                      Follow our guided implementation workflow
                     </p>
                     <Button 
                       variant="outline" 
                       className="mt-auto"
-                      onClick={() => setImplementationTab("automation-setup")}
+                      onClick={() => setImplementationTab("workflow")}
                     >
                       Start
                     </Button>
@@ -240,23 +238,103 @@ export default function SolutionDetail() {
               </div>
             </TabsContent>
             
-            <TabsContent value="deploy">
-              <DeploymentOptions 
+            <TabsContent value="preview">
+              <LivePreviewPlayground
                 solutionId={solution.id}
                 uiSolution={solution.ui_solution}
+                title={solution.title}
+                isAuthenticated={!!user}
               />
             </TabsContent>
             
-            <TabsContent value="database-setup">
-              <DatabaseExecutor 
-                databaseSolution={solution.database_solution}
+            <TabsContent value="export">
+              <ExportOptions
+                solutionId={solution.id}
+                isAuthenticated={!!user}
+                isPremium={isPremiumUser}
               />
             </TabsContent>
             
-            <TabsContent value="automation-setup">
-              <AutomationWizard 
-                automationSolution={solution.automation_solution}
-              />
+            <TabsContent value="workflow">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="mb-6">
+                    <h3 className="text-lg font-medium mb-2">Implementation Workflow</h3>
+                    <p className="text-gray-600">Follow these steps to implement your SaaS solution</p>
+                  </div>
+                  
+                  <div className="mb-8">
+                    <Stepper activeStep={implementationStep}>
+                      <Step label="Database Setup" description="Create your database schema" />
+                      <Step label="Deploy Frontend" description="Set up the user interface" />
+                      <Step label="Configure Automations" description="Set up background tasks" />
+                      <Step label="Test and Launch" description="Final verification" />
+                    </Stepper>
+                  </div>
+                  
+                  <div className="mt-8 space-y-6">
+                    {implementationStep === 0 && (
+                      <DatabaseExecutor databaseSolution={solution.database_solution} />
+                    )}
+                    
+                    {implementationStep === 1 && (
+                      <DeploymentOptions 
+                        solutionId={solution.id}
+                        uiSolution={solution.ui_solution}
+                      />
+                    )}
+                    
+                    {implementationStep === 2 && (
+                      <AutomationWizard automationSolution={solution.automation_solution} />
+                    )}
+                    
+                    {implementationStep === 3 && (
+                      <div className="text-center py-12">
+                        <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-green-100 mb-6">
+                          <svg className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <h2 className="text-2xl font-bold mb-2">Ready to Launch!</h2>
+                        <p className="text-gray-600 mb-6">
+                          Your SaaS solution has been successfully implemented and is ready to use.
+                        </p>
+                        <Button className="bg-brand-600 hover:bg-brand-700">
+                          Launch Your Solution
+                        </Button>
+                      </div>
+                    )}
+                    
+                    <div className="flex justify-between pt-4">
+                      <Button
+                        variant="outline"
+                        onClick={() => setImplementationStep((prev) => Math.max(0, prev - 1))}
+                        disabled={implementationStep === 0}
+                      >
+                        Previous Step
+                      </Button>
+                      
+                      <Button 
+                        onClick={() => {
+                          if (implementationStep < 3) {
+                            setImplementationStep((prev) => prev + 1);
+                          } else {
+                            // Completed all steps
+                            toast({
+                              title: "Implementation Complete",
+                              description: "Your solution is now fully implemented!"
+                            });
+                          }
+                        }}
+                        disabled={implementationStep === 3}
+                        className="bg-brand-600 hover:bg-brand-700"
+                      >
+                        {implementationStep === 3 ? 'Complete' : 'Next Step'}
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </TabsContent>

@@ -7,10 +7,11 @@ interface StepProps extends React.HTMLAttributes<HTMLDivElement> {
   label: string;
   description?: string;
   status?: "incomplete" | "current" | "complete";
+  index?: number;
 }
 
 const Step = React.forwardRef<HTMLDivElement, StepProps>(
-  ({ label, description, status = "incomplete", className, ...props }, ref) => {
+  ({ label, description, status = "incomplete", className, index, ...props }, ref) => {
     return (
       <div
         ref={ref}
@@ -30,7 +31,7 @@ const Step = React.forwardRef<HTMLDivElement, StepProps>(
           {status === "complete" ? (
             <CheckCircle2 className="h-5 w-5" />
           ) : (
-            <span className="text-sm"></span>
+            <span className="text-sm">{index !== undefined ? index + 1 : ''}</span>
           )}
         </div>
         <div className="mt-2">
@@ -97,9 +98,10 @@ const Stepper = ({
         if (!React.isValidElement(step)) return null;
         
         // Create a new props object that includes valid StepProps
-        const stepProps = {
+        const stepProps: StepProps = {
           ...step.props,
           status,
+          index,
           key: index,
         };
         
