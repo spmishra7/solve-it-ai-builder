@@ -1,6 +1,7 @@
+
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Lightbulb, Wrench } from "lucide-react";
 
 const HeroSection = () => {
   const handleGetStarted = () => {
@@ -67,46 +68,14 @@ const HeroSection = () => {
     }),
   };
 
-  const customSolutions = "Custom SaaS Solution".split("");
-
   return (
-    <div className="relative pt-24 pb-16 overflow-hidden" id="hero">
-      {/* Animated gradient background */}
-      <div className="absolute inset-0 -z-10 animated-gradient opacity-70"></div>
+    <div className="relative pt-24 pb-16 overflow-hidden min-h-[90vh] flex items-center" id="hero">
+      {/* Black center with colored edges background */}
+      <div className="hero-background"></div>
+      <div className="hero-nebula-blue"></div>
+      <div className="hero-nebula-red"></div>
       
-      {/* Animated circles */}
-      <div className="absolute inset-0 -z-5">
-        <motion.div 
-          className="absolute w-64 h-64 rounded-full bg-brand-600/10 blur-3xl"
-          initial={{ x: -100, y: -100 }}
-          animate={{ 
-            x: [-100, 50, -80], 
-            y: [-100, 200, -50], 
-            opacity: [0.5, 0.7, 0.5] 
-          }}
-          transition={{ 
-            duration: 15, 
-            repeat: Infinity, 
-            repeatType: "reverse" 
-          }}
-        />
-        <motion.div 
-          className="absolute right-0 w-96 h-96 rounded-full bg-accent/10 blur-3xl"
-          initial={{ x: 100, y: 100 }}
-          animate={{ 
-            x: [100, -50, 80], 
-            y: [100, -200, 50], 
-            opacity: [0.3, 0.5, 0.3] 
-          }}
-          transition={{ 
-            duration: 20, 
-            repeat: Infinity, 
-            repeatType: "reverse" 
-          }}
-        />
-      </div>
-      
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 z-10">
         <div className="flex flex-col items-center text-center">
           <motion.div 
             className="mb-6"
@@ -121,12 +90,12 @@ const HeroSection = () => {
             <img 
               src="/lovable-uploads/b8bd828d-1db2-4ecf-ad16-701fd9844c9e.png" 
               alt="DrSolveIt Logo" 
-              className="h-16 md:h-20 w-auto glow-effect"
+              className="h-16 md:h-20 w-auto"
             />
           </motion.div>
           
           <motion.span 
-            className="inline-block bg-brand-100 text-accent text-xs font-medium rounded-full px-3 py-1 mb-6"
+            className="inline-block text-[#1EAEDB] text-xs font-medium rounded-full px-3 py-1 mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -134,115 +103,92 @@ const HeroSection = () => {
             AI-POWERED SAAS PLATFORM
           </motion.span>
           
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 max-w-4xl leading-tight">
-            Describe Your Business Problem. Get a{" "}
-            <span className="gradient-text inline-block">
-              {customSolutions.map((letter, index) => (
-                <motion.span
-                  key={index}
-                  custom={index}
-                  variants={letterVariants}
-                  initial="hidden"
-                  animate="visible"
-                  className="inline-block"
-                >
-                  {letter === " " ? <span>&nbsp;</span> : letter}
-                </motion.span>
-              ))}
-            </span>
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.5 }}
-              className="inline-block"
-            >
-              .
-            </motion.span>
-          </h1>
+          <motion.h1 
+            className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 max-w-4xl leading-tight hero-text text-white"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            Solve Your Business Problems with AI.
+          </motion.h1>
           
           <motion.p 
-            className="text-muted-foreground text-xl max-w-2xl mb-8"
+            className="text-white text-xl max-w-2xl mb-8 hero-text"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
           >
-            Build custom tools and automation for your business needs with AI in minutes, not months. No coding required.
+            Tell us what you need. We'll build your custom SaaS solution - instantly.
           </motion.p>
           
           <motion.div 
             className="flex flex-col sm:flex-row gap-4 mb-12"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9 }}
+            transition={{ delay: 0.8 }}
           >
             <Button 
-              className="bg-brand-600 hover:bg-brand-700 text-lg py-6 px-8 glow-effect group w-full sm:w-auto"
+              className="get-started-button text-lg py-6 px-8 group flex items-center gap-2 w-full sm:w-auto"
               onClick={handleGetStarted}
-              type="button"
             >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+              </svg>
               Get Started
-              <motion.div
-                className="inline-block"
-                animate={{ x: [0, 5, 0] }}
-                transition={{ 
-                  duration: 1, 
-                  repeat: Infinity, 
-                  repeatType: "loop"
-                }}
-              >
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </motion.div>
             </Button>
             <Button 
               variant="outline" 
-              className="text-lg py-6 px-8 border-accent hover:bg-accent/10 w-full sm:w-auto"
+              className="demo-button text-lg py-6 px-8 w-full sm:w-auto"
               onClick={handleViewDemo}
-              type="button"
             >
               View Demo
             </Button>
           </motion.div>
           
           <motion.div 
-            className="flex items-center justify-center space-x-6"
+            className="flex items-center justify-center space-x-4 text-white"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
+            transition={{ delay: 1.0 }}
           >
             <div className="flex -space-x-2">
-              {['JD', 'SM', 'RJ', 'KT'].map((initials, i) => (
+              {['JD', 'SM', 'RJ'].map((initials, i) => (
                 <motion.div 
                   key={initials}
-                  className="w-8 h-8 rounded-full bg-card border-2 border-accent flex items-center justify-center text-xs"
+                  className="user-avatar"
                   initial={{ x: -10, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: 1.2 + (i * 0.1) }}
+                  transition={{ delay: 1.0 + (i * 0.1) }}
                 >
                   {initials}
                 </motion.div>
               ))}
             </div>
-            <p className="text-muted-foreground text-sm">
-              <span className="font-bold text-foreground">1,000+</span> businesses already using DrSolveIt
+            <p className="text-white text-sm">
+              <span className="font-bold">Trusted by 1,000+ Businesses</span>
             </p>
           </motion.div>
+          
+          <motion.div 
+            className="mt-16 space-y-4 text-white text-left max-w-3xl mx-auto"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.2 }}
+          >
+            <div className="flex items-start gap-3">
+              <Wrench className="h-6 w-6 text-[#1EAEDB] flex-shrink-0 mt-1" />
+              <p className="hero-text">
+                Automate tasks, create tools, and streamline operations in minutes, not months.
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <Lightbulb className="h-6 w-6 text-[#1EAEDB] flex-shrink-0 mt-1" />
+              <p className="hero-text">
+                No coding needed. Just describe your problem.
+              </p>
+            </div>
+          </motion.div>
         </div>
-        
-        <motion.div 
-          className="mt-16 relative"
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 1.5, type: "spring", stiffness: 50 }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10"></div>
-          <div className="rounded-lg border shadow-lg overflow-hidden glass card-shadow">
-            <img 
-              src="https://placehold.co/1200x600/0A192F/1EAEDB?text=DrSolveIt+AI+Dashboard" 
-              alt="DrSolveIt Dashboard Preview" 
-              className="w-full object-cover"
-            />
-          </div>
-        </motion.div>
       </div>
     </div>
   );
