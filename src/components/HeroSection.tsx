@@ -146,7 +146,7 @@ const HeroSection = () => {
           </motion.div>
           
           <motion.div 
-            className="flex items-center justify-center space-x-4 text-white"
+            className="flex flex-col md:flex-row items-center justify-center space-y-3 md:space-y-0 md:space-x-4 text-white"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.0 }}
