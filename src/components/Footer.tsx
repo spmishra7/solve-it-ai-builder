@@ -7,7 +7,14 @@ const Footer = () => {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
-            <h3 className="text-lg font-bold gradient-text">DrSolveIt</h3>
+            <div className="flex items-center gap-2">
+              <img 
+                src="/lovable-uploads/b8bd828d-1db2-4ecf-ad16-701fd9844c9e.png" 
+                alt="DrSolveIt Logo" 
+                className="h-8 w-auto"
+              />
+              <h3 className="text-lg font-bold gradient-text">DrSolveIt</h3>
+            </div>
             <p className="text-gray-600 text-sm">
               Build custom SaaS solutions with AI in minutes, not months.
             </p>

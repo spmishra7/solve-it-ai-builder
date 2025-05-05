@@ -6,6 +6,14 @@ const HeroSection = () => {
     <div className="relative bg-white pt-24 pb-16">
       <div className="container mx-auto px-4">
         <div className="flex flex-col items-center text-center">
+          <div className="mb-6">
+            <img 
+              src="/lovable-uploads/b8bd828d-1db2-4ecf-ad16-701fd9844c9e.png" 
+              alt="DrSolveIt Logo" 
+              className="h-16 md:h-20 w-auto"
+            />
+          </div>
+          
           <span className="inline-block bg-brand-100 text-brand-800 text-xs font-medium rounded-full px-3 py-1 mb-6">
             AI-POWERED SAAS PLATFORM
           </span>

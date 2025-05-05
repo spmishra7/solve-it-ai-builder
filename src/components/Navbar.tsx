@@ -27,8 +27,13 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center">
-            <Link to="/" className="font-bold text-xl text-gray-800">
-              DrSolveIt
+            <Link to="/" className="font-bold text-xl text-gray-800 flex items-center gap-2">
+              <img 
+                src="/lovable-uploads/b8bd828d-1db2-4ecf-ad16-701fd9844c9e.png" 
+                alt="DrSolveIt Logo" 
+                className="h-8 w-auto"
+              />
+              <span className="gradient-text">DrSolveIt</span>
             </Link>
           </div>
           

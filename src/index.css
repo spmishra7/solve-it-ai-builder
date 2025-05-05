@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
@@ -15,7 +16,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 252 86% 59%;
+    --primary: 189 94% 43%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -47,7 +48,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 252 86% 59%;
+    --primary: 189 94% 43%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -80,5 +81,31 @@
 }
 
 .gradient-text {
-  @apply bg-clip-text text-transparent bg-hero-gradient;
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-[#1EAEDB] to-[#30D5F2];
+}
+
+/* Add new brand color to match the logo */
+.bg-brand-600 {
+  background-color: #1EAEDB;
+}
+
+.hover\:bg-brand-700:hover {
+  background-color: #159ac2;
+}
+
+.text-brand-600 {
+  color: #1EAEDB;
+}
+
+.bg-brand-100 {
+  background-color: rgba(30, 174, 219, 0.1);
+}
+
+.text-brand-800 {
+  color: #1583a3;
+}
+
+/* Dark blue background similar to logo background */
+.bg-brand-dark {
+  background-color: #0A192F;
 }
