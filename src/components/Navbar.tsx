@@ -1,122 +1,76 @@
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Button } from "@/components/ui/button";
-import { Menu, X, Settings } from "lucide-react";
+const Navbar: React.FC = () => {
+  const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
 
-const Navbar = () => {
-  const { user, signOut } = useAuth();
-  const isMobile = useIsMobile();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  // Scroll to features section if on home page
+  const handleFeaturesClick = (e: React.MouseEvent) => {
+    if (location.pathname === '/') {
+      e.preventDefault();
+      const section = document.getElementById('features-section');
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+        setMenuOpen(false);
+      }
+    }
   };
 
   return (
-    <header className="sticky top-0 bg-white border-b border-gray-200 z-30">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
-          <Link to="/" className="flex items-center space-x-2">
-            <img 
-              src="/lovable-uploads/479729cb-d2dd-4061-a516-fed53c310b4c.png" 
-              alt="AIExperts Logo" 
-              className="h-8 w-8" 
-            />
-            <span className="text-xl font-bold text-gray-900">AIExperts</span>
-          </Link>
-
-          {isMobile ? (
-            <>
-              <button
-                onClick={toggleMenu}
-                className="p-2 rounded-md text-gray-500 hover:text-gray-700"
-              >
-                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
-              
-              {isMenuOpen && (
-                <div className="absolute top-16 left-0 right-0 bg-white border-b border-gray-200 py-4 px-4 shadow-lg">
-                  <nav className="flex flex-col space-y-4">
-                    <Link
-                      to="/"
-                      className="text-gray-600 hover:text-gray-900"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Home
-                    </Link>
-                    <Link
-                      to="/model-manager"
-                      className="text-gray-600 hover:text-gray-900 flex items-center"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      <Settings className="mr-1 h-4 w-4" />
-                      Models
-                    </Link>
-                    {user ? (
-                      <>
-                        <Link
-                          to="/my-solutions"
-                          className="text-gray-600 hover:text-gray-900"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          My Solutions
-                        </Link>
-                        <Button variant="ghost" onClick={() => { signOut(); setIsMenuOpen(false); }}>
-                          Sign Out
-                        </Button>
-                      </>
-                    ) : (
-                      <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
-                        <Button className="bg-[#00B5D8] text-white hover:bg-[#00A3C4]">Sign In</Button>
-                      </Link>
-                    )}
-                  </nav>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="flex items-center space-x-6">
-              <nav className="flex items-center space-x-6">
-                <Link
-                  to="/"
-                  className="text-gray-600 hover:text-gray-900"
-                >
-                  Home
-                </Link>
-                <Link
-                  to="/model-manager"
-                  className="text-gray-600 hover:text-gray-900 flex items-center"
-                >
-                  <Settings className="mr-1 h-4 w-4" />
-                  Models
-                </Link>
-                {user && (
-                  <Link
-                    to="/my-solutions"
-                    className="text-gray-600 hover:text-gray-900"
-                  >
-                    My Solutions
-                  </Link>
-                )}
-              </nav>
-              
-              {user ? (
-                <Button variant="ghost" onClick={signOut}>
-                  Sign Out
-                </Button>
-              ) : (
-                <Link to="/auth">
-                  <Button className="bg-[#00B5D8] text-white hover:bg-[#00A3C4]">Sign In</Button>
-                </Link>
-              )}
-            </div>
-          )}
+    <nav className="sticky top-0 z-30 bg-[#0a1837]/90 backdrop-blur border-b border-blue-900 shadow-sm">
+      <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
+        <Link to="/" className="flex items-center gap-2" onClick={() => setMenuOpen(false)}>
+          <img src="/logo.png" alt="DrSolveIt Logo" className="w-8 h-8" />
+          <span className="font-bold text-xl text-blue-200">DrSolveIt</span>
+        </Link>
+        {/* Desktop Nav */}
+        <div className="hidden md:flex gap-8 items-center">
+          <Link to="/" className="hover:text-cyan-300 transition">Home</Link>
+          <a href="#features-section" onClick={handleFeaturesClick} className="hover:text-cyan-300 transition">Features</a>
+          <Link to="/about" className="hover:text-cyan-300 transition">About</Link>
+          <Link to="/pricing" className="hover:text-cyan-300 transition">Pricing</Link>
+          <Link to="/contact" className="hover:text-cyan-300 transition">Contact</Link>
+          <Link to="/auth" className="ml-4 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-semibold shadow hover:scale-105 transition">Sign In</Link>
+        </div>
+        {/* Mobile Hamburger */}
+        <div className="md:hidden">
+          <button
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            onClick={() => setMenuOpen((v) => !v)}
+            className="text-blue-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 rounded p-2"
+          >
+            {menuOpen ? (
+              // Close (X) icon
+              <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            ) : (
+              // Hamburger icon
+              <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 8h16M4 16h16" /></svg>
+            )}
+          </button>
         </div>
       </div>
-    </header>
+      {/* Mobile Dropdown */}
+      {menuOpen && (
+        <div className="md:hidden bg-[#0a1837]/95 border-b border-blue-900 shadow animate-fade-in-down">
+          <div className="flex flex-col gap-2 px-6 py-4 text-blue-100">
+            <Link to="/" className="py-2 hover:text-cyan-300 transition" onClick={() => setMenuOpen(false)}>Home</Link>
+            <a href="#features-section" className="py-2 hover:text-cyan-300 transition" onClick={handleFeaturesClick}>Features</a>
+            <Link to="/about" className="py-2 hover:text-cyan-300 transition" onClick={() => setMenuOpen(false)}>About</Link>
+            <Link to="/pricing" className="py-2 hover:text-cyan-300 transition" onClick={() => setMenuOpen(false)}>Pricing</Link>
+            <Link to="/contact" className="py-2 hover:text-cyan-300 transition" onClick={() => setMenuOpen(false)}>Contact</Link>
+            <Link to="/auth" className="mt-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-semibold shadow hover:scale-105 transition text-center" onClick={() => setMenuOpen(false)}>Sign In</Link>
+          </div>
+        </div>
+      )}
+      <style>{`
+        @keyframes fade-in-down {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-down { animation: fade-in-down 0.2s ease; }
+      `}</style>
+    </nav>
   );
 };
 

@@ -1,70 +1,82 @@
-
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Suspense, lazy } from "react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import Index from "./pages/Index";
-import ModelManagerSection from "./components/ModelManagerSection";
-import Auth from "./pages/Auth";
-import MySolutions from "./pages/MySolutions";
-import SolutionDetail from "./pages/SolutionDetail";
-import AppPlayground from "./pages/AppPlayground";
-import NotFound from "./pages/NotFound";
+import OfflineModeBanner from "./components/OfflineModeBanner";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
-import AdminDashboard from "./pages/AdminDashboard";
-import OfflineModeBanner from "./components/OfflineModeBanner";
+import ErrorBoundary from "./components/ErrorBoundary";
+import LoadingSpinner from "./components/LoadingSpinner";
+import ScrollToTopButton from "./components/ScrollToTopButton";
+import Pricing from './pages/Pricing';
+
+// Lazy load components
+const Index = lazy(() => import("./pages/Index"));
+const ModelManagerSection = lazy(() => import("./components/ModelManagerSection"));
+const Auth = lazy(() => import("./pages/Auth"));
+const MySolutions = lazy(() => import("./pages/MySolutions"));
+const SolutionDetail = lazy(() => import("./pages/SolutionDetail"));
+const AppPlayground = lazy(() => import("./pages/AppPlayground"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <div className="flex flex-col min-h-screen bg-white">
-          <OfflineModeBanner />
-          <Navbar />
-          <main className="flex-grow">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/model-manager" element={<ModelManagerSection />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route 
-                path="/my-solutions"
-                element={
-                  <ProtectedRoute>
-                    <MySolutions />
-                  </ProtectedRoute>
-                }
-              />
-              <Route 
-                path="/solutions/:id"
-                element={
-                  <ProtectedRoute>
-                    <SolutionDetail />
-                  </ProtectedRoute>
-                }
-              />
-              <Route 
-                path="/playground/:id"
-                element={
-                  <ProtectedRoute>
-                    <AppPlayground />
-                  </ProtectedRoute>
-                }
-              />
-              <Route 
-                path="/admin"
-                element={
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <div className="flex flex-col min-h-screen bg-white">
+            <OfflineModeBanner />
+            <Navbar />
+            <main className="flex-grow">
+              <Suspense fallback={<LoadingSpinner />}>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/model-manager" element={<ModelManagerSection />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route 
+                    path="/my-solutions"
+                    element={
+                      <ProtectedRoute>
+                        <MySolutions />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route 
+                    path="/solutions/:id"
+                    element={
+                      <ProtectedRoute>
+                        <SolutionDetail />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route 
+                    path="/playground/:id"
+                    element={
+                      <ProtectedRoute>
+                        <AppPlayground />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route 
+                    path="/admin"
+                    element={
+                      <ProtectedRoute allowedRoles={['admin']}>
+                        <AdminDashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route path="/pricing" element={<Pricing />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </main>
+            <Footer />
+            <ScrollToTopButton />
+          </div>
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 
