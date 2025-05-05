@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -101,21 +102,33 @@ export default function AppPlayground() {
       // For UI changes, try to append to the body or update styles
       const newUi = applyUiChanges(modifiedUiSolution, changes);
       setModifiedUiSolution(newUi);
-      sonnerToast.success("UI changes applied");
+      toast({
+        title: "UI Changes Applied",
+        description: "Your UI code changes have been applied."
+      });
     } else if (isDbChange && modifiedDbSolution) {
       // For DB changes, append the new SQL
       setModifiedDbSolution(prev => prev + "\n\n-- New changes\n" + changes);
-      sonnerToast.success("Database schema changes applied");
+      toast({
+        title: "Database Changes Applied",
+        description: "Your database schema changes have been applied."
+      });
     } else if (isAutomationChange && modifiedAutomationSolution) {
       // For automation changes, append the new function
       setModifiedAutomationSolution(prev => prev + "\n\n// New automation\n" + changes);
-      sonnerToast.success("Automation workflow changes applied");
+      toast({
+        title: "Automation Changes Applied",
+        description: "Your automation workflow changes have been applied."
+      });
     } else {
       // If we can't determine the type, default to UI changes
       if (modifiedUiSolution) {
         const newUi = applyUiChanges(modifiedUiSolution, changes);
         setModifiedUiSolution(newUi);
-        sonnerToast.success("Changes applied to UI");
+        toast({
+          title: "Changes Applied",
+          description: "Your changes have been applied to the UI."
+        });
       }
     }
   };
