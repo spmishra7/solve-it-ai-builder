@@ -1,15 +1,14 @@
 
-import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2, Sparkles } from "lucide-react";
+import { useSolution } from "@/contexts/SolutionContext";
 
 interface PromptInputProps {
   businessDescription: string;
-  setBusinessDescription: (value: string) => void;
   isGenerating: boolean;
   isImprovingPrompt: boolean;
-  handleImprovePrompt: () => void;
+  handleImprovePrompt: () => Promise<void>;
 }
 
 const examplePrompts = [
@@ -20,11 +19,12 @@ const examplePrompts = [
 
 const PromptInput = ({
   businessDescription,
-  setBusinessDescription,
   isGenerating,
   isImprovingPrompt,
   handleImprovePrompt
 }: PromptInputProps) => {
+  const { setBusinessDescription } = useSolution();
+
   return (
     <div className="mb-2">
       <label htmlFor="business-description" className="block text-sm font-medium text-gray-700 mb-1">
