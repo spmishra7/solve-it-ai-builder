@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -31,18 +30,37 @@ const mockSolutionGeneration = (prompt: string, roles: string[] = []) => {
       // Generate expert insights if roles are selected
       const expertInsights: Record<string, string> = {};
       
+      // Executive Team insights
       if (roles.includes('ceo')) {
         expertInsights.ceo = "This solution offers strong market positioning with potential for scalable growth. Consider implementing a tiered pricing model to capture different market segments.";
+      }
+      
+      if (roles.includes('coo')) {
+        expertInsights.coo = "This implementation can streamline operations by 25-30%. Recommend focusing on automated workflows to reduce manual intervention and enhance productivity.";
       }
       
       if (roles.includes('cfo')) {
         expertInsights.cfo = "Initial development costs will be offset by an estimated 30% reduction in operational expenses. ROI projections indicate profitability within 8-12 months of deployment.";
       }
       
+      if (roles.includes('cto')) {
+        expertInsights.cto = "The proposed architecture is scalable and cloud-native. Consider implementing containerization for easier deployment and scaling, with attention to microservice boundaries.";
+      }
+      
+      // Management insights
       if (roles.includes('product')) {
         expertInsights.product = "Prioritize user onboarding and dashboard customization features for initial release. Consider implementing A/B testing to optimize user engagement metrics.";
       }
       
+      if (roles.includes('marketing')) {
+        expertInsights.marketing = "This solution addresses a growing market need with strong differentiation opportunities. Recommend emphasizing the automation capabilities in marketing materials to attract efficiency-focused buyers.";
+      }
+      
+      if (roles.includes('sales')) {
+        expertInsights.sales = "Pricing should reflect the efficiency gains provided. Consider a base + usage model with incentives for annual commitments. Early adopter discounts could accelerate initial traction.";
+      }
+      
+      // Specialist insights
       if (roles.includes('designer')) {
         expertInsights.designer = "The interface focuses on clarity and ease of use. Consider implementing dark mode and accessibility features to enhance user experience across different contexts.";
       }
@@ -53,6 +71,10 @@ const mockSolutionGeneration = (prompt: string, roles: string[] = []) => {
       
       if (roles.includes('security')) {
         expertInsights.security = "Implementation follows OWASP security guidelines. Regular security audits and data encryption at rest and in transit are recommended.";
+      }
+      
+      if (roles.includes('analyst')) {
+        expertInsights.analyst = "The data model supports comprehensive analytics. Recommend implementing event tracking and establishing key performance indicators for measuring business impact and user engagement.";
       }
       
       // Very simplified mock response based on first word
@@ -669,22 +691,43 @@ schedule.hourly(() => {
 const ExpertInsights = ({ insights }: { insights: Record<string, string> | undefined }) => {
   if (!insights || Object.keys(insights).length === 0) return null;
   
+  // Updated role icons and names mapping
   const roleIcons: Record<string, string> = {
+    // Executive Team
     ceo: "👑",
+    coo: "⚙️",
     cfo: "💰",
+    cto: "💻",
+    
+    // Management
     product: "📊",
+    marketing: "📣",
+    sales: "🤝",
+    
+    // Specialists
     designer: "🎨",
     engineer: "🧰",
-    security: "🔒"
+    security: "🔒",
+    analyst: "📈"
   };
   
   const roleNames: Record<string, string> = {
+    // Executive Team
     ceo: "CEO",
+    coo: "COO",
     cfo: "CFO",
+    cto: "CTO",
+    
+    // Management
     product: "Product Manager",
+    marketing: "Marketing Director",
+    sales: "Sales Director",
+    
+    // Specialists
     designer: "UX Designer",
-    engineer: "Engineer",
-    security: "Security Expert"
+    engineer: "Software Engineer",
+    security: "Security Specialist",
+    analyst: "Data Analyst"
   };
 
   return (
