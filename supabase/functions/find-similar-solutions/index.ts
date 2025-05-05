@@ -22,9 +22,10 @@ serve(async (req) => {
     }
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    const { businessPrompt, userType, selectedTemplate, threshold = 0.65 } = await req.json();
+    const { businessPrompt, userType, selectedTemplate, expertRoles = [], threshold = 0.65 } = await req.json();
     
     console.log(`Finding similar solutions for prompt: "${businessPrompt.substring(0, 50)}..."`);
+    console.log(`Expert roles selected: ${expertRoles.length}`);
     
     // For now, we'll use a simple text-based similarity approach
     // In a production system, we would use vector embeddings for better similarity matching
@@ -32,22 +33,45 @@ serve(async (req) => {
       .from('solutions')
       .select('*')
       .textSearch('business_prompt', businessPrompt.split(' ').filter((w: string) => w.length > 3).join(' & '))
-      .limit(5);
+      .limit(10);
     
     if (error) throw error;
     
     // Calculate a primitive similarity score
     // In a real implementation, this would use proper embeddings and cosine similarity
     const scoredSolutions = solutions.map((solution: any) => {
-      const words1 = new Set(businessPrompt.toLowerCase().split(/\W+/).filter(w => w.length > 3));
-      const words2 = new Set(solution.business_prompt.toLowerCase().split(/\W+/).filter(w => w.length > 3));
+      // Base similarity on business prompt
+      const words1 = new Set(businessPrompt.toLowerCase().split(/\W+/).filter((w: string) => w.length > 3));
+      const words2 = new Set(solution.business_prompt.toLowerCase().split(/\W+/).filter((w: string) => w.length > 3));
       
       let intersection = 0;
       for (const word of words1) {
         if (words2.has(word)) intersection++;
       }
       
-      const similarity = intersection / (words1.size + words2.size - intersection);
+      let similarity = intersection / (words1.size + words2.size - intersection);
+      
+      // Boost score if user type matches
+      if (solution.user_type === userType) {
+        similarity += 0.1;
+      }
+      
+      // Boost score if template matches
+      if (solution.template === selectedTemplate) {
+        similarity += 0.1;
+      }
+      
+      // Boost scores for solutions catering to specific professional roles
+      // This is a simplified approach - would be better with metadata on solutions
+      if (expertRoles.length > 0 && solution.metadata?.expertRoles) {
+        const roleIntersection = expertRoles.filter(role => 
+          solution.metadata.expertRoles.includes(role)
+        ).length;
+        
+        if (roleIntersection > 0) {
+          similarity += 0.05 * (roleIntersection / expertRoles.length);
+        }
+      }
       
       return {
         ...solution,
