@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
-import { Code, Database, AlertCircle, Check, Loader2 } from "lucide-react";
+import { Code, Database, AlertCircle, Check, Loader2, Brain } from "lucide-react";
 
 interface DatabaseExecutorProps {
   databaseSolution: string;
@@ -14,6 +14,7 @@ interface DatabaseExecutorProps {
 const DatabaseExecutor = ({ databaseSolution }: DatabaseExecutorProps) => {
   const [executing, setExecuting] = useState(false);
   const [executed, setExecuted] = useState(false);
+  const [learningInsight, setLearningInsight] = useState<string | null>(null);
   const { toast } = useToast();
   
   const handleExecuteSQL = async () => {
@@ -32,6 +33,24 @@ const DatabaseExecutor = ({ databaseSolution }: DatabaseExecutorProps) => {
         title: "SQL executed successfully",
         description: "Your database schema has been set up in your Supabase project.",
       });
+      
+      // After successful execution, check for learning insights
+      try {
+        const { data: insightData } = await supabase.functions.invoke('get-solution-insights', {
+          body: { 
+            solutionType: "database",
+            solutionContent: databaseSolution
+          },
+        });
+        
+        if (insightData?.insights) {
+          setLearningInsight(insightData.insights);
+        }
+      } catch (insightError) {
+        console.error("Error getting insights:", insightError);
+        // Don't display an error to the user for this optional feature
+      }
+      
     } catch (error: any) {
       console.error("Error executing SQL:", error);
       toast({
@@ -82,6 +101,16 @@ const DatabaseExecutor = ({ databaseSolution }: DatabaseExecutorProps) => {
             <AlertTitle>SQL Executed</AlertTitle>
             <AlertDescription>
               Your database schema has been successfully set up in your Supabase project.
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        {learningInsight && (
+          <Alert className="border-blue-200 bg-blue-50">
+            <Brain className="h-4 w-4 text-blue-600" />
+            <AlertTitle>Learning Insight</AlertTitle>
+            <AlertDescription>
+              {learningInsight}
             </AlertDescription>
           </Alert>
         )}

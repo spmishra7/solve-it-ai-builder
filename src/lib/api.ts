@@ -1,25 +1,47 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { findSimilarSolutions, learnFromSolution, getSolutionInsights } from "./solutionLearning";
 
 // Solution Generation
 export async function generateSolution(
   businessPrompt: string,
   userType: string = "business owner",
   selectedTemplate: string = "standard",
-  modelConfig?: { provider: string; model: string }
+  modelConfig?: { provider: string; model: string },
+  expertRoles: string[] = []
 ) {
   try {
     // Clear any previously stored template prompts
     localStorage.removeItem("selectedTemplatePrompt");
     localStorage.removeItem("selectedTemplateTitle");
 
+    // First check if we have similar solutions
+    const similarSolutions = await findSimilarSolutions({
+      businessPrompt,
+      userType,
+      selectedTemplate
+    });
+
+    // If we have very similar solutions, we can use them as a starting point
+    let priorKnowledge = "";
+    if (similarSolutions.length > 0) {
+      console.log("Found similar solutions:", similarSolutions.length);
+      toast.info(`Found ${similarSolutions.length} similar past solutions to learn from`);
+      
+      // Get insights based on similar solutions
+      priorKnowledge = await getSolutionInsights(businessPrompt);
+    }
+
+    // Call the generate-solution edge function with our prior knowledge
     const { data, error } = await supabase.functions.invoke('generate-solution', {
       body: {
         businessPrompt,
         userType,
         selectedTemplate,
-        modelConfig
+        modelConfig,
+        expertRoles,
+        priorKnowledge
       },
     });
 
@@ -28,6 +50,10 @@ export async function generateSolution(
       toast.error("Failed to generate solution");
       throw error;
     }
+
+    // Learn from this new solution asynchronously
+    // We don't need to await this as it's a background process
+    learnFromSolution(data);
 
     return data;
   } catch (error) {
@@ -65,6 +91,9 @@ export async function saveSolution(solutionData: any) {
       throw error;
     }
 
+    // Learn from this solution after saving
+    learnFromSolution(solutionData);
+    
     toast.success("Solution saved successfully");
   } catch (error) {
     console.error("Error in saveSolution:", error);

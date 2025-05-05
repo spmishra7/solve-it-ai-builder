@@ -18,6 +18,8 @@ interface GenerateSolutionRequest {
     provider: string;
     model: string;
   };
+  expertRoles?: string[];
+  priorKnowledge?: string;
 }
 
 interface LlmProxyRequest {
@@ -36,8 +38,14 @@ serve(async (req) => {
   }
 
   try {
-    const { businessPrompt, userType = "business owner", selectedTemplate = "standard", modelConfig } = 
-      await req.json() as GenerateSolutionRequest;
+    const { 
+      businessPrompt, 
+      userType = "business owner", 
+      selectedTemplate = "standard", 
+      modelConfig,
+      expertRoles = [],
+      priorKnowledge = ""
+    } = await req.json() as GenerateSolutionRequest;
     
     console.log(`Request received: Business prompt: "${businessPrompt.substring(0, 50)}..."`);
     console.log(`User type: ${userType}, Template: ${selectedTemplate}`);
@@ -51,12 +59,17 @@ serve(async (req) => {
     const model = modelConfig?.model || DEFAULT_MODEL;
     
     console.log(`Using LLM provider: ${provider}, model: ${model}`);
+    console.log(`Expert roles selected: ${expertRoles.length}`);
+    
+    if (priorKnowledge) {
+      console.log("Using prior knowledge from similar solutions");
+    }
 
     // Generate solutions using our llm-proxy
     const [uiSolution, dbSolution, automationSolution] = await Promise.all([
-      generateSolutionPart("ui", businessPrompt, userType, selectedTemplate, provider, model),
-      generateSolutionPart("database", businessPrompt, userType, selectedTemplate, provider, model),
-      generateSolutionPart("automation", businessPrompt, userType, selectedTemplate, provider, model)
+      generateSolutionPart("ui", businessPrompt, userType, selectedTemplate, provider, model, expertRoles, priorKnowledge),
+      generateSolutionPart("database", businessPrompt, userType, selectedTemplate, provider, model, expertRoles, priorKnowledge),
+      generateSolutionPart("automation", businessPrompt, userType, selectedTemplate, provider, model, expertRoles, priorKnowledge)
     ]);
 
     // Create title from business prompt or use template name if it's one of our predefined templates
@@ -91,7 +104,9 @@ async function generateSolutionPart(
   userType: string,
   template: string,
   provider: string,
-  model: string
+  model: string,
+  expertRoles: string[] = [],
+  priorKnowledge: string = ""
 ): Promise<string> {
   const systemPrompts = {
     ui: "You are an expert UI/UX designer. Create a detailed UI solution for the following business need:",
@@ -105,11 +120,24 @@ async function generateSolutionPart(
     automation: "Please create detailed automation workflows for this business need. Include process flows, trigger events, conditional logic, and any external integrations needed. Focus on efficiency and error handling."
   };
 
+  // Add expert roles context if any are selected
+  let expertContext = "";
+  if (expertRoles.length > 0) {
+    expertContext = `\nConsider the following expert perspectives in your solution:\n${expertRoles.join(", ")}\n`;
+  }
+
+  // Add prior knowledge if available
+  let priorKnowledgeContext = "";
+  if (priorKnowledge) {
+    priorKnowledgeContext = `\nInsights from similar past solutions:\n${priorKnowledge}\n`;
+  }
+
   const prompt = `
 Business Prompt: ${businessPrompt}
 User Type: ${userType}
 Template: ${template}
-
+${expertContext}
+${priorKnowledgeContext}
 ${solutionPrompts[solutionType]}
 `;
 
