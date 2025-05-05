@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export interface TemplateProps {
   title: string;
@@ -14,11 +15,18 @@ export interface TemplateProps {
 
 const TemplateCard = ({ title, description, icon, category, businessPrompt }: TemplateProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleUseTemplate = () => {
     // Store the template prompt in localStorage to be picked up by SolutionGenerator
     localStorage.setItem("selectedTemplatePrompt", businessPrompt);
     localStorage.setItem("selectedTemplateTitle", title);
+    
+    // Show a toast to confirm template selection
+    toast({
+      title: "Template Selected",
+      description: `"${title}" template is ready to use.`
+    });
     
     // Navigate to the solution generator section
     navigate("/#solution-generator");
@@ -27,7 +35,7 @@ const TemplateCard = ({ title, description, icon, category, businessPrompt }: Te
     setTimeout(() => {
       const element = document.getElementById("solution-generator");
       if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     }, 100);
   };

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import RoleCategoryList from "./RoleCategoryList";
 import { roleCategories } from "./roleData";
 import RoleSelectorHeader from "./RoleSelectorHeader";
@@ -10,7 +10,14 @@ interface ExpertRoleSelectorProps {
 }
 
 const ExpertRoleSelector = ({ selectedRoles, onRoleToggle }: ExpertRoleSelectorProps) => {
-  const [expandedCategories, setExpandedCategories] = useState<string[]>([roleCategories[0].id]);
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
+  
+  // Set the first category expanded by default on component mount
+  useEffect(() => {
+    if (roleCategories.length > 0 && expandedCategories.length === 0) {
+      setExpandedCategories([roleCategories[0].id]);
+    }
+  }, [expandedCategories]);
   
   // Get all role IDs across all categories
   const allRoles = roleCategories.flatMap(category => category.roles.map(role => role.id));
@@ -43,7 +50,7 @@ const ExpertRoleSelector = ({ selectedRoles, onRoleToggle }: ExpertRoleSelectorP
   };
   
   return (
-    <div className="space-y-3 rounded-lg bg-gradient-to-br from-accent to-brand-600/80 p-4 border border-accent/10">
+    <div className="space-y-3 rounded-lg bg-gradient-to-br from-brand-600/30 to-brand-800/60 p-4 border border-brand-600/30 shadow-inner">
       <RoleSelectorHeader 
         allSelected={allSelected}
         onSelectAll={handleSelectAll}

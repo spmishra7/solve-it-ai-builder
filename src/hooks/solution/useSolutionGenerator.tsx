@@ -7,6 +7,8 @@ import { useContentAnalyzer } from "./useContentAnalyzer";
 import { useProgressTracking } from "./useProgressTracking";
 import { usePromptImprover } from "./usePromptImprover";
 import { useSolutionSaver } from "./useSolutionSaver";
+import { roleCategories } from "@/components/expert-roles/roleData";
+import { useEffect } from "react";
 
 export const useSolutionGenerator = () => {
   const {
@@ -15,7 +17,8 @@ export const useSolutionGenerator = () => {
     setSolution,
     setSolutionTitle,
     setIsGenerating,
-    selectedRoles
+    selectedRoles,
+    setRoleNames
   } = useSolution();
   
   const { toast } = useToast();
@@ -24,6 +27,17 @@ export const useSolutionGenerator = () => {
   const { handleContentAnalyzed } = useContentAnalyzer();
   const { handleImprovePrompt } = usePromptImprover();
   const { handleSave } = useSolutionSaver();
+
+  // Build a mapping of role IDs to role names for expert insights
+  useEffect(() => {
+    const roleNameMapping: Record<string, string> = {};
+    roleCategories.forEach(category => {
+      category.roles.forEach(role => {
+        roleNameMapping[role.id] = role.name;
+      });
+    });
+    setRoleNames(roleNameMapping);
+  }, [setRoleNames]);
 
   const handleGenerate = async () => {
     if (!businessDescription.trim()) {
@@ -39,7 +53,7 @@ export const useSolutionGenerator = () => {
     setProgress(10);
 
     try {
-      // Show toast for selected roles
+      // Show toast for selected roles with the count
       if (selectedRoles.length > 0) {
         toast({
           title: `Including ${selectedRoles.length} expert perspective${selectedRoles.length === 1 ? '' : 's'}`,
@@ -73,11 +87,11 @@ export const useSolutionGenerator = () => {
         description: "Your SaaS solution is ready."
       });
       
-      // Scroll to the solution
+      // Scroll to the solution - using improved scrolling with ID
       setTimeout(() => {
         const solutionElement = document.querySelector("#solution-preview");
         if (solutionElement) {
-          solutionElement.scrollIntoView({ behavior: "smooth" });
+          solutionElement.scrollIntoView({ behavior: "smooth", block: "start" });
         }
       }, 300);
     } catch (error) {

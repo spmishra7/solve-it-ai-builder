@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useSolution } from "@/contexts/SolutionContext";
@@ -8,6 +8,7 @@ import PromptInput from "./PromptInput";
 import ExpertRoleSelector from "@/components/ExpertRoleSelector";
 import ContentUploader from "./ContentUploader";
 import GenerateButton from "./GenerateButton";
+import { useToast } from "@/hooks/use-toast";
 
 interface SolutionInputFormProps {
   handleImprovePrompt: () => Promise<void>;
@@ -25,12 +26,35 @@ const SolutionInputForm = ({
   const [showUploader, setShowUploader] = useState(false);
   const { 
     businessDescription, 
+    setBusinessDescription,
     isGenerating, 
     isImprovingPrompt,
     progress,
     selectedRoles,
     contentInsights
   } = useSolution();
+  const { toast } = useToast();
+
+  // Check for template prompt in localStorage on component mount
+  useEffect(() => {
+    const templatePrompt = localStorage.getItem("selectedTemplatePrompt");
+    const templateTitle = localStorage.getItem("selectedTemplateTitle");
+    
+    if (templatePrompt && !businessDescription) {
+      setBusinessDescription(templatePrompt);
+      
+      if (templateTitle) {
+        toast({
+          title: "Template Loaded",
+          description: `"${templateTitle}" template has been loaded.`
+        });
+      }
+      
+      // Clear localStorage to prevent unintended reuse
+      localStorage.removeItem("selectedTemplatePrompt");
+      localStorage.removeItem("selectedTemplateTitle");
+    }
+  }, [setBusinessDescription, businessDescription, toast]);
 
   const toggleUploader = () => {
     setShowUploader(prev => !prev);
