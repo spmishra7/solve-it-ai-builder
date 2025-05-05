@@ -1,16 +1,14 @@
-
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import AppPreviewFrame from "@/components/playground/AppPreviewFrame";
 import PlaygroundChat from "@/components/playground/PlaygroundChat";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2, Save, Download } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { toast as sonnerToast } from "sonner";
 
 interface Solution {
   id: string;
@@ -31,10 +29,19 @@ export default function AppPlayground() {
   const [changeHistory, setChangeHistory] = useState<string[]>([]);
   const { session } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   useEffect(() => {
     const fetchSolution = async () => {
-      if (!id) return;
+      if (!id || id === ':id') {
+        toast({
+          title: "Invalid Solution ID",
+          description: "Unable to find the requested solution.",
+          variant: "destructive"
+        });
+        navigate('/my-solutions');
+        return;
+      }
       
       try {
         const { data, error } = await supabase
@@ -50,20 +57,25 @@ export default function AppPlayground() {
         setModifiedUiSolution(data.ui_solution);
         setModifiedDbSolution(data.database_solution);
         setModifiedAutomationSolution(data.automation_solution);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error fetching solution:", error);
         toast({
           title: "Error",
           description: "Failed to load solution details.",
           variant: "destructive"
         });
+        
+        // Redirect to solutions list if we can't find this solution
+        if (error.code === '22P02' || error.message?.includes('invalid input syntax')) {
+          navigate('/my-solutions');
+        }
       } finally {
         setLoading(false);
       }
     };
     
     fetchSolution();
-  }, [id, toast]);
+  }, [id, toast, navigate]);
   
   const handleApplyChanges = (changes: string) => {
     // Determine which part of the solution the changes apply to based on content
