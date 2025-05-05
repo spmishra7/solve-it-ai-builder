@@ -453,8 +453,7 @@ SELECT
     (SELECT COUNT(*) FROM leads WHERE lead_status = 'Hot') AS hot_leads,
     (SELECT COUNT(*) FROM opportunities WHERE stage NOT IN ('Closed Won', 'Closed Lost')) AS open_opportunities,
     (SELECT SUM(amount) FROM opportunities WHERE stage = 'Closed Won') AS total_won_amount,
-    (SELECT COUNT(*) FROM tickets WHERE status != 'Resolved') AS open_tickets;
-`,
+    (SELECT COUNT(*) FROM tickets WHERE status != 'Resolved') AS open_tickets;`,
     automation_solution: `// Lead Scoring Automation
 async function calculateLeadScore(leadId) {
   // Get lead details
@@ -1778,12 +1777,7 @@ async function sendTaskReminders() {
   // Get tasks due today
   const { data: todayTasks, error: todayError } = await supabase
     .from('tasks')
-    .select(`
-      id, 
-      title,
-      due_date,
-      task_assignments(user_id)
-    `)
+    .select("id, title, due_date, task_assignments(user_id)")
     .eq('due_date', today.toISOString().split('T')[0])
     .is('completed_at', null);
     
@@ -1792,12 +1786,7 @@ async function sendTaskReminders() {
   // Get tasks due tomorrow
   const { data: tomorrowTasks, error: tomorrowError } = await supabase
     .from('tasks')
-    .select(`
-      id, 
-      title,
-      due_date,
-      task_assignments(user_id)
-    `)
+    .select("id, title, due_date, task_assignments(user_id)")
     .eq('due_date', tomorrow.toISOString().split('T')[0])
     .is('completed_at', null);
     
@@ -1806,12 +1795,7 @@ async function sendTaskReminders() {
   // Get overdue tasks
   const { data: overdueTasks, error: overdueError } = await supabase
     .from('tasks')
-    .select(`
-      id, 
-      title,
-      due_date,
-      task_assignments(user_id)
-    `)
+    .select("id, title, due_date, task_assignments(user_id)")
     .lt('due_date', today.toISOString().split('T')[0])
     .is('completed_at', null);
     
@@ -1851,11 +1835,7 @@ async function checkTaskDependencies() {
   // Get all tasks with dependencies that aren't completed yet
   const { data: taskDependencies, error } = await supabase
     .from('task_dependencies')
-    .select(`
-      task_id,
-      dependent_task_id,
-      tasks!task_dependencies_task_id_fkey(status_id)
-    `)
+    .select("task_id, dependent_task_id, tasks!task_dependencies_task_id_fkey(status_id)")
     .in('dependency_type', ['blocks', 'is_blocked_by']);
     
   if (error) throw error;
