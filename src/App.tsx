@@ -10,6 +10,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import LoadingSpinner from "./components/LoadingSpinner";
 import ScrollToTopButton from "./components/ScrollToTopButton";
 import Pricing from './pages/Pricing';
+import { Toaster } from "@/components/ui/toaster";
 
 // Lazy load components
 const Index = lazy(() => import("./pages/Index"));
@@ -74,6 +75,7 @@ function App() {
             </main>
             <Footer />
             <ScrollToTopButton />
+            <Toaster />
           </div>
         </AuthProvider>
       </BrowserRouter>
