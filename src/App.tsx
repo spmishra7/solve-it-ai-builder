@@ -12,12 +12,14 @@ import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
 import AdminDashboard from "./pages/AdminDashboard";
+import OfflineModeBanner from "./components/OfflineModeBanner";
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <div className="flex flex-col min-h-screen">
+          <OfflineModeBanner />
           <Navbar />
           <main className="flex-grow">
             <Routes>

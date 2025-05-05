@@ -2,10 +2,9 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
-import { Send, Loader2, Bot, User } from "lucide-react";
+import { Send, Loader2, Bot, User, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { generateWithLLM } from "@/lib/api";
 
@@ -14,12 +13,71 @@ interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  codeSnippet?: string;
+  isApplied?: boolean;
 }
 
 interface PlaygroundChatProps {
   solutionId: string;
   onApplyChanges?: (changes: string) => void;
 }
+
+// Mock responses for offline functionality
+const mockResponses = {
+  uiChanges: [
+    {
+      response: "I can update the header color for you. Here's the code change needed:\n\n```css\nheader {\n  background-color: #3b82f6;\n  color: white;\n}\n```\nThis will make the header blue with white text.",
+      codeSnippet: "header {\n  background-color: #3b82f6;\n  color: white;\n}"
+    },
+    {
+      response: "I can add a new button to the navigation menu. Here's the code:\n\n```html\n<button class=\"btn btn-primary\">New Feature</button>\n```\nThis will add a primary styled button.",
+      codeSnippet: "<button class=\"btn btn-primary\">New Feature</button>"
+    },
+    {
+      response: "Let me create a modal dialog component for you:\n\n```jsx\nfunction Modal({isOpen, onClose, children}) {\n  if (!isOpen) return null;\n  return (\n    <div className=\"modal-overlay\">\n      <div className=\"modal-content\">\n        <button onClick={onClose} className=\"close-btn\">×</button>\n        {children}\n      </div>\n    </div>\n  );\n}\n```\nYou can use this Modal component to display popup content.",
+      codeSnippet: "function Modal({isOpen, onClose, children}) {\n  if (!isOpen) return null;\n  return (\n    <div className=\"modal-overlay\">\n      <div className=\"modal-content\">\n        <button onClick={onClose} className=\"close-btn\">×</button>\n        {children}\n      </div>\n    </div>\n  );\n}"
+    }
+  ],
+  dbChanges: [
+    {
+      response: "I can add a new table for user profiles. Here's the SQL:\n\n```sql\nCREATE TABLE user_profiles (\n  id SERIAL PRIMARY KEY,\n  user_id UUID REFERENCES auth.users(id),\n  display_name VARCHAR(255),\n  bio TEXT,\n  avatar_url VARCHAR(255),\n  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),\n  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()\n);\n```\nThis will create a new table to store user profile information.",
+      codeSnippet: "CREATE TABLE user_profiles (\n  id SERIAL PRIMARY KEY,\n  user_id UUID REFERENCES auth.users(id),\n  display_name VARCHAR(255),\n  bio TEXT,\n  avatar_url VARCHAR(255),\n  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),\n  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()\n);"
+    },
+    {
+      response: "Let me add an index to improve query performance:\n\n```sql\nCREATE INDEX idx_solutions_user_id ON solutions(user_id);\n```\nThis will make queries filtering by user_id much faster.",
+      codeSnippet: "CREATE INDEX idx_solutions_user_id ON solutions(user_id);"
+    }
+  ],
+  automationChanges: [
+    {
+      response: "I can create an automation workflow for sending email notifications:\n\n```javascript\nasync function sendNotificationEmail(userId, eventType) {\n  const user = await getUser(userId);\n  const template = getEmailTemplate(eventType);\n  \n  return await sendEmail({\n    to: user.email,\n    subject: template.subject,\n    body: template.body\n  });\n}\n```\nThis function will send notification emails based on event types.",
+      codeSnippet: "async function sendNotificationEmail(userId, eventType) {\n  const user = await getUser(userId);\n  const template = getEmailTemplate(eventType);\n  \n  return await sendEmail({\n    to: user.email,\n    subject: template.subject,\n    body: template.body\n  });\n}"
+    },
+    {
+      response: "Here's a scheduled task for data cleanup:\n\n```javascript\nfunction scheduleDataCleanup() {\n  return cron('0 0 * * *', async () => {\n    const threshold = new Date();\n    threshold.setDate(threshold.getDate() - 30);\n    \n    await db.from('temp_data')\n      .delete()\n      .lt('created_at', threshold.toISOString());\n    \n    console.log('Cleanup complete: Removed temporary data older than 30 days');\n  });\n}\n```\nThis creates a daily cron job to remove data older than 30 days.",
+      codeSnippet: "function scheduleDataCleanup() {\n  return cron('0 0 * * *', async () => {\n    const threshold = new Date();\n    threshold.setDate(threshold.getDate() - 30);\n    \n    await db.from('temp_data')\n      .delete()\n      .lt('created_at', threshold.toISOString());\n    \n    console.log('Cleanup complete: Removed temporary data older than 30 days');\n  });\n}"
+    }
+  ],
+  general: [
+    "I'm happy to help you modify your app. What specific changes would you like to make?",
+    "Let me know what aspect of your application you'd like to improve. I can help with UI, database, or automation workflows.",
+    "I'd be glad to assist with your app development. Would you like to modify the UI, update the database schema, or enhance your automation workflows?"
+  ]
+};
+
+const getRandomResponse = (category: string, prompt: string) => {
+  // Simple keyword matching for more relevant responses
+  if (prompt.toLowerCase().includes('color') || prompt.toLowerCase().includes('style') || prompt.toLowerCase().includes('ui')) {
+    return mockResponses.uiChanges[Math.floor(Math.random() * mockResponses.uiChanges.length)];
+  } else if (prompt.toLowerCase().includes('table') || prompt.toLowerCase().includes('database') || prompt.toLowerCase().includes('sql')) {
+    return mockResponses.dbChanges[Math.floor(Math.random() * mockResponses.dbChanges.length)];
+  } else if (prompt.toLowerCase().includes('workflow') || prompt.toLowerCase().includes('automation') || prompt.toLowerCase().includes('function')) {
+    return mockResponses.automationChanges[Math.floor(Math.random() * mockResponses.automationChanges.length)];
+  } else {
+    // Default to general responses
+    return { response: mockResponses.general[Math.floor(Math.random() * mockResponses.general.length)] };
+  }
+};
 
 const PlaygroundChat = ({ solutionId, onApplyChanges }: PlaygroundChatProps) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -32,6 +90,7 @@ const PlaygroundChat = ({ solutionId, onApplyChanges }: PlaygroundChatProps) => 
   ]);
   const [input, setInput] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedCodeSnippet, setSelectedCodeSnippet] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -57,28 +116,62 @@ const PlaygroundChat = ({ solutionId, onApplyChanges }: PlaygroundChatProps) => 
     setIsProcessing(true);
 
     try {
-      // Create system prompt for specialized app development assistance
-      const systemPrompt = 
-        "You are an App Development Assistant specialized in helping users modify their SaaS applications. " +
-        "When users request changes, provide specific code suggestions that could implement their requested feature. " +
-        "Focus on both frontend (UI/UX) and backend (database schema, APIs) modifications as needed. " +
-        "Format your response with code examples when appropriate.";
+      // Try to use the real API first
+      let response = "";
+      let codeSnippet = "";
       
-      const response = await generateWithLLM(
-        input,
-        "openai",
-        "gpt-4o-mini",
-        systemPrompt
-      );
+      try {
+        // Create system prompt for specialized app development assistance
+        const systemPrompt = 
+          "You are an App Development Assistant specialized in helping users modify their SaaS applications. " +
+          "When users request changes, provide specific code suggestions that could implement their requested feature. " +
+          "Focus on both frontend (UI/UX) and backend (database schema, APIs) modifications as needed. " +
+          "Format your response with code examples when appropriate.";
+        
+        const apiResponse = await generateWithLLM(
+          input,
+          "openai",
+          "gpt-4o-mini",
+          systemPrompt
+        );
+        
+        if (apiResponse) {
+          response = apiResponse;
+          
+          // Extract code snippet if present (between ``` markers)
+          const codeMatch = response.match(/```(?:html|css|jsx|js|javascript|sql|tsx|typescript)?([\s\S]*?)```/);
+          if (codeMatch && codeMatch[1]) {
+            codeSnippet = codeMatch[1].trim();
+          }
+        }
+      } catch (apiError) {
+        console.log("API error, falling back to mock responses:", apiError);
+        // If API fails, use our mock responses
+        const mockResponse = getRandomResponse("general", input);
+        response = mockResponse.response || "";
+        codeSnippet = mockResponse.codeSnippet || "";
+      }
+      
+      // If we still don't have a response, use mock as fallback
+      if (!response) {
+        const mockResponse = getRandomResponse("general", input);
+        response = mockResponse.response || "I understand what you're asking for. Let me help you implement that change.";
+        codeSnippet = mockResponse.codeSnippet || "";
+      }
       
       const assistantMessage: ChatMessage = {
         id: `assistant-${Date.now()}`,
         role: "assistant",
-        content: response || "Sorry, I couldn't generate a response. Please try again.",
+        content: response,
+        codeSnippet: codeSnippet,
         timestamp: new Date()
       };
       
       setMessages(prev => [...prev, assistantMessage]);
+      
+      if (codeSnippet) {
+        setSelectedCodeSnippet(codeSnippet);
+      }
     } catch (error) {
       console.error("Error generating response:", error);
       toast({
@@ -103,13 +196,23 @@ const PlaygroundChat = ({ solutionId, onApplyChanges }: PlaygroundChatProps) => 
   };
 
   const handleApplyChanges = () => {
-    // Get the latest assistant message with code suggestions
-    const latestAssistantMessage = [...messages]
-      .reverse()
-      .find(msg => msg.role === "assistant");
+    // Find the message with the selected code snippet or use the latest assistant message
+    const messageWithCode = selectedCodeSnippet 
+      ? messages.find(msg => msg.codeSnippet === selectedCodeSnippet)
+      : [...messages].reverse().find(msg => msg.role === "assistant" && msg.codeSnippet);
       
-    if (latestAssistantMessage && onApplyChanges) {
-      onApplyChanges(latestAssistantMessage.content);
+    if (messageWithCode && messageWithCode.codeSnippet && onApplyChanges) {
+      onApplyChanges(messageWithCode.codeSnippet);
+      
+      // Mark this message as applied
+      setMessages(prev => 
+        prev.map(msg => 
+          msg.id === messageWithCode.id 
+            ? { ...msg, isApplied: true } 
+            : msg
+        )
+      );
+      
       toast({
         title: "Changes Applied",
         description: "The suggested changes have been applied to your app."
@@ -117,7 +220,7 @@ const PlaygroundChat = ({ solutionId, onApplyChanges }: PlaygroundChatProps) => 
     } else {
       toast({
         title: "No Changes to Apply",
-        description: "There are no recent suggestions to apply.",
+        description: "There are no code suggestions to apply.",
         variant: "destructive"
       });
     }
@@ -128,6 +231,29 @@ const PlaygroundChat = ({ solutionId, onApplyChanges }: PlaygroundChatProps) => 
       e.preventDefault();
       handleSendMessage();
     }
+  };
+
+  const renderMessageContent = (content: string) => {
+    // Split content by code blocks and render them differently
+    const parts = content.split(/(```[\s\S]*?```)/g);
+    
+    return parts.map((part, index) => {
+      if (part.startsWith('```') && part.endsWith('```')) {
+        const code = part.slice(3, -3).trim();
+        const language = code.split('\n')[0].trim();
+        const codeContent = language.match(/^[a-zA-Z0-9]+$/) 
+          ? code.substring(language.length).trim()
+          : code;
+        
+        return (
+          <div key={index} className="bg-gray-900 text-gray-100 p-3 rounded-md my-2 overflow-x-auto font-mono text-sm">
+            {codeContent}
+          </div>
+        );
+      }
+      
+      return <p key={index} className="whitespace-pre-wrap">{part}</p>;
+    });
   };
 
   return (
@@ -148,25 +274,39 @@ const PlaygroundChat = ({ solutionId, onApplyChanges }: PlaygroundChatProps) => 
                 className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div className={`flex gap-3 max-w-[80%] ${message.role === "user" ? "flex-row-reverse" : ""}`}>
-                  <Avatar className={message.role === "assistant" ? "bg-brand-100 border border-brand-300" : "bg-gray-100"}>
+                  <div className={`h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    message.role === "assistant" ? "bg-brand-100 border border-brand-300" : "bg-gray-100"
+                  }`}>
                     {message.role === "assistant" ? (
                       <Bot className="h-5 w-5 text-brand-600" />
                     ) : (
                       <User className="h-5 w-5 text-gray-600" />
                     )}
-                  </Avatar>
+                  </div>
                   
                   <div className={`rounded-lg p-3 ${
                     message.role === "assistant" 
                       ? "bg-white border border-gray-200" 
                       : "bg-brand-600 text-white"
                   }`}>
-                    <p className="whitespace-pre-wrap">{message.content}</p>
-                    <p className={`text-xs mt-1 ${
+                    <div>
+                      {renderMessageContent(message.content)}
+                    </div>
+                    
+                    <div className={`flex items-center justify-between mt-2 ${
                       message.role === "assistant" ? "text-gray-500" : "text-brand-200"
                     }`}>
-                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
+                      <span className="text-xs">
+                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                      
+                      {message.isApplied && message.role === "assistant" && (
+                        <span className="text-xs flex items-center text-green-600">
+                          <Check size={12} className="mr-1" />
+                          Applied
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

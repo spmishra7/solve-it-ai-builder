@@ -3,8 +3,9 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RefreshCcw, Smartphone, Tablet, Monitor, Code } from "lucide-react";
+import { RefreshCcw, Smartphone, Tablet, Monitor, Code, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import SchemaValidator from "./SchemaValidator";
 
 interface AppPreviewFrameProps {
   solutionId: string;
@@ -22,6 +23,7 @@ const AppPreviewFrame = ({
   const [viewMode, setViewMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<"preview" | "code">("preview");
+  const [codeTab, setCodeTab] = useState<"ui" | "database" | "automation">("ui");
   const { toast } = useToast();
 
   // Handle refresh of the preview
@@ -42,6 +44,46 @@ const AppPreviewFrame = ({
       default:
         return "w-full h-[600px]";
     }
+  };
+
+  // Handle downloading the current view as a file
+  const handleDownload = () => {
+    let filename = "";
+    let content = "";
+    let type = "";
+
+    switch (codeTab) {
+      case "ui":
+        filename = `ui-solution-${solutionId}.html`;
+        content = uiSolution;
+        type = "text/html";
+        break;
+      case "database":
+        filename = `database-schema-${solutionId}.sql`;
+        content = databaseSolution || "";
+        type = "text/plain";
+        break;
+      case "automation":
+        filename = `automation-workflow-${solutionId}.js`;
+        content = automationSolution || "";
+        type = "text/javascript";
+        break;
+    }
+
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Download Complete",
+      description: `${filename} has been downloaded.`
+    });
   };
 
   return (
@@ -104,7 +146,7 @@ const AppPreviewFrame = ({
               <iframe
                 srcDoc={uiSolution}
                 className="w-full h-full border-0"
-                sandbox="allow-scripts"
+                sandbox="allow-scripts allow-forms"
                 title="App Preview"
               />
             )}
@@ -112,31 +154,43 @@ const AppPreviewFrame = ({
         </TabsContent>
         
         <TabsContent value="code" className="m-0 p-4">
-          <Tabs defaultValue="ui">
-            <TabsList className="mb-4">
-              <TabsTrigger value="ui">UI</TabsTrigger>
-              <TabsTrigger value="database">Database</TabsTrigger>
-              <TabsTrigger value="automation">Automation</TabsTrigger>
-            </TabsList>
+          <div className="flex justify-between items-center mb-4">
+            <Tabs defaultValue="ui" value={codeTab} onValueChange={(value) => setCodeTab(value as any)}>
+              <TabsList className="mb-4">
+                <TabsTrigger value="ui">UI</TabsTrigger>
+                <TabsTrigger value="database">Database</TabsTrigger>
+                <TabsTrigger value="automation">Automation</TabsTrigger>
+              </TabsList>
+            </Tabs>
             
-            <TabsContent value="ui" className="mt-0">
-              <div className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-auto max-h-[500px] font-mono text-sm">
-                <pre>{uiSolution}</pre>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="database" className="mt-0">
-              <div className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-auto max-h-[500px] font-mono text-sm">
+            <Button variant="outline" size="sm" onClick={handleDownload} className="flex items-center gap-1">
+              <Download size={16} /> Download
+            </Button>
+          </div>
+          
+          <TabsContent value="ui" className="mt-0">
+            <div className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-auto max-h-[500px] font-mono text-sm">
+              <pre>{uiSolution}</pre>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="database" className="mt-0">
+            <div className="space-y-4">
+              <div className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-auto max-h-[350px] font-mono text-sm">
                 <pre>{databaseSolution || "No database solution available"}</pre>
               </div>
-            </TabsContent>
-            
-            <TabsContent value="automation" className="mt-0">
-              <div className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-auto max-h-[500px] font-mono text-sm">
-                <pre>{automationSolution || "No automation solution available"}</pre>
-              </div>
-            </TabsContent>
-          </Tabs>
+              
+              {databaseSolution && (
+                <SchemaValidator schema={databaseSolution} />
+              )}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="automation" className="mt-0">
+            <div className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-auto max-h-[500px] font-mono text-sm">
+              <pre>{automationSolution || "No automation solution available"}</pre>
+            </div>
+          </TabsContent>
         </TabsContent>
       </CardContent>
     </Card>
