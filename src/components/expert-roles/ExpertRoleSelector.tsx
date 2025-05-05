@@ -50,7 +50,7 @@ const ExpertRoleSelector = ({ selectedRoles, onRoleToggle }: ExpertRoleSelectorP
   };
   
   return (
-    <div className="space-y-3 rounded-lg bg-gradient-to-br from-brand-600/30 to-brand-800/60 p-4 border border-brand-600/30 shadow-inner">
+    <div className="space-y-3 rounded-lg bg-gradient-to-br from-accent/90 to-brand-600/80 p-4 border border-brand-600/40 shadow-lg">
       <RoleSelectorHeader 
         allSelected={allSelected}
         onSelectAll={handleSelectAll}

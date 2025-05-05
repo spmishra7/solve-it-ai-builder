@@ -58,11 +58,11 @@ ${solution.automation}
 
   return (
     <motion.div
-      id="solution-preview" /* This ID is important for scrolling */
+      id="solution-preview" 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="scroll-mt-24" /* Increased scroll margin to ensure it's clearly visible when scrolled to */
+      className="scroll-mt-24" 
     >
       <Card className="shadow-lg border-accent/20">
         <CardContent className="p-0">

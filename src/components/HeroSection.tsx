@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
@@ -5,17 +6,29 @@ import { ArrowRight } from "lucide-react";
 const HeroSection = () => {
   const handleGetStarted = () => {
     // Scroll to solution generator section
-    const element = document.getElementById("solution-generator");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    const solutionGeneratorSection = document.getElementById("solution-generator");
+    if (solutionGeneratorSection) {
+      solutionGeneratorSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      // Fallback: scroll to the approximate position
+      window.scrollTo({
+        top: 800,
+        behavior: "smooth"
+      });
     }
   };
 
   const handleViewDemo = () => {
     // Scroll to the templates section which has solution examples
-    const element = document.getElementById("templates");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    const templatesSection = document.getElementById("templates");
+    if (templatesSection) {
+      templatesSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      // Fallback: scroll to the approximate position
+      window.scrollTo({
+        top: 1600,
+        behavior: "smooth"
+      });
     }
   };
 
@@ -140,8 +153,9 @@ const HeroSection = () => {
             transition={{ delay: 0.9 }}
           >
             <Button 
-              className="bg-brand-600 hover:bg-brand-700 text-lg py-6 px-8 glow-effect group"
+              className="bg-brand-600 hover:bg-brand-700 text-lg py-6 px-8 glow-effect group w-full sm:w-auto"
               onClick={handleGetStarted}
+              type="button"
             >
               Get Started
               <motion.div
@@ -158,8 +172,9 @@ const HeroSection = () => {
             </Button>
             <Button 
               variant="outline" 
-              className="text-lg py-6 px-8 border-accent hover:bg-accent/10"
+              className="text-lg py-6 px-8 border-accent hover:bg-accent/10 w-full sm:w-auto"
               onClick={handleViewDemo}
+              type="button"
             >
               View Demo
             </Button>

@@ -59,7 +59,7 @@ const PromptInput = ({
             placeholder="e.g., I need a project management tool for my construction company to track projects, assign tasks, and generate reports."
             value={businessDescription}
             onChange={(e) => setBusinessDescription(e.target.value)}
-            className="min-h-[120px] bg-accent/5 border-accent/20"
+            className="min-h-[120px] bg-white/80 border-accent/20"
             disabled={isGenerating}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
@@ -109,7 +109,7 @@ const PromptInput = ({
             <motion.button
               key={i}
               onClick={() => setBusinessDescription(prompt)}
-              className="text-xs bg-accent/10 hover:bg-accent/20 text-gray-700 px-2 py-1 rounded"
+              className="text-xs bg-brand-100 hover:bg-brand-200 text-brand-800 px-3 py-1.5 rounded-md font-medium shadow-sm"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               initial={{ opacity: 0, y: 10 }}

@@ -19,10 +19,10 @@ const ExpertRole = ({ role, isSelected, onToggle }: ExpertRoleProps) => {
       <Tooltip>
         <TooltipTrigger asChild>
           <div
-            className={`p-3 rounded-lg border cursor-pointer transition-all flex items-start ${
+            className={`p-3 rounded-lg cursor-pointer transition-all flex items-start ${
               isSelected
-                ? "bg-brand-600/10 border-brand-600 shadow-sm"
-                : "border-border hover:border-brand-400 hover:bg-brand-50/50"
+                ? "bg-white/80 border-brand-600 border-2 shadow-md"
+                : "bg-white/60 border border-white/80 hover:border-brand-400 hover:bg-white/70"
             }`}
             onClick={() => onToggle(role.id)}
           >
@@ -31,18 +31,18 @@ const ExpertRole = ({ role, isSelected, onToggle }: ExpertRoleProps) => {
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-medium">{role.name}</h4>
+                <h4 className="text-sm font-medium text-gray-800">{role.name}</h4>
                 {isSelected && (
                   <Check size={14} className="ml-2 text-brand-600" />
                 )}
               </div>
-              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+              <p className="text-xs text-gray-600 mt-1 line-clamp-2">
                 {role.description}
               </p>
             </div>
           </div>
         </TooltipTrigger>
-        <TooltipContent>
+        <TooltipContent className="bg-gray-800 text-white">
           <p className="max-w-xs text-xs">{role.description}</p>
         </TooltipContent>
       </Tooltip>
